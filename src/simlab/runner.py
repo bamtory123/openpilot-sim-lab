@@ -11,6 +11,7 @@ import subprocess
 import sys
 import time
 from uuid import uuid4
+from multiprocessing import Queue
 
 import yaml
 
@@ -108,7 +109,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
 
   sys.path.insert(0, str(openpilot_root))
   from openpilot.tools.sim.bridge.common import QueueMessageType
-  from openpilot.tools.sim.run_bridge import create_bridge
+  from openpilot.tools.sim.bridge.metadrive.metadrive_bridge import MetaDriveBridge
 
   manager_log = (run_dir / "manager.log").open("w")
   pythonpath = os.pathsep.join(filter(None, (str(openpilot_root), os.environ.get("PYTHONPATH"))))
@@ -118,22 +119,26 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   manager = subprocess.Popen(["./launch_openpilot.sh"], cwd=openpilot_root / "openpilot/tools/sim",
                              env={**os.environ, "SIMULATION": "1", "PYTHONPATH": pythonpath, "PATH": path, "BLOCK": blocked},
                              stdout=manager_log, stderr=subprocess.STDOUT, start_new_session=True)
-  queue = process = bridge = None
+  control_queue = status_queue = process = bridge = None
   data, stop_reason = RunData(), None
   deadline = time.monotonic() + scenario.data["run"]["wall_watchdog_s"]
   try:
-    queue, process, bridge = create_bridge(False, False, test_duration=float("inf"), test_run=True, simlab_config=scenario.data)
+    control_queue, status_queue = Queue(), Queue()
+    bridge = MetaDriveBridge(False, False, test_duration=float("inf"), test_run=True, simlab_config=scenario.data)
+    process = bridge.run(control_queue, status_queue=status_queue)
     while time.monotonic() < deadline:
       if process.exitcode is not None:
         stop_reason = "bridge_exit"
         break
-      while not queue.empty():
-        message = queue.get()
+      while not status_queue.empty():
+        message = status_queue.get()
         if message.type == QueueMessageType.TELEMETRY:
           payload = dict(message.info)
           if payload.get("type") == "run_state":
             data.events.append(payload)
             data.measured = data.measured or payload.get("state") == "MEASURE"
+          elif payload.get("type") == "openpilot_state":
+            data.events.append(payload)
           elif payload.get("type") == "camera_frame":
             payload["measurement"] = data.measured
             data.camera.append(payload)
