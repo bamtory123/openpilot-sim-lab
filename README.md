@@ -20,12 +20,12 @@ The fault is applied only after openpilot engagement. After a five-second queue-
 ## Quick start (WSL)
 
 ```bash
-cd /home/hyunsung/src/openpilot-sim-lab
-python -m pip install -e . pytest
+cd /home/hyunsung/src/openpilot
+uv run python -m pip install --no-deps -e ../openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
-python -m simlab.runner preflight
-python -m simlab.runner batch --outputs outputs
-python -m simlab.runner report --outputs outputs
+uv run python -m simlab.runner preflight
+uv run python -m simlab.runner batch --outputs ../openpilot-sim-lab/outputs
+uv run python -m simlab.runner report --outputs ../openpilot-sim-lab/outputs
 ```
 
 The runner rejects dirty repositories by default. Use `--allow-dirty` only during development; dirty state is recorded in `manifest.json`.

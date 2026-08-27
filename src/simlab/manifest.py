@@ -28,9 +28,9 @@ def git_metadata(root: Path) -> dict[str, Any]:
 
 def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot_root: Path, command: list[str]) -> dict[str, Any]:
   try:
-    import metadrive
-    metadrive_version = getattr(metadrive, "__version__", "unknown")
-  except ImportError:
+    from importlib.metadata import version
+    metadrive_version = version("metadrive-simulator")
+  except Exception:
     metadrive_version = "not-installed"
   env = {key: os.environ[key] for key in ("SIMULATION", "SIM_TINYGRAD_DEVICE", "OPENPILOT_ROOT") if key in os.environ}
   return {
