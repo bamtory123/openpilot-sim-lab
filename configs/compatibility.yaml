@@ -1,0 +1,11 @@
+schema_version: 1
+
+openpilot:
+  repository: https://github.com/bamtory123/openpilot
+  base_commit: 084747c75d2cbd23af65ab7a9e770bbd7b98bac9
+  instrumentation_commit: "1a26efe2dd3081aa45d3f9fad652f01f144edd8a"
+
+runtime:
+  python: "3.12"
+  metadrive: "recorded-per-run"
+  metadrive_assets: "recorded-per-run"

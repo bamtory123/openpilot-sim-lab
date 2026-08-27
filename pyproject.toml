@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openpilot-sim-lab"
+version = "0.1.0"
+description = "Reproducible MetaDrive SIL validation and camera transport-delay experiments for openpilot"
+requires-python = ">=3.11"
+dependencies = ["PyYAML>=6.0"]
+
+[project.scripts]
+simlab = "simlab.runner:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/simlab"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,6 @@
+schema_version: 1
+outcome:
+  max_abs_lateral_error_m: 1.25
+  allow_lane_departure: false
+  allow_collision: false
+  allow_disengagement_during_measurement: false
