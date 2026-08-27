@@ -3,7 +3,7 @@ schema_version: 1
 openpilot:
   repository: https://github.com/bamtory123/openpilot
   base_commit: 084747c75d2cbd23af65ab7a9e770bbd7b98bac9
-  instrumentation_commit: "e07736964d64cded70e3e40018725bd839844e97"
+  instrumentation_commit: "b101f6c1c532b567ef8a7393fe0cf8dfb6e237de"
 
 runtime:
   python: "3.12"
