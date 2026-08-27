@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import time
@@ -37,6 +38,18 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
     writer = csv.DictWriter(handle, fieldnames=keys)
     writer.writeheader()
     writer.writerows(rows)
+
+
+def _stop_process_group(process: subprocess.Popen) -> None:
+  """Terminate the manager and every daemon it starts for one experiment."""
+  if process.poll() is not None:
+    return
+  os.killpg(process.pid, signal.SIGTERM)
+  try:
+    process.wait(timeout=10)
+  except subprocess.TimeoutExpired:
+    os.killpg(process.pid, signal.SIGKILL)
+    process.wait(timeout=10)
 
 
 def _openpilot_root() -> Path:
@@ -99,7 +112,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
 
   manager_log = (run_dir / "manager.log").open("w")
   manager = subprocess.Popen(["./launch_openpilot.sh"], cwd=openpilot_root / "openpilot/tools/sim", env={**os.environ, "SIMULATION": "1"},
-                             stdout=manager_log, stderr=subprocess.STDOUT)
+                             stdout=manager_log, stderr=subprocess.STDOUT, start_new_session=True)
   queue = process = bridge = None
   data, stop_reason = RunData(), None
   deadline = time.monotonic() + scenario.data["run"]["wall_watchdog_s"]
@@ -138,11 +151,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
       process.join(timeout=10)
       if process.is_alive():
         process.terminate()
-    manager.terminate()
-    try:
-      manager.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-      manager.kill()
+    _stop_process_group(manager)
     manager_log.close()
 
   _write_csv(run_dir / "telemetry.csv", data.telemetry)
