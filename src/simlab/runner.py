@@ -117,7 +117,8 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   path = os.pathsep.join((str(runtime_bin), os.environ.get("PATH", "")))
   blocked = ",".join(filter(None, (os.environ.get("BLOCK"), "soundd", "locationd")))
   manager = subprocess.Popen(["./launch_openpilot.sh"], cwd=openpilot_root / "openpilot/tools/sim",
-                             env={**os.environ, "SIMULATION": "1", "PYTHONPATH": pythonpath, "PATH": path, "BLOCK": blocked},
+                             env={**os.environ, "SIMULATION": "1", "SIM_TINYGRAD_DEVICE": "CUDA",
+                                  "PYTHONPATH": pythonpath, "PATH": path, "BLOCK": blocked},
                              stdout=manager_log, stderr=subprocess.STDOUT, start_new_session=True)
   control_queue = status_queue = process = bridge = None
   data, stop_reason = RunData(), None
