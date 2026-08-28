@@ -11,7 +11,7 @@ simulator_control:
   target_speed_mps: 5.0
   lateral_gain: 0.003
   heading_gain: 0.08
-  lookahead_m: 8.0
+  lookahead_m: 20.0
 
 run:
   wait_ready_timeout_s: 60
