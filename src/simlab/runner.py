@@ -83,6 +83,16 @@ def _outcome_thresholds() -> dict:
   return outcome
 
 
+def _disengaged_during_measurement(events: list[dict]) -> bool:
+  measuring = False
+  for event in events:
+    if event.get("type") == "run_state" and event.get("state") == "MEASURE":
+      measuring = True
+    elif measuring and event.get("type") == "openpilot_state" and not event.get("engaged"):
+      return True
+  return False
+
+
 def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tuple[str, str, list[str]]:
   measured = [row for row in data.telemetry if row.get("measurement")]
   thresholds = _outcome_thresholds()
@@ -94,6 +104,8 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
   lateral = [abs(float(row["lateral_error_m"])) for row in measured if row.get("lateral_error_m") is not None]
   if lateral and max(lateral) > float(thresholds["max_abs_lateral_error_m"]):
     failures.append("lateral_error_threshold")
+  if not thresholds["allow_disengagement_during_measurement"] and _disengaged_during_measurement(data.events):
+    failures.append("disengagement")
   if data.measured and failures:
     return "valid", "fail", failures
 

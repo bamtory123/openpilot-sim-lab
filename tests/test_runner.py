@@ -45,3 +45,13 @@ def test_lateral_kpi_threshold_is_a_valid_failure():
   validity, outcome, reasons = _classify(data, scenario, None)
 
   assert (validity, outcome, reasons) == ("valid", "fail", ["lateral_error_threshold"])
+
+
+def test_disengagement_after_measurement_starts_is_a_valid_failure():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(measured=True, events=[{"type": "run_state", "state": "MEASURE"},
+                                        {"type": "openpilot_state", "engaged": False}])
+
+  validity, outcome, reasons = _classify(data, scenario, None)
+
+  assert (validity, outcome, reasons) == ("valid", "fail", ["disengagement"])
