@@ -24,6 +24,16 @@ The 2026-08-29 diagnostic run captured the road image at simulation frame 2500 a
 
 The image visibly contains the upcoming left curve while the current segment is still straight. This is consistent with a near-zero model response to a visually present upcoming turn. It is not a ground-truth label for model outputs.
 
+A later three-frame set used the same 40-degree, 2648.57 px camera contract:
+
+| Simulation frame | Reference curvature (1/m) | Model/control target curvature (1/m) | Lateral error (m) |
+|---:|---:|---:|---:|
+| 2400 | 0.000000 | +0.0000054 | -0.877 |
+| 2600 | +0.008658 | -0.0000066 | -1.029 |
+| 2800 | +0.008658 | -0.0000054 | -0.737 |
+
+The frame set reinforces that the near-zero model response persists after the reference segment enters the curve. It does not identify the cause within rendering, camera pose, calibration, or model generalization.
+
 ## Photometric baseline
 
 For that capture, simple RGB-derived statistics were:

@@ -46,6 +46,9 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("seed and reference_lane_index must be concrete")
   if "camera_fov_deg" in env and env["camera_fov_deg"] not in (40, 60):
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
+  for key in ("camera_position_m", "camera_hpr_deg"):
+    if key in env and (not isinstance(env[key], list) or len(env[key]) != 3 or not all(isinstance(value, (int, float)) for value in env[key])):
+      raise ScenarioError(f"{key} must be a three-value numeric vector")
   if fault.get("type") != "camera_transport_delay" or fault.get("target_delay_ms") not in (0, 50, 100, 150):
     raise ScenarioError("v0.1 supports a 0/50/100/150 ms camera_transport_delay only")
   if fault.get("queue_capacity_frames", 0) < 1 or fault.get("overflow_policy") != "invalid_run":

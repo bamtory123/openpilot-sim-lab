@@ -21,6 +21,12 @@ def test_unsupported_camera_fov_is_rejected(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_invalid_camera_pose_is_rejected(tmp_path):
+  path = tmp_path / "invalid.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_hpr_deg: [0, 1]"))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_reference_lane_assist_requires_complete_positive_configuration(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\nsimulator_control:\n  mode: reference_lane_assist\n")
