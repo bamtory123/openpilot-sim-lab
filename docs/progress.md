@@ -36,6 +36,8 @@ The same day, a frame-2500 camera/telemetry alignment capture showed a visible u
 
 The instrumentation now records the model-predicted path horizon/end geometry, and only records its 20 m offset/heading if the path really reaches 20 m. The first run exposed an approximately 4.3 m path horizon, so clamped interpolation is explicitly avoided. This isolates a perception-path failure from a downstream curvature/planner failure without introducing a simulator-only steering controller. A fresh diagnostic run is the next verification step.
 
+The next diagnostic also records `modelV2` validity, consumed camera frame age/drop percentage, execution time, and predicted terminal speed. These fields distinguish a stale/invalid inference stream from a valid but simulator-domain-mismatched prediction.
+
 ## Next
 
 1. Join model path geometry to the fixed-baseline curve segment; do not tune simulator-only controllers as an openpilot claim.
