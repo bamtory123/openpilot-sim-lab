@@ -58,9 +58,14 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("allow_frame_drop must be boolean")
   controller = data.get("simulator_control")
   if controller is not None:
-    if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit"):
+    if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):
       raise ScenarioError("unsupported simulator control mode")
-    keys = ("target_speed_mps", "lateral_gain", "heading_gain", "lookahead_m") if controller["mode"] == "reference_lane_assist" else ("target_speed_mps", "lookahead_m", "curvature_to_steer_gain")
+    keys_by_mode = {
+      "reference_lane_assist": ("target_speed_mps", "lateral_gain", "heading_gain", "lookahead_m"),
+      "pure_pursuit": ("target_speed_mps", "lookahead_m", "curvature_to_steer_gain"),
+      "reference_curvature_follow": ("target_speed_mps", "curvature_to_steer_gain", "lateral_gain", "heading_gain"),
+    }
+    keys = keys_by_mode[controller["mode"]]
     for key in keys:
       if not isinstance(controller.get(key), (int, float)) or controller[key] <= 0:
         raise ScenarioError(f"simulator_control.{key} must be positive")
