@@ -18,6 +18,33 @@ def _rms(values: list[float]) -> float | None:
   return math.sqrt(fmean([value * value for value in values])) if values else None
 
 
+def camera_timestamps_valid(camera: Iterable[dict]) -> bool:
+  """Validate per-camera source ordering and capture-to-publish causality."""
+  last_source_id: dict[str, int] = {}
+  last_capture_ns: dict[str, int] = {}
+  for row in camera:
+    if row.get("dropped"):
+      continue
+    required = ("camera", "source_frame_id", "capture_mono_ns", "scheduled_publish_mono_ns", "actual_publish_mono_ns")
+    if any(row.get(key) is None for key in required):
+      return False
+    try:
+      camera_name = str(row["camera"])
+      source_id = int(row["source_frame_id"])
+      capture_ns = int(row["capture_mono_ns"])
+      scheduled_ns = int(row["scheduled_publish_mono_ns"])
+      actual_ns = int(row["actual_publish_mono_ns"])
+    except (TypeError, ValueError):
+      return False
+    if source_id <= last_source_id.get(camera_name, -1) or capture_ns < last_capture_ns.get(camera_name, -1):
+      return False
+    if scheduled_ns < capture_ns or actual_ns < capture_ns:
+      return False
+    last_source_id[camera_name] = source_id
+    last_capture_ns[camera_name] = capture_ns
+  return True
+
+
 def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict:
   rows = list(telemetry)
   camera_rows = list(camera)
@@ -38,6 +65,7 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
     "actual_delay_median_ms": _quantile(actual_delay, 0.5), "actual_delay_p95_ms": _quantile(actual_delay, 0.95),
     "actual_delay_max_ms": max(actual_delay, default=None), "camera_frames_published": len(published),
     "camera_frames_dropped": sum(bool(row.get("dropped")) for row in camera_rows),
+    "camera_timestamps_valid": camera_timestamps_valid(camera_rows),
     "telemetry_samples": len(rows), "lane_departure_occurred": any(bool(row.get("lane_departure")) for row in rows),
     "collision_occurred": any(bool(row.get("collision")) for row in rows),
   }

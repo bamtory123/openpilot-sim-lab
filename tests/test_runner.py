@@ -26,3 +26,13 @@ def test_lane_departure_is_a_valid_failure_before_full_coverage():
   validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
 
   assert (validity, outcome, reasons) == ("valid", "fail", ["lane_departure"])
+
+
+def test_timestamp_error_is_invalid_without_a_measured_failure():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(measured=True, camera=[{"camera": "road", "source_frame_id": 0, "capture_mono_ns": 2,
+                                           "scheduled_publish_mono_ns": 1, "actual_publish_mono_ns": 2}])
+
+  validity, outcome, reasons = _classify(data, scenario, None)
+
+  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "camera_timestamp"])

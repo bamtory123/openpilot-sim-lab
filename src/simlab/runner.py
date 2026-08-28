@@ -17,7 +17,7 @@ import yaml
 
 from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay
 from .manifest import build_manifest, git_metadata, write_json
-from .metrics import calculate_metrics
+from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -92,6 +92,8 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     invalid.append("telemetry_coverage")
   if not scenario.data["validity"]["allow_frame_drop"] and any(row.get("dropped") for row in data.camera):
     invalid.append("camera_frame_drop")
+  if not camera_timestamps_valid(data.camera):
+    invalid.append("camera_timestamp")
   if stop_reason == "watchdog":
     invalid.append("wall_watchdog")
   if invalid:

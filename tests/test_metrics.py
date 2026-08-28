@@ -1,5 +1,5 @@
 import math
-from simlab.metrics import calculate_metrics
+from simlab.metrics import calculate_metrics, camera_timestamps_valid
 
 
 def test_hand_calculated_lateral_rmse_and_delay():
@@ -12,3 +12,13 @@ def test_hand_calculated_lateral_rmse_and_delay():
   result = calculate_metrics(telemetry, [{"actual_delay_ms": 50.0, "dropped": False}, {"actual_delay_ms": 52.0, "dropped": False}])
   assert math.isclose(result["lateral_rmse_m"], math.sqrt(0.015), rel_tol=1e-9)
   assert result["applied_steering_rate_rms_deg_s"] == 10.0 and result["actual_delay_median_ms"] == 51.0
+
+
+def test_camera_timestamp_validation_checks_order_and_causality():
+  valid = [
+    {"camera": "road", "source_frame_id": 0, "capture_mono_ns": 10, "scheduled_publish_mono_ns": 20, "actual_publish_mono_ns": 21},
+    {"camera": "road", "source_frame_id": 1, "capture_mono_ns": 30, "scheduled_publish_mono_ns": 40, "actual_publish_mono_ns": 42},
+  ]
+  assert camera_timestamps_valid(valid)
+  assert not camera_timestamps_valid([{**valid[0], "actual_publish_mono_ns": 9}])
+  assert not camera_timestamps_valid([valid[1], valid[0]])
