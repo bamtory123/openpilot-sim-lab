@@ -1,0 +1,28 @@
+# Reproducing the formal MetaDrive matrix
+
+These commands run the fixed model-driven baseline, not a simulator-only controller diagnostic.
+
+```bash
+cd /home/hyunsung/src/openpilot-sim-lab
+export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
+export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python3"
+
+$OPENPILOT_PYTHON -m simlab.runner preflight \
+  --scenario configs/scenarios/md_default_loop_lane0_v1.yaml
+$OPENPILOT_PYTHON -m simlab.runner batch \
+  --scenario configs/scenarios/md_default_loop_lane0_v1.yaml \
+  --outputs outputs/formal-delay-matrix
+$OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/formal-delay-matrix
+```
+
+The batch performs one excluded warm-up followed by three interleaved runs for each of 0, 50, 100, and 150 ms. It refuses dirty repositories by default. Each output directory records the actual commits, dirty state, Python/runtime details, scenario hash, command, and environment in `manifest.json`.
+
+## Acceptance checks
+
+1. Exclude `outputs/formal-delay-matrix/warmup` from formal counts.
+2. Confirm exactly three `summary.json` files for each target delay.
+3. Preserve every result, including `invalid/not_evaluated` runs and retries.
+4. Read `validity` separately from `outcome`: lane departure is `valid/fail`, while startup, logging, timestamp, overflow, and watchdog faults are invalid infrastructure data.
+5. Use `camera.csv` actual timestamps and delays, never only the configured delay, when discussing the fault.
+
+The current baseline is expected to produce repeatable lane-departure failures. Do not use this procedure to claim real-vehicle performance, HIL validation, or successful openpilot driving.
