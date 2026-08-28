@@ -27,6 +27,12 @@ def test_invalid_camera_pose_is_rejected(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_unsorted_camera_capture_frames_are_rejected(tmp_path):
+  path = tmp_path / "invalid.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\ndiagnostics:\n  camera_capture_frames: [2600, 2400]\n")
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_reference_lane_assist_requires_complete_positive_configuration(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\nsimulator_control:\n  mode: reference_lane_assist\n")

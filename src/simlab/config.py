@@ -59,6 +59,13 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("v0.1 rate contract is 100 Hz telemetry / 20 Hz camera")
   if not isinstance(validity.get("allow_frame_drop"), bool):
     raise ScenarioError("allow_frame_drop must be boolean")
+  diagnostics = data.get("diagnostics")
+  if diagnostics is not None:
+    frames = diagnostics.get("camera_capture_frames") if isinstance(diagnostics, dict) else None
+    if not isinstance(frames, list) or not frames or not all(isinstance(frame, int) and frame > 0 for frame in frames):
+      raise ScenarioError("diagnostics.camera_capture_frames must be a non-empty positive integer list")
+    if frames != sorted(set(frames)):
+      raise ScenarioError("diagnostics.camera_capture_frames must be unique and increasing")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):

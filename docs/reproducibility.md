@@ -26,3 +26,13 @@ The batch performs one excluded warm-up followed by three interleaved runs for e
 5. Use `camera.csv` actual timestamps and delays, never only the configured delay, when discussing the fault.
 
 The current baseline is expected to produce repeatable lane-departure failures. Do not use this procedure to claim real-vehicle performance, HIL validation, or successful openpilot driving.
+
+## Camera alignment diagnostic
+
+```bash
+$OPENPILOT_PYTHON -m simlab.runner run \
+  --scenario configs/scenarios/md_default_loop_lane0_frame_alignment_diagnostic_v1.yaml \
+  --outputs outputs/frame-alignment-diagnostic
+```
+
+This opt-in diagnostic writes PNG captures and `camera_alignment.json` inside its individual run directory. It does not alter the formal scenario or its results.

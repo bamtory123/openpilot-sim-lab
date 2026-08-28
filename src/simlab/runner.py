@@ -42,6 +42,21 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
     writer.writerows([{key: "" if value is None else value for key, value in row.items()} for row in rows])
 
 
+def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
+  captures = []
+  for metadata_path in sorted((run_dir / "debug").glob("road-frame-*.png.json")):
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    frame = metadata["simulation_frame"]
+    nearest = min(telemetry, key=lambda row: abs(int(row.get("simulation_frame", -1)) - frame))
+    captures.append({"image": metadata_path.with_suffix("").name, "metadata": metadata,
+                     "telemetry": {key: nearest.get(key) for key in ("simulation_frame", "lateral_error_m",
+                     "heading_error_rad", "reference_curvature_1pm", "model_target_curvature_1pm",
+                     "control_target_curvature_1pm", "model_path_end_x_m", "model_path_end_y_m",
+                     "model_path_end_speed_mps", "model_valid", "model_frame_id")}})
+  if captures:
+    write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
+
+
 def _stop_process_group(process: subprocess.Popen) -> None:
   """Terminate the manager and every daemon it starts for one experiment."""
   if process.poll() is not None:
@@ -152,6 +167,11 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
                              stdout=manager_log, stderr=subprocess.STDOUT, start_new_session=True)
   control_queue = status_queue = process = bridge = None
   data, stop_reason = RunData(), None
+  diagnostic_frames = scenario.data.get("diagnostics", {}).get("camera_capture_frames", [])
+  debug_environment = {key: os.environ.get(key) for key in ("SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES", "SIMLAB_CAMERA_DEBUG_CAPTURE_DIR")}
+  if diagnostic_frames:
+    os.environ["SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES"] = ",".join(map(str, diagnostic_frames))
+    os.environ["SIMLAB_CAMERA_DEBUG_CAPTURE_DIR"] = str(run_dir / "debug")
   deadline = time.monotonic() + scenario.data["run"]["wall_watchdog_s"]
   try:
     control_queue, status_queue = Queue(), Queue()
@@ -194,9 +214,15 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
         process.terminate()
     _stop_process_group(manager)
     manager_log.close()
+    for key, value in debug_environment.items():
+      if value is None:
+        os.environ.pop(key, None)
+      else:
+        os.environ[key] = value
 
   _write_csv(run_dir / "telemetry.csv", data.telemetry)
   _write_csv(run_dir / "camera.csv", data.camera)
+  _write_camera_alignment(run_dir, data.telemetry)
   with (run_dir / "events.jsonl").open("w", encoding="utf-8") as handle:
     for event in data.events:
       handle.write(json.dumps(event, sort_keys=True) + "\n")

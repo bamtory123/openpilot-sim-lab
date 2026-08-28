@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from pathlib import Path
 
 from simlab.config import load_scenario
-from simlab.runner import RunData, _classify, _stop_process_group, _write_csv
+from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv
 
 
 def test_stops_the_manager_process_group():
@@ -63,3 +63,15 @@ def test_csv_writes_none_as_an_empty_field(tmp_path):
   _write_csv(path, [{"path_y_20m": None, "speed_mps": 4.0}])
 
   assert list(csv.DictReader(path.open())) == [{"path_y_20m": "", "speed_mps": "4.0"}]
+
+
+def test_camera_alignment_joins_capture_to_nearest_telemetry(tmp_path):
+  debug = tmp_path / "debug"
+  debug.mkdir()
+  (debug / "road-frame-000100.png.json").write_text('{"simulation_frame": 100}')
+
+  _write_camera_alignment(tmp_path, [{"simulation_frame": 99, "lateral_error_m": 1.0},
+                                      {"simulation_frame": 101, "lateral_error_m": 2.0}])
+
+  capture = __import__("json").loads((tmp_path / "camera_alignment.json").read_text())["captures"][0]
+  assert capture["image"] == "road-frame-000100.png" and capture["telemetry"]["simulation_frame"] == 99
