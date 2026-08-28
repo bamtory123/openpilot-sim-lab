@@ -49,3 +49,4 @@ See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/res
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
 The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).
 The planned public release boundary is recorded in the [release checklist](docs/release-checklist.md).
+Camera input diagnostics and their limits are documented in [camera-domain-gap](docs/camera-domain-gap.md).
