@@ -47,3 +47,4 @@ This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and
 
 See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/results](docs/progress.md), and [CARLA smoke-test status](docs/carla-smoke.md).
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
+The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).

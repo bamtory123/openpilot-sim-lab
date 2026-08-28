@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "run_id": "md_default_loop_lane0_v1-20260828T101438Z-4dd55448",
+  "scenario_id": "md_default_loop_lane0_v1",
+  "target_delay_ms": 0,
+  "validity": "valid",
+  "outcome": "fail",
+  "reasons": ["lane_departure"],
+  "termination_reason": "simulator_termination",
+  "metrics": {
+    "lateral_rmse_m": 0.6665627711112823,
+    "lateral_abs_p95_m": 1.1126756957794546,
+    "lateral_abs_max_m": 2.2651312949291764,
+    "heading_rmse_rad": 0.065253350029733,
+    "speed_mean_mps": 4.563999915158806,
+    "speed_std_mps": 0.032414510296837125,
+    "actual_delay_median_ms": 24.589343,
+    "actual_delay_p95_ms": 30.5300038,
+    "actual_delay_max_ms": 35.579641,
+    "camera_frames_published": 579,
+    "camera_frames_dropped": 0,
+    "lane_departure_occurred": true,
+    "collision_occurred": false
+  }
+}
