@@ -34,6 +34,8 @@ A later three-frame set used the same 40-degree, 2648.57 px camera contract:
 
 The frame set reinforces that the near-zero model response persists after the reference segment enters the curve. It does not identify the cause within rendering, camera pose, calibration, or model generalization.
 
+An explicit zero-pose diagnostic (`camera_position_m: [0, 0, 1.22]`, `camera_hpr_deg: [0, 0, 0]`) completed with the same valid lane-departure/KPI failure contract and zero transport drops. Symmetric ±2 degree pitch diagnostics are therefore isolated next experiments; they are excluded from the formal matrix.
+
 ## Photometric baseline
 
 For that capture, simple RGB-derived statistics were:
