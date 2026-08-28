@@ -30,6 +30,8 @@ The runner also treats an `openpilot_state.engaged: false` event after `run_stat
 
 Generated reports now aggregate valid failure reasons per delay condition. Frozen summaries retain the classifier reasons produced at their original run time; newly collected runs include the later KPI and disengagement reasons where applicable.
 
+A clean post-driver smoke run on 2026-08-29 verified the complete current contract at 0 ms: driver 616.56 in the manifest, `camera_timestamps_valid: true`, zero drops, and `valid/fail` with `lane_departure` plus `lateral_error_threshold`. Its lateral RMSE was 0.658 m; it is a diagnostic confirmation, not an additional formal replicate.
+
 ## Next
 
 1. Inspect camera/model domain gap with the formal baseline fixed; do not tune simulator-only controllers as an openpilot claim.
