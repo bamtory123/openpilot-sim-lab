@@ -40,8 +40,10 @@ The next diagnostic also records `modelV2` validity, consumed camera frame age/d
 
 The first inference-health attempt exposed a bridge schema mistake (`modelV2.valid` does not exist); it is preserved as an invalid crash artifact. The instrumentation was corrected to record the owning SubMaster's `valid['modelV2']` status before retrying, rather than treating a message field as valid.
 
+The corrected 0 ms inference-health run is a valid lane/KPI failure with `model_valid_coverage_ratio: 1.0`, frame age/drop maxima of 0, and 9.9 ms P95 inference time. Its path-horizon median is 4.91 m and terminal-speed median 2.74 m/s while actual mean speed is 4.55 m/s. Camera source IDs and `model_frame_id` both reached 643 with zero frame age, so the model is consuming current simulator frames; the short prediction is not caused by the delay queue or a stale-frame handoff.
+
 ## Next
 
-1. Join model path geometry to the fixed-baseline curve segment; do not tune simulator-only controllers as an openpilot claim.
-2. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
+1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
+2. Keep model-path/inference-health KPIs on any camera-contract experiment; do not tune simulator-only controllers as an openpilot claim.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.

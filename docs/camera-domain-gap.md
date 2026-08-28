@@ -40,6 +40,10 @@ The pitch sweep showed sensitivity but no solution: at 0°, −2°, and +2°, cu
 
 The −4° point was a valid failure before reaching the curve (simulation frame 835; no curved-segment telemetry), with high speed variance and 2.26 deg/s applied steering-rate RMS. It is not comparable to the other pitch points and ends the pitch sweep: no pose is promoted from these diagnostics. Subsequent work should inspect model path output rather than continue uncalibrated camera-pose tuning.
 
+## Model inference health
+
+The 0 ms inference-health diagnostic recorded `model_valid` on every measured sample, zero model frame age and drop percentage, and a 9.9 ms P95 model execution time. The latest camera source ID and `model_frame_id` both reached 643. The model therefore consumed current delayed-queue output, but its median predicted path horizon was only 4.91 m and predicted terminal speed 2.74 m/s while actual vehicle speed averaged 4.55 m/s. This rules out camera queue staleness as the explanation for the near-zero lateral response; it does not establish which image-domain or model-input contract mismatch causes the short prediction.
+
 ## Photometric baseline
 
 For that capture, simple RGB-derived statistics were:
