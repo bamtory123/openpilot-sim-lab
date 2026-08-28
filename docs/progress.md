@@ -24,6 +24,8 @@ Camera transport audit across the formal runs found monotonic unique source fram
 
 On 2026-08-29, the workstation was revalidated after updating the Windows NVIDIA driver to 616.56. Windows and WSL both exposed an RTX 4080 with CUDA UMD 13.4; tinygrad CUDA arithmetic, MetaDrive reset/step/close, OpenPilot static checks, and the sim-lab test suite succeeded. A fresh manifest smoke check recorded driver 616.56, the WSL kernel, MetaDrive 0.4.2.3, and clean repository state.
 
+The runner now applies `configs/thresholds.yaml` during classification. In addition to lane departure and collision, measured absolute lateral error above 1.25 m is recorded as `lateral_error_threshold` and produces `valid/fail`. Reclassifying the frozen formal matrix preserves its validity and adds this expected KPI failure reason to every run.
+
 ## Next
 
 1. Inspect camera/model domain gap with the formal baseline fixed; do not tune simulator-only controllers as an openpilot claim.

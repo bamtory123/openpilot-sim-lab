@@ -22,6 +22,7 @@ from .report import generate_report
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUTS = ROOT / "outputs"
+THRESHOLDS_PATH = ROOT / "configs/thresholds.yaml"
 
 
 @dataclass
@@ -74,13 +75,25 @@ def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> No
     raise RuntimeError("MetaDrive is not importable in this Python environment") from error
 
 
+def _outcome_thresholds() -> dict:
+  data = yaml.safe_load(THRESHOLDS_PATH.read_text(encoding="utf-8"))
+  outcome = data.get("outcome") if isinstance(data, dict) else None
+  if not isinstance(outcome, dict) or not isinstance(outcome.get("max_abs_lateral_error_m"), (int, float)):
+    raise RuntimeError("invalid outcome thresholds")
+  return outcome
+
+
 def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tuple[str, str, list[str]]:
   measured = [row for row in data.telemetry if row.get("measurement")]
+  thresholds = _outcome_thresholds()
   failures = []
-  if any(row.get("lane_departure") for row in measured) or (data.termination or {}).get("out_of_lane"):
+  if not thresholds["allow_lane_departure"] and (any(row.get("lane_departure") for row in measured) or (data.termination or {}).get("out_of_lane")):
     failures.append("lane_departure")
-  if any(row.get("collision") for row in measured) or (data.termination or {}).get("collision"):
+  if not thresholds["allow_collision"] and (any(row.get("collision") for row in measured) or (data.termination or {}).get("collision")):
     failures.append("collision")
+  lateral = [abs(float(row["lateral_error_m"])) for row in measured if row.get("lateral_error_m") is not None]
+  if lateral and max(lateral) > float(thresholds["max_abs_lateral_error_m"]):
+    failures.append("lateral_error_threshold")
   if data.measured and failures:
     return "valid", "fail", failures
 

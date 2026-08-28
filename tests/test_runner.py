@@ -36,3 +36,12 @@ def test_timestamp_error_is_invalid_without_a_measured_failure():
   validity, outcome, reasons = _classify(data, scenario, None)
 
   assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "camera_timestamp"])
+
+
+def test_lateral_kpi_threshold_is_a_valid_failure():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(measured=True, telemetry=[{"measurement": True, "lateral_error_m": 1.26}])
+
+  validity, outcome, reasons = _classify(data, scenario, None)
+
+  assert (validity, outcome, reasons) == ("valid", "fail", ["lateral_error_threshold"])
