@@ -38,6 +38,8 @@ The instrumentation now records the model-predicted path horizon/end geometry, a
 
 The next diagnostic also records `modelV2` validity, consumed camera frame age/drop percentage, execution time, and predicted terminal speed. These fields distinguish a stale/invalid inference stream from a valid but simulator-domain-mismatched prediction.
 
+The first inference-health attempt exposed a bridge schema mistake (`modelV2.valid` does not exist); it is preserved as an invalid crash artifact. The instrumentation was corrected to record the owning SubMaster's `valid['modelV2']` status before retrying, rather than treating a message field as valid.
+
 ## Next
 
 1. Join model path geometry to the fixed-baseline curve segment; do not tune simulator-only controllers as an openpilot claim.
