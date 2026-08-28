@@ -44,6 +44,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("v0.1 supports only openpilot_default_loop_v1")
   if not isinstance(env.get("seed"), int) or env.get("reference_lane_index") not in (0, 1):
     raise ScenarioError("seed and reference_lane_index must be concrete")
+  if "camera_fov_deg" in env and env["camera_fov_deg"] not in (40, 60):
+    raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   if fault.get("type") != "camera_transport_delay" or fault.get("target_delay_ms") not in (0, 50, 100, 150):
     raise ScenarioError("v0.1 supports a 0/50/100/150 ms camera_transport_delay only")
   if fault.get("queue_capacity_frames", 0) < 1 or fault.get("overflow_policy") != "invalid_run":
