@@ -1,8 +1,9 @@
+import csv
 from unittest.mock import Mock, patch
 from pathlib import Path
 
 from simlab.config import load_scenario
-from simlab.runner import RunData, _classify, _stop_process_group
+from simlab.runner import RunData, _classify, _stop_process_group, _write_csv
 
 
 def test_stops_the_manager_process_group():
@@ -55,3 +56,10 @@ def test_disengagement_after_measurement_starts_is_a_valid_failure():
   validity, outcome, reasons = _classify(data, scenario, None)
 
   assert (validity, outcome, reasons) == ("valid", "fail", ["disengagement"])
+
+
+def test_csv_writes_none_as_an_empty_field(tmp_path):
+  path = tmp_path / "telemetry.csv"
+  _write_csv(path, [{"path_y_20m": None, "speed_mps": 4.0}])
+
+  assert list(csv.DictReader(path.open())) == [{"path_y_20m": "", "speed_mps": "4.0"}]

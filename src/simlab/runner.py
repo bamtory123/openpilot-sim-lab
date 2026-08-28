@@ -39,7 +39,7 @@ def _write_csv(path: Path, rows: list[dict]) -> None:
   with path.open("w", newline="", encoding="utf-8") as handle:
     writer = csv.DictWriter(handle, fieldnames=keys)
     writer.writeheader()
-    writer.writerows(rows)
+    writer.writerows([{key: "" if value is None else value for key, value in row.items()} for row in rows])
 
 
 def _stop_process_group(process: subprocess.Popen) -> None:
