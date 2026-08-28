@@ -11,6 +11,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Camera path | non-blocking `CameraTransportDelay` | always uses the queue; delay is zero until normal engagement |
 | Camerad | source frame/capture timestamp arguments | preserves the original camera timestamp for delayed delivery |
 | Control telemetry | model/planner/control curvature, openpilot steering command, normalized simulator steer, vehicle yaw-rate/curvature | separates perception/planning output from simulator actuation response |
+| Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
 
 The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. No CARLA adapter or specialist model code is part of the v0.1 branch.
@@ -22,3 +23,5 @@ The formal `md_default_loop_lane0_v1` scenario remains a 40-degree-FOV, model-dr
 In the current model-driven 0 ms baseline, a measured lane departure is correctly classified as `valid/fail`. The added telemetry showed near-zero model/control curvature while the vehicle's reference-lane lateral error grew. Changing FOV from 40 to 60 degrees did not materially change that signal. This is evidence of a simulator-camera/model domain gap, not a justification to tune the simulator steering gain or a claim about real-road openpilot performance.
 
 The optional `reference_lane_assist` mode is explicitly simulator-only. It uses MetaDrive reference-lane position/heading and a target-speed controller after openpilot engagement, while preserving model/control telemetry for comparison. The first three deterministic gain trials reduced the model-driven lateral RMSE in one case but all ended in valid lane-departure failures. Future controller work must replace the simple proportional law with a separately specified path-following controller; it must not be presented as openpilot model improvement.
+
+The optional `pure_pursuit` diagnostic is also simulator-only. Its first implementation mixed MetaDrive's `heading_theta` with world-coordinate lane positions: on a curved segment its recorded heading error was near zero even though the world-coordinate lookahead cross product was positive. It now computes the lookahead angle from the vehicle velocity direction and records yaw-rate from the same world frame. The corrected 0 ms trial still ended in a valid lane-departure failure, so this establishes instrumentation consistency rather than a passing controller.
