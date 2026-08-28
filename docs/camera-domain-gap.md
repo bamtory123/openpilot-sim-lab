@@ -48,6 +48,8 @@ The 0 ms inference-health diagnostic recorded `model_valid` on every measured sa
 
 `md_default_loop_lane0_frame_alignment_diagnostic_v1` opt-in captures simulation frames 2400, 2600, and 2800 into the run's `debug/` directory. The runner writes `camera_alignment.json`, joining each image metadata record to its nearest simulator telemetry record. This diagnostic artifact is intentionally separate from the formal delay matrix and gives every later camera-contract experiment the same image/ground-truth/model-path evidence.
 
+The first fixture run produced all three PNG/metadata pairs and exact frame joins. Reference curvature changed from 0 at frame 2400 to +0.008658 1/m at frames 2600 and 2800; model curvature remained about 10⁻⁶ 1/m, while its path horizon remained 4–5 m. This is repeatable evidence for the domain/input-contract investigation, not a control-tuning result.
+
 ## Photometric baseline
 
 For that capture, simple RGB-derived statistics were:

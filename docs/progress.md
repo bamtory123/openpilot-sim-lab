@@ -42,6 +42,8 @@ The first inference-health attempt exposed a bridge schema mistake (`modelV2.val
 
 The corrected 0 ms inference-health run is a valid lane/KPI failure with `model_valid_coverage_ratio: 1.0`, frame age/drop maxima of 0, and 9.9 ms P95 inference time. Its path-horizon median is 4.91 m and terminal-speed median 2.74 m/s while actual mean speed is 4.55 m/s. Camera source IDs and `model_frame_id` both reached 643 with zero frame age, so the model is consuming current simulator frames; the short prediction is not caused by the delay queue or a stale-frame handoff.
 
+The first opt-in frame-alignment fixture run generated three PNG/metadata pairs plus `camera_alignment.json` inside its run directory. It reproduced the expected 2400/2600/2800 join: reference curvature changed from 0 to +0.008658 1/m, while model curvature stayed near zero and path horizon stayed 4–5 m. The fixture is now the baseline evidence for future camera-input experiments.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
