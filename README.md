@@ -17,6 +17,8 @@ The environment uses openpilot's existing synthetic Honda Civic CAN/Panda emulat
 
 The fault is applied only after openpilot engagement. After a five-second queue-settle interval, 1,200 camera frames are measured. Producer capture copies RGB immediately; an independent scheduler publishes immutable YUV frames at their monotonic release deadline.
 
+The default scenario is model-driven. Its current 0 ms baseline is a valid lane-departure failure, so it is a diagnostic baseline rather than a passing driving claim. A separate 60-degree-FOV scenario exists only to inspect camera-domain sensitivity and is excluded from formal delay results.
+
 ## Quick start (WSL)
 
 ```bash
