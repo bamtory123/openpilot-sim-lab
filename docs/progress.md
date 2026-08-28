@@ -44,6 +44,8 @@ The corrected 0 ms inference-health run is a valid lane/KPI failure with `model_
 
 The first opt-in frame-alignment fixture run generated three PNG/metadata pairs plus `camera_alignment.json` inside its run directory. It reproduced the expected 2400/2600/2800 join: reference curvature changed from 0 to +0.008658 1/m, while model curvature stayed near zero and path horizon stayed 4–5 m. The fixture is now the baseline evidence for future camera-input experiments.
 
+Calibration RPY/status telemetry is now recorded before any calibration change. The next diagnostic must establish the observed warp state before proposing a calibration experiment.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.

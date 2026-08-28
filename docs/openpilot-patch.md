@@ -13,6 +13,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Control telemetry | model path horizon/end geometry, model validity/frame age/drop/execution time, model/planner/control curvature, openpilot steering command, normalized simulator steer, vehicle yaw-rate/curvature | separates perception/planning output from simulator actuation response |
 | Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
+| Calibration telemetry | modeld calibration RPY and status | exposes the image warp state before any calibration experiment |
 
 The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. No CARLA adapter or specialist model code is part of the v0.1 branch.
 
