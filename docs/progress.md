@@ -34,8 +34,10 @@ A clean post-driver smoke run on 2026-08-29 verified the complete current contra
 
 The same day, a frame-2500 camera/telemetry alignment capture showed a visible upcoming left curve in the 40-degree road image before the current reference segment changed from straight to +0.008658 1/m at frame 2600. Model/control target curvature at the capture was only about +3.5e-06 1/m with -0.978 m lateral error. This reinforces the camera/model domain-gap hypothesis and is kept separate from formal results.
 
+The instrumentation now also records the model-predicted path's 20 m lateral offset and heading plus its endpoint. This isolates a perception-path failure from a downstream curvature/planner failure without introducing a simulator-only steering controller. A fresh diagnostic run is the next verification step.
+
 ## Next
 
-1. Inspect camera/model domain gap with the formal baseline fixed; do not tune simulator-only controllers as an openpilot claim.
+1. Join model path geometry to the fixed-baseline curve segment; do not tune simulator-only controllers as an openpilot claim.
 2. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
