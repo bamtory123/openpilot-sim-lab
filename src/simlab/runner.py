@@ -75,11 +75,19 @@ def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> No
 
 
 def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tuple[str, str, list[str]]:
+  measured = [row for row in data.telemetry if row.get("measurement")]
+  failures = []
+  if any(row.get("lane_departure") for row in measured) or (data.termination or {}).get("out_of_lane"):
+    failures.append("lane_departure")
+  if any(row.get("collision") for row in measured) or (data.termination or {}).get("collision"):
+    failures.append("collision")
+  if data.measured and failures:
+    return "valid", "fail", failures
+
   invalid: list[str] = []
   if not data.measured:
     invalid.append("measurement_not_started")
   expected = scenario.data["run"]["measurement_camera_frames"] * scenario.data["logging"]["telemetry_hz"] / scenario.data["logging"]["camera_hz_nominal"]
-  measured = [row for row in data.telemetry if row.get("measurement")]
   if len(measured) / expected < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
     invalid.append("telemetry_coverage")
   if not scenario.data["validity"]["allow_frame_drop"] and any(row.get("dropped") for row in data.camera):
@@ -88,11 +96,6 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     invalid.append("wall_watchdog")
   if invalid:
     return "invalid", "not_evaluated", invalid
-  failures = []
-  if any(row.get("lane_departure") for row in measured) or (data.termination or {}).get("out_of_lane"):
-    failures.append("lane_departure")
-  if any(row.get("collision") for row in measured):
-    failures.append("collision")
   return "valid", "fail" if failures else "pass", failures
 
 

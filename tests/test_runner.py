@@ -1,6 +1,8 @@
 from unittest.mock import Mock, patch
+from pathlib import Path
 
-from simlab.runner import _stop_process_group
+from simlab.config import load_scenario
+from simlab.runner import RunData, _classify, _stop_process_group
 
 
 def test_stops_the_manager_process_group():
@@ -11,3 +13,16 @@ def test_stops_the_manager_process_group():
     _stop_process_group(process)
   killpg.assert_called_once_with(4242, __import__("signal").SIGTERM)
   process.wait.assert_called_once_with(timeout=10)
+
+
+def test_lane_departure_is_a_valid_failure_before_full_coverage():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(
+    measured=True,
+    telemetry=[{"measurement": True, "lane_departure": True}],
+    termination={"out_of_lane": True},
+  )
+
+  validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
+
+  assert (validity, outcome, reasons) == ("valid", "fail", ["lane_departure"])
