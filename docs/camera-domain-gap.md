@@ -36,6 +36,8 @@ The frame set reinforces that the near-zero model response persists after the re
 
 An explicit zero-pose diagnostic (`camera_position_m: [0, 0, 1.22]`, `camera_hpr_deg: [0, 0, 0]`) completed with the same valid lane-departure/KPI failure contract and zero transport drops. Symmetric ±2 degree pitch diagnostics are therefore isolated next experiments; they are excluded from the formal matrix.
 
+The pitch sweep showed sensitivity but no solution: at 0°, −2°, and +2°, curve-segment model-target absolute means were 0.00000495, 0.00006109, and 0.00001110 1/m respectively, versus +0.008658 1/m reference curvature. Lateral RMSE was 0.633, 0.665, and 0.616 m; all runs remained valid lane/KPI failures. A single −4° exploratory point is retained only to determine whether the negative-pitch response is monotonic.
+
 ## Photometric baseline
 
 For that capture, simple RGB-derived statistics were:
