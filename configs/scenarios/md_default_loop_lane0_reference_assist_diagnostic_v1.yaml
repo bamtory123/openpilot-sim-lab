@@ -9,7 +9,7 @@ environment:
 simulator_control:
   mode: reference_lane_assist
   target_speed_mps: 5.0
-  lateral_gain: 0.01
+  lateral_gain: 0.003
   heading_gain: 0.05
   lookahead_m: 8.0
 
