@@ -28,6 +28,8 @@ The runner now applies `configs/thresholds.yaml` during classification. In addit
 
 The runner also treats an `openpilot_state.engaged: false` event after `run_state: MEASURE` as `valid/fail: disengagement`. The frozen formal event logs contain no such measurement-period disengagements.
 
+Generated reports now aggregate valid failure reasons per delay condition. Frozen summaries retain the classifier reasons produced at their original run time; newly collected runs include the later KPI and disengagement reasons where applicable.
+
 ## Next
 
 1. Inspect camera/model domain gap with the formal baseline fixed; do not tune simulator-only controllers as an openpilot claim.
