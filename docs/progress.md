@@ -34,7 +34,7 @@ A clean post-driver smoke run on 2026-08-29 verified the complete current contra
 
 The same day, a frame-2500 camera/telemetry alignment capture showed a visible upcoming left curve in the 40-degree road image before the current reference segment changed from straight to +0.008658 1/m at frame 2600. Model/control target curvature at the capture was only about +3.5e-06 1/m with -0.978 m lateral error. This reinforces the camera/model domain-gap hypothesis and is kept separate from formal results.
 
-The instrumentation now also records the model-predicted path's 20 m lateral offset and heading plus its endpoint. This isolates a perception-path failure from a downstream curvature/planner failure without introducing a simulator-only steering controller. A fresh diagnostic run is the next verification step.
+The instrumentation now records the model-predicted path horizon/end geometry, and only records its 20 m offset/heading if the path really reaches 20 m. The first run exposed an approximately 4.3 m path horizon, so clamped interpolation is explicitly avoided. This isolates a perception-path failure from a downstream curvature/planner failure without introducing a simulator-only steering controller. A fresh diagnostic run is the next verification step.
 
 ## Next
 
