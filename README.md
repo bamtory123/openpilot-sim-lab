@@ -19,6 +19,8 @@ The fault is applied only after openpilot engagement. After a five-second queue-
 
 The default scenario is model-driven. Its current 0 ms baseline is a valid lane-departure failure, so it is a diagnostic baseline rather than a passing driving claim. A separate 60-degree-FOV scenario exists only to inspect camera-domain sensitivity and is excluded from formal delay results.
 
+`md_default_loop_lane0_reference_assist_diagnostic_v1` is a separate simulator-only controller experiment. It records openpilot output but does not use it for vehicle actuation. Its initial gain trials remain valid lane-departure failures, so it is not a replacement for the model-driven baseline and is not a closed-loop openpilot success claim.
+
 ## Quick start (WSL)
 
 ```bash
