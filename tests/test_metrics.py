@@ -22,3 +22,19 @@ def test_camera_timestamp_validation_checks_order_and_causality():
   assert camera_timestamps_valid(valid)
   assert not camera_timestamps_valid([{**valid[0], "actual_publish_mono_ns": 9}])
   assert not camera_timestamps_valid([valid[1], valid[0]])
+
+
+def test_model_inference_health_metrics():
+  telemetry = [
+    {"model_valid": True, "model_frame_age": 0, "model_frame_drop_perc": 0.0,
+     "model_execution_time_s": 0.01, "model_path_end_x_m": 4.0, "model_path_end_speed_mps": 2.0},
+    {"model_valid": True, "model_frame_age": 1, "model_frame_drop_perc": 2.0,
+     "model_execution_time_s": 0.03, "model_path_end_x_m": 6.0, "model_path_end_speed_mps": 4.0},
+  ]
+
+  result = calculate_metrics(telemetry, [])
+
+  assert result["model_valid_coverage_ratio"] == 1.0
+  assert result["model_frame_age_max"] == 1.0 and result["model_frame_drop_perc_max"] == 2.0
+  assert math.isclose(result["model_execution_time_p95_s"], 0.029)
+  assert result["model_path_horizon_median_m"] == 5.0

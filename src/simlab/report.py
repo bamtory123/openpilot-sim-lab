@@ -36,6 +36,13 @@ def generate_report(results_root: Path, output: Path) -> Path:
     lines.append(f"| {delay} | {len(valid)} | {failures} | {invalid} | {reasons} | {median if median is not None else 'n/a'} |")
     if median is not None:
       graph_points.append((delay, median))
+  diagnostics = [run["metrics"] for runs in grouped.values() for run in runs if run["metrics"].get("model_valid_coverage_ratio") is not None]
+  if diagnostics:
+    lines.extend(["", "## Model inference diagnostics", "",
+                  "| Metric | Median across recorded runs |", "|---|---:|",
+                  f"| model valid coverage | {sorted(metric['model_valid_coverage_ratio'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |",
+                  f"| model path horizon (m) | {sorted(metric['model_path_horizon_median_m'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |",
+                  f"| model terminal speed (m/s) | {sorted(metric['model_path_terminal_speed_median_mps'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |"])
   output.parent.mkdir(parents=True, exist_ok=True)
   output.write_text("\n".join(lines) + "\n", encoding="utf-8")
   output.with_suffix(".svg").write_text(_svg(graph_points, "Median lateral RMSE", "m"), encoding="utf-8")

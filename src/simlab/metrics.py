@@ -57,6 +57,12 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
                     for (previous_stamp, previous_value), (stamp, value) in zip(applied, applied[1:]) if stamp > previous_stamp]
   published = [row for row in camera_rows if not row.get("dropped")]
   actual_delay = [float(row["actual_delay_ms"]) for row in published if row.get("actual_delay_ms") is not None]
+  model_valid = [bool(row["model_valid"]) for row in rows if row.get("model_valid") is not None]
+  model_frame_age = [float(row["model_frame_age"]) for row in rows if row.get("model_frame_age") is not None]
+  model_frame_drop = [float(row["model_frame_drop_perc"]) for row in rows if row.get("model_frame_drop_perc") is not None]
+  model_execution = [float(row["model_execution_time_s"]) for row in rows if row.get("model_execution_time_s") is not None]
+  model_horizon = [float(row["model_path_end_x_m"]) for row in rows if row.get("model_path_end_x_m") is not None]
+  model_terminal_speed = [float(row["model_path_end_speed_mps"]) for row in rows if row.get("model_path_end_speed_mps") is not None]
   return {
     "lateral_rmse_m": _rms(lateral), "lateral_abs_p95_m": _quantile([abs(value) for value in lateral], 0.95),
     "lateral_abs_max_m": max(map(abs, lateral), default=None), "heading_rmse_rad": _rms(heading),
@@ -66,6 +72,12 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
     "actual_delay_max_ms": max(actual_delay, default=None), "camera_frames_published": len(published),
     "camera_frames_dropped": sum(bool(row.get("dropped")) for row in camera_rows),
     "camera_timestamps_valid": camera_timestamps_valid(camera_rows),
+    "model_valid_coverage_ratio": fmean(model_valid) if model_valid else None,
+    "model_frame_age_max": max(model_frame_age, default=None),
+    "model_frame_drop_perc_max": max(model_frame_drop, default=None),
+    "model_execution_time_p95_s": _quantile(model_execution, 0.95),
+    "model_path_horizon_median_m": _quantile(model_horizon, 0.5),
+    "model_path_terminal_speed_median_mps": _quantile(model_terminal_speed, 0.5),
     "telemetry_samples": len(rows), "lane_departure_occurred": any(bool(row.get("lane_departure")) for row in rows),
     "collision_occurred": any(bool(row.get("collision")) for row in rows),
   }
