@@ -56,6 +56,13 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("v0.1 rate contract is 100 Hz telemetry / 20 Hz camera")
   if not isinstance(validity.get("allow_frame_drop"), bool):
     raise ScenarioError("allow_frame_drop must be boolean")
+  controller = data.get("simulator_control")
+  if controller is not None:
+    if not isinstance(controller, dict) or controller.get("mode") != "reference_lane_assist":
+      raise ScenarioError("only reference_lane_assist simulator control is supported")
+    for key in ("target_speed_mps", "lateral_gain", "heading_gain", "lookahead_m"):
+      if not isinstance(controller.get(key), (int, float)) or controller[key] <= 0:
+        raise ScenarioError(f"simulator_control.{key} must be positive")
 
 
 def load_scenario(path: Path) -> Scenario:
