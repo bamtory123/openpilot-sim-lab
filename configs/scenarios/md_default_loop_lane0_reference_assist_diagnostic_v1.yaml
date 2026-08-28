@@ -10,7 +10,7 @@ simulator_control:
   mode: reference_lane_assist
   target_speed_mps: 5.0
   lateral_gain: 0.003
-  heading_gain: 0.05
+  heading_gain: 0.08
   lookahead_m: 8.0
 
 run:
