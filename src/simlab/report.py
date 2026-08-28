@@ -22,15 +22,16 @@ def generate_report(results_root: Path, output: Path) -> Path:
   grouped = defaultdict(list)
   for summary in summaries:
     grouped[summary["target_delay_ms"]].append(summary)
-  lines = ["# MetaDrive Repeatability Study", "", "This report compares deterministic camera transport-delay conditions on one fixed two-lane loop map. It is not a statistical validation or real-vehicle result.", "", "| Delay (ms) | Valid runs | Failures | Median lateral RMSE (m) |", "|---:|---:|---:|---:|"]
+  lines = ["# MetaDrive Repeatability Study", "", "This report compares deterministic camera transport-delay conditions on one fixed two-lane loop map. It is not a statistical validation or real-vehicle result.", "", "| Delay (ms) | Valid runs | Valid failures | Invalid runs | Median lateral RMSE (m) |", "|---:|---:|---:|---:|---:|"]
   graph_points = []
   for delay in sorted(grouped):
     runs = grouped[delay]
     valid = [run for run in runs if run["validity"] == "valid"]
     failures = sum(run["outcome"] == "fail" for run in valid)
+    invalid = len(runs) - len(valid)
     rms = sorted(run["metrics"].get("lateral_rmse_m") for run in valid if run["metrics"].get("lateral_rmse_m") is not None)
     median = rms[len(rms)//2] if rms else None
-    lines.append(f"| {delay} | {len(valid)} | {failures} | {median if median is not None else 'n/a'} |")
+    lines.append(f"| {delay} | {len(valid)} | {failures} | {invalid} | {median if median is not None else 'n/a'} |")
     if median is not None:
       graph_points.append((delay, median))
   output.parent.mkdir(parents=True, exist_ok=True)
