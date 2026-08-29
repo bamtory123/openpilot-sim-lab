@@ -62,8 +62,10 @@ The directional map smoke run verified `map_curve_direction: 1` produces negativ
 
 Runtime camera-contract telemetry initially observed an `unknown/unknown` key before device/camera state initialization. It is now recorded as missing intrinsics rather than crashing the bridge; steady-state verification will distinguish this startup state from the actual modeld camera contract.
 
+The lane-semantic audit is complete for the fixed frame-alignment fixture. In 2,550 straight and 635 curve telemetry rows, mean model left/right lane-line probabilities were only 0.0115/0.0223 and 0.0137/0.0273 respectively. Model validity remained 100% with zero frame age/drop, so this is not a stale-frame symptom. The current primary camera/model hypothesis is consequently MetaDrive lane-rendering domain mismatch, rather than camera transport, intrinsics, calibration, or controller gain. The next experiments isolate individual lane-appearance variables with the same capture fixture.
+
 ## Next
 
-1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
-2. Keep model-path/inference-health KPIs on any camera-contract experiment; do not tune simulator-only controllers as an openpilot claim.
+1. Run one-variable lane-rendering-domain diagnostics using the existing frame/ground-truth alignment fixture.
+2. Keep model-path, lane-probability, and inference-health KPIs on any camera-contract experiment; do not tune simulator-only controllers as an openpilot claim.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.

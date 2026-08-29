@@ -77,3 +77,16 @@ These values are regression baselines only. They cannot be compared to a real ca
 ## Gamma sensitivity result
 
 With every camera/model contract field fixed, gamma 0.8 increased curve-segment mean absolute model curvature from about `4.7e-06` to `1.09e-05 1/m`; gamma 1.2 produced `4.05e-06 1/m`. Required reference curvature is about `8.66e-03 1/m`. All three gamma conditions remained valid lane/KPI failures with a roughly 4–5 m model path horizon. Global luminance affects output slightly but is not the primary camera/model mismatch.
+
+## Lane-semantic telemetry result
+
+The frame-alignment fixture was repeated after adding read-only `modelV2` lane-line telemetry. The infrastructure result remained `valid/fail` (lane departure and lateral-error KPI), while model validity remained 100%, frame age/drop remained zero, and inference P95 was 9.97 ms. This preserves the earlier conclusion that the model receives current frames.
+
+| Segment | Samples | Left lane probability mean | Right lane probability mean | Model path horizon mean |
+|---|---:|---:|---:|---:|
+| Straight (`|reference curvature| < 0.001`) | 2,550 | 0.0115 | 0.0223 | 5.03 m |
+| Curve (`|reference curvature| >= 0.001`) | 635 | 0.0137 | 0.0273 | 4.41 m |
+
+The lane-line probabilities are low in both segments and do not rise when the simulator enters the known curve. The corresponding near-field lane positions remain populated, so an empty Cap'n Proto field is not being misread as a low score. Together with the short 4–5 m path and near-zero curvature, this is strong simulator-domain evidence that the pretrained model does not assign meaningful lane confidence to the current MetaDrive rendering. It is not evidence about real-road lane perception.
+
+The next controlled work is therefore rendering-domain isolation: preserve camera pose, intrinsics, map, timing, and controls, while changing one lane-appearance variable at a time. Each experiment must reuse the alignment fixture and compare lane probabilities, path horizon, and curvature before any control change is considered.
