@@ -1,0 +1,47 @@
+schema_version: 1
+scenario_id: md_default_loop_lane0_temporal_dagger_curve_dataset_v1
+
+environment:
+  map_id: openpilot_default_loop_v1
+  seed: 20260827
+  reference_lane_index: 0
+
+specialist_replay:
+  artifact_path: models/v0.4-temporal-expert-dagger-ridge.npz
+  target_speed_mps: 3.0
+
+specialist_dataset:
+  teacher:
+    lookahead_m: 12.0
+    curvature_to_steer_gain: 3.5
+
+run:
+  wait_ready_timeout_s: 60
+  wait_engage_timeout_s: 30
+  fault_settle_s: 5
+  measurement_camera_frames: 1200
+  wall_watchdog_s: 220
+
+fault:
+  type: camera_transport_delay
+  target_delay_ms: 0
+  queue_capacity_frames: 8
+  overflow_policy: invalid_run
+
+validity:
+  min_active_time_s: 55
+  min_telemetry_coverage_ratio: 0.99
+  allow_frame_drop: false
+
+logging:
+  telemetry_hz: 100
+  camera_hz_nominal: 20
+
+diagnostics:
+  dataset_collection: true
+  camera_capture_frames: [3200, 3220, 3240, 3260, 3280, 3300, 3320, 3340, 3360, 3380, 3400, 3420, 3440, 3460, 3480, 3500, 3520, 3540, 3560, 3580, 3600, 3620, 3640, 3660, 3680, 3700, 3720, 3740, 3760, 3780, 3800, 3820, 3840, 3860, 3880, 3900, 3920, 3940, 3960, 3980, 4000, 4020, 4040, 4060, 4080, 4100, 4120, 4140, 4160, 4180, 4200, 4220, 4240, 4260, 4280, 4300, 4320, 4340, 4360, 4380, 4400]
+
+dataset:
+  seeds: [20260827, 20260829]
+  validation_seeds: [20260829]
+  map_curve_directions: [0, 1]
