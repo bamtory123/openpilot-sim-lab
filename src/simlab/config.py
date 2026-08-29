@@ -50,6 +50,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   if "camera_gamma" in env and (not isinstance(env["camera_gamma"], (int, float)) or not 0.8 <= float(env["camera_gamma"]) <= 1.2):
     raise ScenarioError("camera_gamma must be between 0.8 and 1.2")
+  if "show_navi_mark" in env and not isinstance(env["show_navi_mark"], bool):
+    raise ScenarioError("show_navi_mark must be boolean")
   for key in ("camera_position_m", "camera_hpr_deg"):
     if key in env and (not isinstance(env[key], list) or len(env[key]) != 3 or not all(isinstance(value, (int, float)) for value in env[key])):
       raise ScenarioError(f"{key} must be a three-value numeric vector")
