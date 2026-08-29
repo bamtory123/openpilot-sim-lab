@@ -50,6 +50,8 @@ The calibration diagnostic completed with `calibrated` status and zero RPY throu
 
 The simulator dataset collection path now writes run-relative PNGs plus `dataset_manifest.jsonl` containing fixed camera metadata, reference-lane ground truth, and model state. Its first fixed-seed smoke collection produced 18 labeled images, including 5 curved-segment samples. This verifies the contract only; it is not enough data to train or evaluate a perception model.
 
+The first three-seed collection matrix completed with 54 labeled images and 15 curved-segment samples. Seeds `20260827`, `20260828`, and `20260829` are preserved in each run-local scenario artifact. It establishes deterministic multi-run collection, not sufficient training coverage.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
