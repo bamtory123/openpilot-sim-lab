@@ -48,6 +48,8 @@ Calibration RPY/status telemetry is now recorded before any calibration change. 
 
 The calibration diagnostic completed with `calibrated` status and zero RPY throughout the 2,895-sample measurement period. This removes calibration initialization/drift from the current failure hypotheses; the next evidence should quantify the captured image domain rather than tune camera pose or calibration.
 
+The simulator dataset collection path now writes run-relative PNGs plus `dataset_manifest.jsonl` containing fixed camera metadata, reference-lane ground truth, and model state. Its first fixed-seed smoke collection produced 18 labeled images, including 5 curved-segment samples. This verifies the contract only; it is not enough data to train or evaluate a perception model.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
