@@ -73,6 +73,9 @@ def validate_scenario(data: dict[str, Any]) -> None:
     seeds = dataset.get("seeds") if isinstance(dataset, dict) else None
     if not isinstance(seeds, list) or not seeds or not all(isinstance(seed, int) for seed in seeds) or len(set(seeds)) != len(seeds):
       raise ScenarioError("dataset.seeds must be a non-empty unique integer list")
+    validation_seeds = dataset.get("validation_seeds", [])
+    if not isinstance(validation_seeds, list) or not all(isinstance(seed, int) for seed in validation_seeds) or not set(validation_seeds) < set(seeds):
+      raise ScenarioError("dataset.validation_seeds must be a strict subset of dataset.seeds")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):

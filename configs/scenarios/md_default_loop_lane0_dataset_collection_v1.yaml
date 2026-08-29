@@ -34,3 +34,4 @@ diagnostics:
 
 dataset:
   seeds: [20260827, 20260828, 20260829]
+  validation_seeds: [20260829]

@@ -57,14 +57,15 @@ def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
     write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
 
 
-def _write_dataset_manifest(run_dir: Path) -> None:
+def _write_dataset_manifest(run_dir: Path, scenario: Scenario) -> None:
   alignment_path = run_dir / "camera_alignment.json"
   if not alignment_path.exists():
     return
   captures = json.loads(alignment_path.read_text(encoding="utf-8"))["captures"]
+  split = "validation" if scenario.data["environment"]["seed"] in scenario.data.get("dataset", {}).get("validation_seeds", []) else "train"
   with (run_dir / "dataset_manifest.jsonl").open("w", encoding="utf-8") as handle:
     for capture in captures:
-      handle.write(json.dumps({"image": f"debug/{capture['image']}", "metadata": capture["metadata"],
+      handle.write(json.dumps({"image": f"debug/{capture['image']}", "split": split, "metadata": capture["metadata"],
                                "labels": capture["telemetry"]}, sort_keys=True) + "\n")
 
 
@@ -235,7 +236,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   _write_csv(run_dir / "camera.csv", data.camera)
   _write_camera_alignment(run_dir, data.telemetry)
   if scenario.data.get("diagnostics", {}).get("dataset_collection"):
-    _write_dataset_manifest(run_dir)
+    _write_dataset_manifest(run_dir, scenario)
   with (run_dir / "events.jsonl").open("w", encoding="utf-8") as handle:
     for event in data.events:
       handle.write(json.dumps(event, sort_keys=True) + "\n")
