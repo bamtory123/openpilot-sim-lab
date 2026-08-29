@@ -46,6 +46,8 @@ The 0 ms inference-health diagnostic recorded `model_valid` on every measured sa
 
 The calibration-telemetry retry recorded `calibrated` on all 2,895 measurement samples with RPY exactly `[0, 0, 0]`. The modeld image warp is therefore initialized and stable; no calibration adjustment is justified by the current evidence.
 
+Runtime camera-contract telemetry also confirmed all 2,875 measurement samples used modeld key `pc/unknown` with 1928×1208, 2648 px narrow-road intrinsics. This verifies the actual modeld selection, not merely the intended simulator configuration. Resolution, focal-length, calibration state, queue freshness, and model frame contract are now ruled out as primary causes of the short path output.
+
 ## Repeatable alignment fixture
 
 `md_default_loop_lane0_frame_alignment_diagnostic_v1` opt-in captures simulation frames 2400, 2600, and 2800 into the run's `debug/` directory. The runner writes `camera_alignment.json`, joining each image metadata record to its nearest simulator telemetry record. This diagnostic artifact is intentionally separate from the formal delay matrix and gives every later camera-contract experiment the same image/ground-truth/model-path evidence.
