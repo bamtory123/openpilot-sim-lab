@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
-from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest
+from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest
 
 
 def test_stops_the_manager_process_group():
@@ -84,3 +84,15 @@ def test_dataset_manifest_uses_run_relative_image_paths(tmp_path):
 
   sample = __import__("json").loads((tmp_path / "dataset_manifest.jsonl").read_text())
   assert sample["image"] == "debug/road.png" and sample["split"] == "train" and sample["labels"]["lateral_error_m"] == 0.2
+
+
+def test_specialist_manifest_joins_teacher_label_to_run_relative_image(tmp_path):
+  debug = tmp_path / "debug"
+  debug.mkdir()
+  (debug / "road-frame-000010.png.json").write_text('{"simulation_frame": 10}')
+  scenario = Scenario({"environment": {"seed": 1}, "dataset": {"validation_seeds": [1]}}, tmp_path)
+
+  _write_specialist_manifest(tmp_path, scenario, [{"simulation_frame": 10, "specialist_teacher_normalized_steer": 0.05}])
+
+  sample = __import__("json").loads((tmp_path / "specialist_manifest.jsonl").read_text())
+  assert sample == {"image": "debug/road-frame-000010.png", "split": "validation", "simulation_frame": 10, "target_normalized_steer": 0.05}

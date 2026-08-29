@@ -59,7 +59,8 @@ def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
                      "model_camera_sensor", "model_camera_width_px", "model_camera_height_px",
                      "model_camera_focal_length_px", "calibration_status", "calibration_roll_rad",
                      "calibration_pitch_rad", "calibration_yaw_rad", "model_left_lane_prob",
-                     "model_right_lane_prob", "model_left_lane_y0_m", "model_right_lane_y0_m")}})
+                     "model_right_lane_prob", "model_left_lane_y0_m", "model_right_lane_y0_m",
+                     "specialist_teacher_curvature_1pm", "specialist_teacher_normalized_steer")}})
   if captures:
     write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
 
@@ -74,6 +75,37 @@ def _write_dataset_manifest(run_dir: Path, scenario: Scenario) -> None:
     for capture in captures:
       handle.write(json.dumps({"image": f"debug/{capture['image']}", "split": split, "metadata": capture["metadata"],
                                "labels": capture["telemetry"]}, sort_keys=True) + "\n")
+
+
+def _write_specialist_manifest(run_dir: Path, scenario: Scenario, telemetry: list[dict]) -> None:
+  samples = []
+  split = "validation" if scenario.data["environment"]["seed"] in scenario.data["dataset"]["validation_seeds"] else "train"
+  for metadata_path in sorted((run_dir / "debug").glob("road-frame-*.png.json")):
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    frame = metadata["simulation_frame"]
+    nearest = min(telemetry, key=lambda row: abs(int(row.get("simulation_frame", -1)) - frame))
+    target = nearest.get("specialist_teacher_normalized_steer")
+    if target not in (None, ""):
+      samples.append({"image": f"debug/{metadata_path.with_suffix('').name}", "split": split,
+                      "simulation_frame": frame, "target_normalized_steer": float(target)})
+  with (run_dir / "specialist_manifest.jsonl").open("w", encoding="utf-8") as handle:
+    for sample in samples:
+      handle.write(json.dumps(sample, sort_keys=True) + "\n")
+
+
+def rebuild_specialist_manifests(root: Path) -> int:
+  rebuilt = 0
+  for run_dir in sorted(path for path in root.iterdir() if path.is_dir()):
+    scenario_path, telemetry_path = run_dir / "scenario.yaml", run_dir / "telemetry.csv"
+    if not scenario_path.exists() or not telemetry_path.exists():
+      continue
+    scenario = load_scenario(scenario_path)
+    if "specialist_dataset" not in scenario.data:
+      continue
+    with telemetry_path.open(newline="", encoding="utf-8") as handle:
+      _write_specialist_manifest(run_dir, scenario, list(csv.DictReader(handle)))
+    rebuilt += 1
+  return rebuilt
 
 
 def _stop_process_group(process: subprocess.Popen) -> None:
@@ -244,6 +276,8 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   _write_camera_alignment(run_dir, data.telemetry)
   if scenario.data.get("diagnostics", {}).get("dataset_collection"):
     _write_dataset_manifest(run_dir, scenario)
+  if scenario.data.get("specialist_dataset"):
+    _write_specialist_manifest(run_dir, scenario, data.telemetry)
   with (run_dir / "events.jsonl").open("w", encoding="utf-8") as handle:
     for event in data.events:
       handle.write(json.dumps(event, sort_keys=True) + "\n")
@@ -272,7 +306,7 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "audit", "report", "train-specialist"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "audit", "report", "train-specialist", "rebuild-specialist-manifests"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
@@ -289,6 +323,9 @@ def main() -> None:
     if args.dataset_root is None or args.artifact is None:
       parser.error("train-specialist requires --dataset-root and --artifact")
     print(json.dumps(train_specialist(args.dataset_root, args.artifact), indent=2, sort_keys=True))
+    return
+  if args.command == "rebuild-specialist-manifests":
+    print(rebuild_specialist_manifests(args.outputs))
     return
   scenario = load_scenario(args.scenario)
   if args.command == "preflight":

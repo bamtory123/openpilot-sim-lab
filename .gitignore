@@ -3,4 +3,5 @@ __pycache__/
 .venv/
 .env.local
 outputs/
+models/
 *.log

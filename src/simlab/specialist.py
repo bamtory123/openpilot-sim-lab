@@ -31,10 +31,10 @@ def image_features(image: np.ndarray) -> np.ndarray:
 
 def load_specialist_samples(root: Path) -> list[SpecialistSample]:
   samples = []
-  for manifest in sorted(root.glob("*/dataset_manifest.jsonl")):
+  for manifest in sorted(root.glob("*/specialist_manifest.jsonl")):
     for line in manifest.read_text(encoding="utf-8").splitlines():
       row = json.loads(line)
-      target = row.get("labels", {}).get("specialist_teacher_normalized_steer")
+      target = row.get("target_normalized_steer")
       if row.get("split") in ("train", "validation") and isinstance(target, (int, float)):
         samples.append(SpecialistSample(manifest.parent / row["image"], row["split"], float(target)))
   return samples

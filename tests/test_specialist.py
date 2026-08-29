@@ -13,8 +13,8 @@ def test_specialist_trains_and_predicts_from_saved_rgb_samples(tmp_path):
     name = f"frame-{index}.png"
     Image.fromarray(np.full((8, 8, 3), value, dtype=np.uint8)).save(debug / name)
     rows.append({"image": f"debug/{name}", "split": "validation" if index >= 32 else "train",
-                 "labels": {"specialist_teacher_normalized_steer": value / 2550.0}})
-  (run / "dataset_manifest.jsonl").write_text("\n".join(json.dumps(row) for row in rows))
+                 "target_normalized_steer": value / 2550.0})
+  (run / "specialist_manifest.jsonl").write_text("\n".join(json.dumps(row) for row in rows))
 
   artifact = tmp_path / "specialist.npz"
   metrics = train_specialist(tmp_path, artifact)
