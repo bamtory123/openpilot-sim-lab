@@ -90,3 +90,23 @@ The frame-alignment fixture was repeated after adding read-only `modelV2` lane-l
 The lane-line probabilities are low in both segments and do not rise when the simulator enters the known curve. The corresponding near-field lane positions remain populated, so an empty Cap'n Proto field is not being misread as a low score. Together with the short 4–5 m path and near-zero curvature, this is strong simulator-domain evidence that the pretrained model does not assign meaningful lane confidence to the current MetaDrive rendering. It is not evidence about real-road lane perception.
 
 The next controlled work is therefore rendering-domain isolation: preserve camera pose, intrinsics, map, timing, and controls, while changing one lane-appearance variable at a time. Each experiment must reuse the alignment fixture and compare lane probabilities, path horizon, and curvature before any control change is considered.
+
+## Geometry and overlay controls
+
+The following single-variable diagnostics used the same fixed map, seed, timing, and lane-semantic telemetry. The navigation-mark-off, 60-degree FOV, and +2-degree pitch reruns also retain the same three frame-aligned camera captures as the baseline. All are `valid/fail`; none are formal delay-matrix results.
+
+| Condition | Straight left/right probability | Curve left/right probability | Curve path horizon | Lateral RMSE |
+|---|---:|---:|---:|---:|
+| 40° baseline | 0.0115 / 0.0223 | 0.0137 / 0.0273 | 4.41 m | 0.585 m |
+| Navigation mark off | 0.0112 / 0.0225 | 0.0139 / 0.0281 | 4.37 m | 0.592 m |
+| 60° FOV | 0.0057 / 0.0115 | 0.0057 / 0.0121 | 5.15 m | 0.527 m |
+| −2° pitch | 0.0308 / 0.0209 | 0.0105 / 0.0105 | 1.79 m | 0.605 m |
+| +2° pitch | 0.0304 / 0.0472 | 0.0219 / 0.0340 | 3.95 m | 0.553 m |
+
+Disabling the MetaDrive navigation mark makes no material difference, and widening FOV lowers lane confidence further. Positive pitch increases reported lane confidence, demonstrating geometric sensitivity, but it shortens the predicted path and still produces near-zero curve response and a lane-departure failure. Negative pitch degrades curved-segment confidence and path horizon. These controls rule out a navigation overlay and a small fixed pitch/FOV adjustment as a complete remedy.
+
+The RGB-to-NV12 transport is additionally guarded by deterministic unit fixtures for black, white, red, green, and blue frames. They fix the BT.601 limited-range luma and interleaved U/V output, so an RGB/BGR channel swap or limited-range conversion regression is not an open explanation for these results.
+
+## Conclusion and boundary
+
+The evidence is sufficient to classify the present baseline as a **pretrained-model versus MetaDrive image-domain mismatch**, not an OpenPilot control-gain or transport-delay defect. The exact visual features responsible cannot be inferred from simulator-only data, and no camera pose, gamma, FOV, or overlay setting tested here yields an acceptable model path or closed-loop result. The appropriate next development path is a separately labeled simulator-specialist perception/replay experiment, evaluated with this fixed harness; it must not be represented as a real-road openpilot improvement.

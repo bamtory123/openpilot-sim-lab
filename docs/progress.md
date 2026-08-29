@@ -64,8 +64,10 @@ Runtime camera-contract telemetry initially observed an `unknown/unknown` key be
 
 The lane-semantic audit is complete for the fixed frame-alignment fixture. In 2,550 straight and 635 curve telemetry rows, mean model left/right lane-line probabilities were only 0.0115/0.0223 and 0.0137/0.0273 respectively. Model validity remained 100% with zero frame age/drop, so this is not a stale-frame symptom. The current primary camera/model hypothesis is consequently MetaDrive lane-rendering domain mismatch, rather than camera transport, intrinsics, calibration, or controller gain. The next experiments isolate individual lane-appearance variables with the same capture fixture.
 
+The rendering/geometry controls are now complete. Turning off MetaDrive's navigation mark had no material effect; 60-degree FOV lowered lane confidence; −2-degree pitch shortened the curved path; and +2-degree pitch raised lane confidence but retained a short path, near-zero curve response, and valid lane/KPI failure. RGB-to-NV12 primary-color fixtures also now guard the transport channel order. The camera/model diagnosis is therefore complete: the fixed pretrained model does not produce a usable path from this MetaDrive visual domain, and controller tuning must remain out of scope until a separately evaluated simulator-specialist perception/replay path exists.
+
 ## Next
 
-1. Run one-variable lane-rendering-domain diagnostics using the existing frame/ground-truth alignment fixture.
-2. Keep model-path, lane-probability, and inference-health KPIs on any camera-contract experiment; do not tune simulator-only controllers as an openpilot claim.
+1. Keep the camera/model baseline frozen; use its frame-alignment and lane-semantic KPIs to evaluate any separately developed simulator-specialist perception/replay path.
+2. Do not tune simulator-only controllers as an openpilot claim while the pretrained-model baseline remains a valid failure.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
