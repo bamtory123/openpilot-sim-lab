@@ -28,3 +28,6 @@ validity:
 logging:
   telemetry_hz: 100
   camera_hz_nominal: 20
+
+diagnostics:
+  camera_capture_frames: [2400, 2600, 2800]
