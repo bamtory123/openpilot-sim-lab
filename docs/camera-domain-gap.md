@@ -73,3 +73,7 @@ These values are regression baselines only. They cannot be compared to a real ca
 1. Capture matched frame sets at fixed map positions before and during the curve; retain frame metadata and telemetry joins.
 2. Inspect model path/curvature output against those frame sets without changing controller gains.
 3. If a camera change is proposed, alter one documented variable at a time and preserve the 40-degree formal baseline unchanged.
+
+## Gamma sensitivity result
+
+With every camera/model contract field fixed, gamma 0.8 increased curve-segment mean absolute model curvature from about `4.7e-06` to `1.09e-05 1/m`; gamma 1.2 produced `4.05e-06 1/m`. Required reference curvature is about `8.66e-03 1/m`. All three gamma conditions remained valid lane/KPI failures with a roughly 4–5 m model path horizon. Global luminance affects output slightly but is not the primary camera/model mismatch.
