@@ -66,8 +66,10 @@ The lane-semantic audit is complete for the fixed frame-alignment fixture. In 2,
 
 The rendering/geometry controls are now complete. Turning off MetaDrive's navigation mark had no material effect; 60-degree FOV lowered lane confidence; −2-degree pitch shortened the curved path; and +2-degree pitch raised lane confidence but retained a short path, near-zero curve response, and valid lane/KPI failure. RGB-to-NV12 primary-color fixtures also now guard the transport channel order. The camera/model diagnosis is therefore complete: the fixed pretrained model does not produce a usable path from this MetaDrive visual domain, and controller tuning must remain out of scope until a separately evaluated simulator-specialist perception/replay path exists.
 
+The first simulator-specialist path is now implemented and evaluated separately. It trains a local RGB-only ridge replay artifact from reference-lane teacher labels, then actuates MetaDrive without route or ground-truth inputs. The fixed validation steering RMSE was 0.00715 normalized steer after two replay-aggregation rounds. Closed-loop lateral RMSE moved from 1.340 m on the initial artifact to 0.549 m on v2, compared with the pretrained baseline's 0.585 m; every specialist result remains `valid/fail` for lane departure/lateral error. This is a repeatable simulator-only experiment, not a passing system or a real-road result.
+
 ## Next
 
-1. Keep the camera/model baseline frozen; use its frame-alignment and lane-semantic KPIs to evaluate any separately developed simulator-specialist perception/replay path.
-2. Do not tune simulator-only controllers as an openpilot claim while the pretrained-model baseline remains a valid failure.
+1. Add diverse, stable expert demonstrations and held-out route/appearance conditions before increasing specialist model capacity.
+2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.

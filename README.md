@@ -46,6 +46,7 @@ Each run contains `manifest.json`, the resolved `scenario.yaml`, 100 Hz `telemet
 This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and actuator behaviour differ from an ECU and a real vehicle. CARLA is documented as a Windows–WSL smoke-test effort and is not a v0.1 release gate.
 
 See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/results](docs/progress.md), and [CARLA smoke-test status](docs/carla-smoke.md).
+The separate MetaDrive-only RGB replay experiment is documented in [simulator-specialist](docs/simulator-specialist.md).
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
 The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).
 The planned public release boundary is recorded in the [release checklist](docs/release-checklist.md).
