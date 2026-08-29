@@ -85,6 +85,14 @@ def validate_scenario(data: dict[str, Any]) -> None:
     directions = dataset.get("map_curve_directions", [env.get("map_curve_direction", 0)])
     if not isinstance(directions, list) or not directions or set(directions) - {0, 1}:
       raise ScenarioError("dataset.map_curve_directions must contain only 0 and/or 1")
+  specialist_dataset = data.get("specialist_dataset")
+  if specialist_dataset is not None:
+    teacher = specialist_dataset.get("teacher") if isinstance(specialist_dataset, dict) else None
+    if not isinstance(teacher, dict):
+      raise ScenarioError("specialist_dataset.teacher must be a mapping")
+    for key in ("lookahead_m", "curvature_to_steer_gain"):
+      if not isinstance(teacher.get(key), (int, float)) or teacher[key] <= 0:
+        raise ScenarioError(f"specialist_dataset.teacher.{key} must be positive")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):
