@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 from pathlib import Path
 
 from simlab.config import load_scenario
-from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv
+from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest
 
 
 def test_stops_the_manager_process_group():
@@ -75,3 +75,12 @@ def test_camera_alignment_joins_capture_to_nearest_telemetry(tmp_path):
 
   capture = __import__("json").loads((tmp_path / "camera_alignment.json").read_text())["captures"][0]
   assert capture["image"] == "road-frame-000100.png" and capture["telemetry"]["simulation_frame"] == 99
+
+
+def test_dataset_manifest_uses_run_relative_image_paths(tmp_path):
+  (tmp_path / "camera_alignment.json").write_text('{"captures":[{"image":"road.png","metadata":{"simulation_frame":1},"telemetry":{"lateral_error_m":0.2}}]}')
+
+  _write_dataset_manifest(tmp_path)
+
+  sample = __import__("json").loads((tmp_path / "dataset_manifest.jsonl").read_text())
+  assert sample["image"] == "debug/road.png" and sample["labels"]["lateral_error_m"] == 0.2

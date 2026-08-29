@@ -66,6 +66,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
       raise ScenarioError("diagnostics.camera_capture_frames must be a non-empty positive integer list")
     if frames != sorted(set(frames)):
       raise ScenarioError("diagnostics.camera_capture_frames must be unique and increasing")
+    if "dataset_collection" in diagnostics and diagnostics["dataset_collection"] is not True:
+      raise ScenarioError("diagnostics.dataset_collection must be true when specified")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):

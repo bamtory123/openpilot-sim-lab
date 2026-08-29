@@ -57,6 +57,17 @@ def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
     write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
 
 
+def _write_dataset_manifest(run_dir: Path) -> None:
+  alignment_path = run_dir / "camera_alignment.json"
+  if not alignment_path.exists():
+    return
+  captures = json.loads(alignment_path.read_text(encoding="utf-8"))["captures"]
+  with (run_dir / "dataset_manifest.jsonl").open("w", encoding="utf-8") as handle:
+    for capture in captures:
+      handle.write(json.dumps({"image": f"debug/{capture['image']}", "metadata": capture["metadata"],
+                               "labels": capture["telemetry"]}, sort_keys=True) + "\n")
+
+
 def _stop_process_group(process: subprocess.Popen) -> None:
   """Terminate the manager and every daemon it starts for one experiment."""
   if process.poll() is not None:
@@ -223,6 +234,8 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   _write_csv(run_dir / "telemetry.csv", data.telemetry)
   _write_csv(run_dir / "camera.csv", data.camera)
   _write_camera_alignment(run_dir, data.telemetry)
+  if scenario.data.get("diagnostics", {}).get("dataset_collection"):
+    _write_dataset_manifest(run_dir)
   with (run_dir / "events.jsonl").open("w", encoding="utf-8") as handle:
     for event in data.events:
       handle.write(json.dumps(event, sort_keys=True) + "\n")
