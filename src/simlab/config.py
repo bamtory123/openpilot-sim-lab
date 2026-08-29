@@ -93,6 +93,12 @@ def validate_scenario(data: dict[str, Any]) -> None:
     for key in ("lookahead_m", "curvature_to_steer_gain"):
       if not isinstance(teacher.get(key), (int, float)) or teacher[key] <= 0:
         raise ScenarioError(f"specialist_dataset.teacher.{key} must be positive")
+  specialist_replay = data.get("specialist_replay")
+  if specialist_replay is not None:
+    if not isinstance(specialist_replay, dict) or not isinstance(specialist_replay.get("artifact_path"), str) or not specialist_replay["artifact_path"]:
+      raise ScenarioError("specialist_replay.artifact_path must be a non-empty string")
+    if not isinstance(specialist_replay.get("target_speed_mps"), (int, float)) or specialist_replay["target_speed_mps"] <= 0:
+      raise ScenarioError("specialist_replay.target_speed_mps must be positive")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):

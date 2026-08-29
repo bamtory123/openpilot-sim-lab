@@ -56,3 +56,9 @@ def test_specialist_dataset_requires_complete_positive_teacher_configuration(tmp
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\nspecialist_dataset:\n  teacher:\n    lookahead_m: 12\n")
   with pytest.raises(ScenarioError): load_scenario(path)
+
+
+def test_specialist_replay_requires_artifact_and_target_speed(tmp_path):
+  path = tmp_path / "invalid.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\nspecialist_replay:\n  artifact_path: models/test.npz\n")
+  with pytest.raises(ScenarioError): load_scenario(path)

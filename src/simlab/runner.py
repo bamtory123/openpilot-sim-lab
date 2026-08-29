@@ -135,6 +135,9 @@ def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> No
     raise RuntimeError("refusing dirty working tree; commit first or pass --allow-dirty")
   if scenario.data["environment"]["map_id"] != "openpilot_default_loop_v1":
     raise ScenarioError("unsupported map")
+  specialist_replay = scenario.data.get("specialist_replay")
+  if specialist_replay is not None and not (ROOT / specialist_replay["artifact_path"]).is_file():
+    raise RuntimeError("specialist replay artifact is missing")
   try:
     import metadrive  # noqa: F401
   except ImportError as error:
@@ -203,6 +206,9 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   (run_dir / "scenario.yaml").write_text(yaml.safe_dump(scenario.data, sort_keys=False), encoding="utf-8")
   write_json(run_dir / "manifest.json", build_manifest(run_id, scenario, ROOT, openpilot_root, ["simlab", "run", str(scenario.source)]))
 
+  runtime_scenario = json.loads(json.dumps(scenario.data))
+  if runtime_scenario.get("specialist_replay"):
+    runtime_scenario["specialist_replay"]["artifact_path"] = str((ROOT / runtime_scenario["specialist_replay"]["artifact_path"]).resolve())
   sys.path.insert(0, str(openpilot_root))
   from openpilot.tools.sim.bridge.common import QueueMessageType
   from openpilot.tools.sim.bridge.metadrive.metadrive_bridge import MetaDriveBridge
@@ -226,7 +232,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   deadline = time.monotonic() + scenario.data["run"]["wall_watchdog_s"]
   try:
     control_queue, status_queue = Queue(), Queue()
-    bridge = MetaDriveBridge(False, False, test_duration=float("inf"), test_run=True, simlab_config=scenario.data)
+    bridge = MetaDriveBridge(False, False, test_duration=float("inf"), test_run=True, simlab_config=runtime_scenario)
     process = bridge.run(control_queue, status_queue=status_queue)
     while time.monotonic() < deadline:
       if process.exitcode is not None:
