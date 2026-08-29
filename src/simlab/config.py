@@ -44,6 +44,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("v0.1 supports only openpilot_default_loop_v1")
   if not isinstance(env.get("seed"), int) or env.get("reference_lane_index") not in (0, 1):
     raise ScenarioError("seed and reference_lane_index must be concrete")
+  if env.get("map_curve_direction", 0) not in (0, 1):
+    raise ScenarioError("map_curve_direction must be 0 or 1")
   if "camera_fov_deg" in env and env["camera_fov_deg"] not in (40, 60):
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   for key in ("camera_position_m", "camera_hpr_deg"):
@@ -76,6 +78,9 @@ def validate_scenario(data: dict[str, Any]) -> None:
     validation_seeds = dataset.get("validation_seeds", [])
     if not isinstance(validation_seeds, list) or not all(isinstance(seed, int) for seed in validation_seeds) or not set(validation_seeds) < set(seeds):
       raise ScenarioError("dataset.validation_seeds must be a strict subset of dataset.seeds")
+    directions = dataset.get("map_curve_directions", [env.get("map_curve_direction", 0)])
+    if not isinstance(directions, list) or not directions or set(directions) - {0, 1}:
+      raise ScenarioError("dataset.map_curve_directions must contain only 0 and/or 1")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):
@@ -110,5 +115,12 @@ def scenario_with_delay(scenario: Scenario, delay_ms: int) -> Scenario:
 def scenario_with_seed(scenario: Scenario, seed: int) -> Scenario:
   data = json.loads(json.dumps(scenario.data))
   data["environment"]["seed"] = seed
+  validate_scenario(data)
+  return Scenario(data=data, source=scenario.source)
+
+
+def scenario_with_map_curve_direction(scenario: Scenario, direction: int) -> Scenario:
+  data = json.loads(json.dumps(scenario.data))
+  data["environment"]["map_curve_direction"] = direction
   validate_scenario(data)
   return Scenario(data=data, source=scenario.source)

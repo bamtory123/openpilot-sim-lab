@@ -25,3 +25,5 @@ $OPENPILOT_PYTHON -m simlab.runner collect \
 ```
 
 The verified split matrix contains 36 train and 18 validation samples; curved segments are split 10 and 5 respectively. These counts are provenance checks, not training-sufficiency claims.
+
+The dataset audit reports only `0 … +0.008658 1/m` reference curvature for the initial matrix. It has no negative-curvature coverage, so it must not be used to train a general path model. The collector now declares both map curve directions; its directional smoke run must verify sign reversal before model training begins.

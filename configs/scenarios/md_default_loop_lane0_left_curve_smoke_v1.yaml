@@ -1,10 +1,11 @@
 schema_version: 1
-scenario_id: md_default_loop_lane0_dataset_collection_v1
+scenario_id: md_default_loop_lane0_left_curve_smoke_v1
 
 environment:
   map_id: openpilot_default_loop_v1
   seed: 20260827
   reference_lane_index: 0
+  map_curve_direction: 1
 
 run:
   wait_ready_timeout_s: 60
@@ -30,9 +31,4 @@ logging:
 
 diagnostics:
   dataset_collection: true
-  camera_capture_frames: [1600, 1680, 1760, 1840, 1920, 2000, 2080, 2160, 2240, 2320, 2400, 2480, 2560, 2640, 2720, 2800, 2880, 2960]
-
-dataset:
-  seeds: [20260827, 20260828, 20260829]
-  validation_seeds: [20260829]
-  map_curve_directions: [0, 1]
+  camera_capture_frames: [2400, 2600, 2800]

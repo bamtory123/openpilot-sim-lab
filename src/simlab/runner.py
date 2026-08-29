@@ -15,7 +15,7 @@ from multiprocessing import Queue
 
 import yaml
 
-from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed
+from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed, scenario_with_map_curve_direction
 from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, write_json
 from .metrics import calculate_metrics, camera_timestamps_valid
@@ -257,8 +257,11 @@ def run_batch(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> li
 
 
 def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> list[Path]:
-  seeds = scenario.data.get("dataset", {}).get("seeds", [scenario.data["environment"]["seed"]])
-  return [run_once(scenario_with_seed(scenario, seed), output_root=output_root, allow_dirty=allow_dirty) for seed in seeds]
+  dataset = scenario.data.get("dataset", {})
+  seeds = dataset.get("seeds", [scenario.data["environment"]["seed"]])
+  directions = dataset.get("map_curve_directions", [scenario.data["environment"].get("map_curve_direction", 0)])
+  return [run_once(scenario_with_map_curve_direction(scenario_with_seed(scenario, seed), direction), output_root=output_root, allow_dirty=allow_dirty)
+          for direction in directions for seed in seeds]
 
 
 def main() -> None:
