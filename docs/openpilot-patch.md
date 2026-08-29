@@ -14,6 +14,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
 | Calibration telemetry | modeld calibration RPY and status | exposes the image warp state before any calibration experiment |
+| Model camera contract | modeld device type, camera sensor, width, height, and focal length | records the runtime intrinsics key rather than assuming the PC camera configuration |
 
 The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. No CARLA adapter or specialist model code is part of the v0.1 branch.
 
