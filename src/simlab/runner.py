@@ -20,6 +20,7 @@ from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, write_json
 from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
+from .specialist import train_specialist
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUTS = ROOT / "outputs"
@@ -271,16 +272,23 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "audit", "report"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "audit", "report", "train-specialist"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
+  parser.add_argument("--dataset-root", type=Path)
+  parser.add_argument("--artifact", type=Path)
   args = parser.parse_args()
   if args.command == "report":
     print(generate_report(args.outputs, args.outputs / "report.md"))
     return
   if args.command == "audit":
     print(json.dumps(audit_dataset(args.outputs), indent=2, sort_keys=True))
+    return
+  if args.command == "train-specialist":
+    if args.dataset_root is None or args.artifact is None:
+      parser.error("train-specialist requires --dataset-root and --artifact")
+    print(json.dumps(train_specialist(args.dataset_root, args.artifact), indent=2, sort_keys=True))
     return
   scenario = load_scenario(args.scenario)
   if args.command == "preflight":
