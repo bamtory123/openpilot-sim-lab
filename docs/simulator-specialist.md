@@ -50,4 +50,6 @@ The v2 validation steering RMSE is 0.00715 normalized steer. Closed-loop v2 is s
 
 ## Next evidence needed
 
-The next iteration should add genuinely diverse, stable expert demonstrations and held-out route/appearance conditions before increasing model capacity. A CNN or a controller change without that evidence would only risk fitting this one synthetic loop. Any future specialist result must retain the same manifest, camera, validity, and outcome contracts used here.
+The initial expert-only curve artifact reached a held-out lane departure after 219 camera frames (lateral RMSE 1.182 m). Adding fixed-route straight and curve expert samples improved this to 404 frames and 1.029 m, but remained `valid/fail`. A subsequent DAgger collection added 64 learner-visited straight-state samples to the 108 mixed expert samples. Its held-out replay reached 594 frames with 0.995 m lateral RMSE and 0.0301 rad heading RMSE, but also remained `valid/fail` because of lane departure.
+
+These are controlled improvements, not a driving success or a real-road claim. The next evidence should be temporally contextual camera input and more varied held-out route/appearance conditions; increasing model capacity or changing a controller before that evidence would only risk fitting this fixed synthetic loop. Any future specialist result must retain the same manifest, camera, validity, and outcome contracts used here.

@@ -68,8 +68,10 @@ The rendering/geometry controls are now complete. Turning off MetaDrive's naviga
 
 The first simulator-specialist path is now implemented and evaluated separately. It trains a local RGB-only ridge replay artifact from reference-lane teacher labels, then actuates MetaDrive without route or ground-truth inputs. The fixed validation steering RMSE was 0.00715 normalized steer after two replay-aggregation rounds. Closed-loop lateral RMSE moved from 1.340 m on the initial artifact to 0.549 m on v2, compared with the pretrained baseline's 0.585 m; every specialist result remains `valid/fail` for lane departure/lateral error. This is a repeatable simulator-only experiment, not a passing system or a real-road result.
 
+The next expert-data study established a stable pure-pursuit ground-truth teacher (1,200 camera frames, `valid/pass`, 0.0249 m lateral RMSE) and collected a held-out mixed straight/curve set. The camera-only ridge artifact trained from 54/54 train/held-out samples failed after 404 frames (1.029 m lateral RMSE); adding 32/32 train/held-out learner-visited DAgger samples extended this to 594 frames and 0.995 m. Both closed-loop results remain `valid/fail` due to lane departure/lateral error. The improvement is retained as controlled evidence, not promoted to a driving success.
+
 ## Next
 
-1. Add diverse, stable expert demonstrations and held-out route/appearance conditions before increasing specialist model capacity.
+1. Add temporal camera context and genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
 2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
