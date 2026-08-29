@@ -68,6 +68,11 @@ def validate_scenario(data: dict[str, Any]) -> None:
       raise ScenarioError("diagnostics.camera_capture_frames must be unique and increasing")
     if "dataset_collection" in diagnostics and diagnostics["dataset_collection"] is not True:
       raise ScenarioError("diagnostics.dataset_collection must be true when specified")
+  dataset = data.get("dataset")
+  if dataset is not None:
+    seeds = dataset.get("seeds") if isinstance(dataset, dict) else None
+    if not isinstance(seeds, list) or not seeds or not all(isinstance(seed, int) for seed in seeds) or len(set(seeds)) != len(seeds):
+      raise ScenarioError("dataset.seeds must be a non-empty unique integer list")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):
@@ -95,5 +100,12 @@ def load_scenario(path: Path) -> Scenario:
 def scenario_with_delay(scenario: Scenario, delay_ms: int) -> Scenario:
   data = json.loads(json.dumps(scenario.data))
   data["fault"]["target_delay_ms"] = delay_ms
+  validate_scenario(data)
+  return Scenario(data=data, source=scenario.source)
+
+
+def scenario_with_seed(scenario: Scenario, seed: int) -> Scenario:
+  data = json.loads(json.dumps(scenario.data))
+  data["environment"]["seed"] = seed
   validate_scenario(data)
   return Scenario(data=data, source=scenario.source)

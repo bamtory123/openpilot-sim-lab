@@ -15,7 +15,7 @@ from multiprocessing import Queue
 
 import yaml
 
-from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay
+from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed
 from .manifest import build_manifest, git_metadata, write_json
 from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
@@ -254,9 +254,14 @@ def run_batch(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> li
           for block in blocks for delay in block]
 
 
+def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> list[Path]:
+  seeds = scenario.data.get("dataset", {}).get("seeds", [scenario.data["environment"]["seed"]])
+  return [run_once(scenario_with_seed(scenario, seed), output_root=output_root, allow_dirty=allow_dirty) for seed in seeds]
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "report"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "report"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
@@ -270,6 +275,9 @@ def main() -> None:
     print("preflight: PASS")
   elif args.command == "run":
     print(run_once(scenario, output_root=args.outputs, allow_dirty=args.allow_dirty))
+  elif args.command == "collect":
+    for path in collect_dataset(scenario, output_root=args.outputs, allow_dirty=args.allow_dirty):
+      print(path)
   else:
     for path in run_batch(scenario, output_root=args.outputs, allow_dirty=args.allow_dirty):
       print(path)

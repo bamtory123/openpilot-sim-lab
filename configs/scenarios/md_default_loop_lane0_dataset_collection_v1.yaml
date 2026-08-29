@@ -31,3 +31,6 @@ logging:
 diagnostics:
   dataset_collection: true
   camera_capture_frames: [1600, 1680, 1760, 1840, 1920, 2000, 2080, 2160, 2240, 2320, 2400, 2480, 2560, 2640, 2720, 2800, 2880, 2960]
+
+dataset:
+  seeds: [20260827, 20260828, 20260829]
