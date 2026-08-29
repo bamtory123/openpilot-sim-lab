@@ -54,6 +54,8 @@ The first three-seed collection matrix completed with 54 labeled images and 15 c
 
 The split-aware rerun verified 36 train / 18 validation samples, with 10 / 5 curved-segment samples. This creates a leakage-free evaluation contract for the upcoming simulator-specialist model; the sample count remains smoke-scale only.
 
+Dataset audit confirms curvature coverage only from 0 to +0.008658 1/m, with no negative-turn samples. Training is intentionally gated until route/map coverage is expanded; otherwise a model could appear to improve while only memorizing one loop direction.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
