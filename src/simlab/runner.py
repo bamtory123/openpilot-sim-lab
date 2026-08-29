@@ -16,6 +16,7 @@ from multiprocessing import Queue
 import yaml
 
 from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed
+from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, write_json
 from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
@@ -262,13 +263,16 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "report"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "audit", "report"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
   args = parser.parse_args()
   if args.command == "report":
     print(generate_report(args.outputs, args.outputs / "report.md"))
+    return
+  if args.command == "audit":
+    print(json.dumps(audit_dataset(args.outputs), indent=2, sort_keys=True))
     return
   scenario = load_scenario(args.scenario)
   if args.command == "preflight":
