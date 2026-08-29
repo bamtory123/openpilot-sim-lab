@@ -31,7 +31,7 @@ def image_features(image: np.ndarray) -> np.ndarray:
 
 def load_specialist_samples(root: Path) -> list[SpecialistSample]:
   samples = []
-  for manifest in sorted(root.glob("*/specialist_manifest.jsonl")):
+  for manifest in sorted(root.rglob("specialist_manifest.jsonl")):
     for line in manifest.read_text(encoding="utf-8").splitlines():
       row = json.loads(line)
       target = row.get("target_normalized_steer")
