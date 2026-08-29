@@ -58,6 +58,8 @@ Dataset audit confirms curvature coverage only from 0 to +0.008658 1/m, with no 
 
 The directional map smoke run verified `map_curve_direction: 1` produces negative curvature (`−0.008032 … 0 1/m`) with 370 negative-curve telemetry samples. The dataset collector now supports both curve directions; the next collection matrix should use that expansion before training.
 
+Runtime camera-contract telemetry initially observed an `unknown/unknown` key before device/camera state initialization. It is now recorded as missing intrinsics rather than crashing the bridge; steady-state verification will distinguish this startup state from the actual modeld camera contract.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
