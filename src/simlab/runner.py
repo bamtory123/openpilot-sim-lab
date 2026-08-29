@@ -53,7 +53,11 @@ def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
                      "telemetry": {key: nearest.get(key) for key in ("simulation_frame", "lateral_error_m",
                      "heading_error_rad", "reference_curvature_1pm", "model_target_curvature_1pm",
                      "control_target_curvature_1pm", "model_path_end_x_m", "model_path_end_y_m",
-                     "model_path_end_speed_mps", "model_valid", "model_frame_id")}})
+                     "model_path_end_speed_mps", "model_valid", "model_frame_id", "model_frame_age",
+                     "model_frame_drop_perc", "model_execution_time_s", "model_device_type",
+                     "model_camera_sensor", "model_camera_width_px", "model_camera_height_px",
+                     "model_camera_focal_length_px", "calibration_status", "calibration_roll_rad",
+                     "calibration_pitch_rad", "calibration_yaw_rad")}})
   if captures:
     write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
 
