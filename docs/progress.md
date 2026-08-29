@@ -56,6 +56,8 @@ The split-aware rerun verified 36 train / 18 validation samples, with 10 / 5 cur
 
 Dataset audit confirms curvature coverage only from 0 to +0.008658 1/m, with no negative-turn samples. Training is intentionally gated until route/map coverage is expanded; otherwise a model could appear to improve while only memorizing one loop direction.
 
+The directional map smoke run verified `map_curve_direction: 1` produces negative curvature (`−0.008032 … 0 1/m`) with 370 negative-curve telemetry samples. The dataset collector now supports both curve directions; the next collection matrix should use that expansion before training.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
