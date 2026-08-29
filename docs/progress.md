@@ -52,6 +52,8 @@ The simulator dataset collection path now writes run-relative PNGs plus `dataset
 
 The first three-seed collection matrix completed with 54 labeled images and 15 curved-segment samples. Seeds `20260827`, `20260828`, and `20260829` are preserved in each run-local scenario artifact. It establishes deterministic multi-run collection, not sufficient training coverage.
 
+The split-aware rerun verified 36 train / 18 validation samples, with 10 / 5 curved-segment samples. This creates a leakage-free evaluation contract for the upcoming simulator-specialist model; the sample count remains smoke-scale only.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.

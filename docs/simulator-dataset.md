@@ -23,3 +23,5 @@ $OPENPILOT_PYTHON -m simlab.runner collect \
   --scenario configs/scenarios/md_default_loop_lane0_dataset_collection_v1.yaml \
   --outputs outputs/dataset-collection-matrix
 ```
+
+The verified split matrix contains 36 train and 18 validation samples; curved segments are split 10 and 5 respectively. These counts are provenance checks, not training-sufficiency claims.
