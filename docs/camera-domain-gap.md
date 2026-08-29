@@ -44,6 +44,8 @@ The −4° point was a valid failure before reaching the curve (simulation frame
 
 The 0 ms inference-health diagnostic recorded `model_valid` on every measured sample, zero model frame age and drop percentage, and a 9.9 ms P95 model execution time. The latest camera source ID and `model_frame_id` both reached 643. The model therefore consumed current delayed-queue output, but its median predicted path horizon was only 4.91 m and predicted terminal speed 2.74 m/s while actual vehicle speed averaged 4.55 m/s. This rules out camera queue staleness as the explanation for the near-zero lateral response; it does not establish which image-domain or model-input contract mismatch causes the short prediction.
 
+The calibration-telemetry retry recorded `calibrated` on all 2,895 measurement samples with RPY exactly `[0, 0, 0]`. The modeld image warp is therefore initialized and stable; no calibration adjustment is justified by the current evidence.
+
 ## Repeatable alignment fixture
 
 `md_default_loop_lane0_frame_alignment_diagnostic_v1` opt-in captures simulation frames 2400, 2600, and 2800 into the run's `debug/` directory. The runner writes `camera_alignment.json`, joining each image metadata record to its nearest simulator telemetry record. This diagnostic artifact is intentionally separate from the formal delay matrix and gives every later camera-contract experiment the same image/ground-truth/model-path evidence.

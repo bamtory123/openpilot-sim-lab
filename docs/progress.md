@@ -46,6 +46,8 @@ The first opt-in frame-alignment fixture run generated three PNG/metadata pairs 
 
 Calibration RPY/status telemetry is now recorded before any calibration change. The next diagnostic must establish the observed warp state before proposing a calibration experiment.
 
+The calibration diagnostic completed with `calibrated` status and zero RPY throughout the 2,895-sample measurement period. This removes calibration initialization/drift from the current failure hypotheses; the next evidence should quantify the captured image domain rather than tune camera pose or calibration.
+
 ## Next
 
 1. Add repeatable frame/ground-truth alignment fixtures before changing camera preprocessing or calibration.
