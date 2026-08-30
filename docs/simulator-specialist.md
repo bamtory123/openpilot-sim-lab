@@ -71,3 +71,9 @@ Training-only gamma augmentation (0.8/1.0/1.2) was then applied to temporal pair
 `md_tight_loop_lane0_temporal_dagger_heldout_v1` keeps the same lane count, lane width, seed, direction, camera, and KPI contract, but changes the deterministic loop track size from 60 m to 45 m. This produces tighter curves without changing the official `md_default_loop_lane0_v1` baseline. The retained unaugmented temporal+DAgger artifact reached 747 frames with 0.528 m RMSE and remained `valid/fail`. This is route-geometry evidence only; it does not establish route generalization.
 
 Stable temporal expert data was then collected at 45 m (124/124 train/held-out samples; 54 curved samples) and combined with the retained 60 m temporal DAgger set. The resulting multi-geometry artifact was evaluated at an unseen 52 m track size: it reached 311 frames with 0.980 m RMSE and remained `valid/fail`. The result is retained as negative interpolation evidence; the multi-geometry artifact is not adopted.
+
+## Fixed-condition repeatability check
+
+Three fresh process-to-collection repeats of the retained temporal+DAgger artifact used the unchanged 60 m held-out scenario, seed, camera contract, 0 ms transport-delay path, and artifact. All three completed as `valid/fail` for the same lane-departure and lateral-error criteria, with no collisions, no camera drops, and valid timestamps. Lateral RMSE was 0.48694, 0.48731, and 0.49146 m (mean 0.48857 m; sample standard deviation 0.00251 m); heading RMSE was 0.06336, 0.06336, and 0.06371 rad. Published camera-frame counts were 882, 883, and 883, and delay P95 ranged from 30.70 to 31.07 ms.
+
+The repeat roots are `outputs/v0.5-temporal-dagger-repeat-{1,2,3}-20260830`. This establishes repeatability of the fixed-condition **failure** and its measured telemetry, not a passing controller, route generalization, or real-road capability.

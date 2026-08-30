@@ -80,6 +80,8 @@ The bridge now exposes `map_track_size_m` while preserving the official 60 m def
 
 Tighter-loop temporal expert data (124/124 samples, 54 curved) was combined with the retained 60 m temporal DAgger set. Its unseen 52 m intermediate-loop evaluation reached 311 frames and 0.980 m, a valid lane/KPI failure. This negative interpolation result means the multi-geometry artifact is not adopted.
 
+Three independent process-to-collection repeats of the retained 60 m temporal DAgger held-out contract are now complete. All were `valid/fail` for the same lane/lateral criteria without collision or camera drops. Lateral RMSE was 0.48694–0.49146 m (mean 0.48857 m, sample standard deviation 0.00251 m); heading RMSE was 0.06336–0.06371 rad. This is repeatability evidence for the fixed-condition failure, not a driving success or a generalization result.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
