@@ -52,6 +52,7 @@ The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](exa
 The constrained simulator-specialist delay sample is in [examples/v0.5-specialist-speed2-delay-matrix](examples/v0.5-specialist-speed2-delay-matrix/README.md).
 The gamma-0.8 specialist delay sample is in [examples/v0.6-specialist-gamma08-delay-matrix](examples/v0.6-specialist-gamma08-delay-matrix/README.md).
 The separate tight-loop specialist samples are [three 0 ms repeats](examples/v0.6-specialist-tight-dagger/README.md) and its [0/50/100/150 ms delay matrix](examples/v0.6-specialist-tight-dagger-delay-matrix/README.md); both remain limited to their declared local artifact and fixed MetaDrive contract.
+The v0.2 serpentine delay sample is in [examples/v0.2-specialist-serpentine-delay-matrix](examples/v0.2-specialist-serpentine-delay-matrix/README.md); it is a separate versioned synthetic topology and not part of the v0.1 release result.
 The planned public release boundary is recorded in the [release checklist](docs/release-checklist.md).
 Camera input diagnostics and their limits are documented in [camera-domain-gap](docs/camera-domain-gap.md).
 The consolidated scope of every positive and negative evaluation result is in [evaluation boundary](docs/evaluation-boundary.md).
