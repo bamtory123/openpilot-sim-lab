@@ -46,6 +46,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("seed and reference_lane_index must be concrete")
   if env.get("map_curve_direction", 0) not in (0, 1):
     raise ScenarioError("map_curve_direction must be 0 or 1")
+  if not isinstance(env.get("map_track_size_m", 60), int) or env.get("map_track_size_m", 60) < 30:
+    raise ScenarioError("map_track_size_m must be an integer of at least 30")
   if "camera_fov_deg" in env and env["camera_fov_deg"] not in (40, 60):
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   if "camera_gamma" in env and (not isinstance(env["camera_gamma"], (int, float)) or not 0.8 <= float(env["camera_gamma"]) <= 1.2):
