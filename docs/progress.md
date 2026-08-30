@@ -72,6 +72,8 @@ The next expert-data study established a stable pure-pursuit ground-truth teache
 
 The temporal RGB specialist then added a current-frame/0.2-second-difference artifact with camera-frame-gated runtime history. Its expert-only run failed after 196 frames (1.085 m); 62/62 temporal DAgger samples improved it to 883 frames and 0.491 m. A subsequent curve-state DAgger collection (122/122 samples, 154 curved) regressed slightly to 809 frames and 0.505 m. All are valid lane/KPI failures. The first temporal DAgger result is retained as the best specialist experiment; the curve artifact is retained as a non-adopted result.
 
+The retained temporal DAgger artifact also failed both held-out appearance checks without retraining: gamma 0.8 reached 682 frames with 1.344 m lateral RMSE and gamma 1.2 reached 139 frames with 1.174 m. This is evidence of fixed-rendering overfit, so no simulator-specialist artifact is promoted beyond the gamma 1.0 experimental condition.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
