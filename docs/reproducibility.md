@@ -27,6 +27,21 @@ The batch performs one excluded warm-up followed by three interleaved runs for e
 
 The current baseline is expected to produce repeatable lane-departure failures. Do not use this procedure to claim real-vehicle performance, HIL validation, or successful openpilot driving.
 
+## Opt-in tight-loop specialist matrix
+
+This separate procedure requires the local generated `models/v0.6-temporal-gamma-tight-dagger-ridge.npz` artifact; it does not modify the pretrained openpilot path or the formal model-driven matrix.
+
+```bash
+$OPENPILOT_PYTHON -m simlab.runner preflight \
+  --scenario configs/scenarios/md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml
+$OPENPILOT_PYTHON -m simlab.runner batch \
+  --scenario configs/scenarios/md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml \
+  --outputs outputs/tight-specialist-delay-matrix
+$OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/tight-specialist-delay-matrix
+```
+
+Apply the same acceptance checks above. The checked-in sample documents a fixed 45 m loop, seed, direction, default rendering, and 2.0 m/s target only. A missing local artifact is a preflight failure, not a reason to substitute ground truth or alter the scenario.
+
 ## Camera alignment diagnostic
 
 ```bash
