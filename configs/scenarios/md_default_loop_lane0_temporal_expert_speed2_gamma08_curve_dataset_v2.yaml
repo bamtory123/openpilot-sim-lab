@@ -1,0 +1,50 @@
+schema_version: 1
+scenario_id: md_default_loop_lane0_temporal_expert_speed2_gamma08_curve_dataset_v2
+
+environment:
+  map_id: openpilot_default_loop_v1
+  seed: 20260827
+  reference_lane_index: 0
+  camera_gamma: 0.8
+
+simulator_control:
+  mode: pure_pursuit
+  target_speed_mps: 2.0
+  lookahead_m: 12.0
+  curvature_to_steer_gain: 3.5
+
+specialist_dataset:
+  teacher:
+    lookahead_m: 12.0
+    curvature_to_steer_gain: 3.5
+
+run:
+  wait_ready_timeout_s: 60
+  wait_engage_timeout_s: 30
+  fault_settle_s: 5
+  measurement_camera_frames: 1200
+  wall_watchdog_s: 220
+
+fault:
+  type: camera_transport_delay
+  target_delay_ms: 0
+  queue_capacity_frames: 8
+  overflow_policy: invalid_run
+
+validity:
+  min_active_time_s: 55
+  min_telemetry_coverage_ratio: 0.99
+  allow_frame_drop: false
+
+logging:
+  telemetry_hz: 100
+  camera_hz_nominal: 20
+
+diagnostics:
+  dataset_collection: true
+  camera_capture_frames: [5420, 5440, 5460, 5480, 5500, 5520, 5540, 5560, 5580, 5600, 5620, 5640, 5660, 5680, 5700, 5720, 5740, 5760, 5780, 5800, 5820, 5840, 5860, 5880, 5900, 5920, 5940, 5960, 5980, 6000, 6020, 6040, 6060, 6080, 6100, 6120, 6140, 6160, 6180, 6200]
+
+dataset:
+  seeds: [20260827, 20260829]
+  validation_seeds: [20260829]
+  map_curve_directions: [0, 1]
