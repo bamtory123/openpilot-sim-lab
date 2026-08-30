@@ -86,6 +86,8 @@ The retained temporal artifact was then evaluated unchanged at a held-out 4.0 m/
 
 The complementary 2.0 m/s held-out contract was repeated three times. All reached the full 1,200 camera-frame measurement limit as `valid/pass`, without lane departure, collision, or camera drops; lateral RMSE was 0.33269–0.33285 m (mean 0.33274 m, sample standard deviation 0.000095 m). This is a repeatable pass only for the exact 60 m loop/seed/camera/0 ms/2.0 m/s simulator contract. It does not change openpilot, resolve the 3.0/4.0 m/s failures, or establish generalization or real-road capability.
 
+The same 2.0 m/s contract then completed the standard 12-run interleaved 0/50/100/150 ms camera transport-delay matrix. Every formal run was `valid/pass` with all 1,200 camera frames and no drop, collision, or lane departure. Median lateral RMSE was 0.33304, 0.33290, 0.33316, and 0.33276 m respectively; recorded actual-delay medians were 23.48, 50.57, 100.66, and 150.63 ms. This validates fault delivery only in the documented narrow specialist contract, not the model-driven baseline or real driving.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

@@ -89,3 +89,16 @@ The speed scenarios change only the simulator-specialist target speed; the map, 
 | 4.0 m/s | 1 | `valid/fail` | 0.49527 m | 653 | Higher-speed sensitivity evidence; a single run. |
 
 The 2.0 m/s repeats have a lateral-RMSE sample standard deviation of 0.000095 m, no lane departures, collisions, or camera drops, and valid timestamps. This does not modify openpilot or establish a usable road controller: it is a camera-only simulator artifact satisfying this particular 60 m loop, 2.0 m/s, 0 ms condition. The 4.0 m/s failure and existing appearance/geometry failures show that the artifact is still speed/dynamics- and domain-sensitive; it is not promoted beyond the documented contract.
+
+## 2.0 m/s transport-delay matrix
+
+The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.
+
+| Target delay | Formal repeats | Median lateral RMSE | Actual-delay median across repeats |
+|---:|---:|---:|---:|
+| 0 ms | 3 × `valid/pass` | 0.33304 m | 23.48 ms |
+| 50 ms | 3 × `valid/pass` | 0.33290 m | 50.57 ms |
+| 100 ms | 3 × `valid/pass` | 0.33316 m | 100.66 ms |
+| 150 ms | 3 × `valid/pass` | 0.33276 m | 150.63 ms |
+
+This confirms the non-blocking injector's recorded delay under the limited 2.0 m/s contract. It does not overturn the model-driven baseline, 3.0/4.0 m/s specialist failures, route/appearance limits, or any real-road limitation.
