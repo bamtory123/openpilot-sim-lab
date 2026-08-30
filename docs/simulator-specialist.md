@@ -120,6 +120,8 @@ The same serpentine contract completed an excluded-warm-up, interleaved 12-run 0
 
 Mirroring the serpentine with `map_curve_direction: 0` produced three 0 ms `valid/pass` repeats at the same seed and speed, with 1,200 frames and no departure/collision/drop. Lateral RMSE was 0.23646–0.23724 m (mean 0.23674 m; population standard deviation 0.00035 m). This is a separately reproducible mirrored synthetic contract, not a claim of arbitrary direction, route, or road robustness.
 
+The mirrored contract also completed an excluded-warm-up, interleaved 12-run 0/50/100/150 ms delay matrix. All formal runs were `valid/pass` with 1,200 frames and no departure, collision, or camera drop; median RMSE was 0.23643, 0.23651, 0.23654, and 0.23672 m. This confirms the recorded delay path under this additional fixed synthetic direction only.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.

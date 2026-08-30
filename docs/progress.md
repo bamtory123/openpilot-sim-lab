@@ -114,6 +114,8 @@ The serpentine contract then completed the excluded-warm-up, interleaved 12-run 
 
 The mirrored serpentine (`map_curve_direction: 0`) also repeated 3 × `valid/pass` at 0 ms with no departure/collision/drop; RMSE was 0.23646–0.23724 m (mean 0.23674 m; population standard deviation 0.00035 m). This is a second fixed direction contract, not general direction robustness.
 
+The mirrored contract then completed the excluded-warm-up 12-run delay matrix. Every 0/50/100/150 ms formal run was `valid/pass` at 1,200 frames with no departure/collision/drop; median RMSE was 0.23643, 0.23651, 0.23654, and 0.23672 m.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
