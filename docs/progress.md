@@ -94,6 +94,8 @@ Changing only camera gamma to 0.8 at the same 2.0 m/s caused a `valid/fail` afte
 
 Targeted v0.6 data expansion then corrected the low-speed gamma collection schedule after its first 244-sample run contained no curves. The curve-targeted rerun yielded 160 gamma-0.8 curve samples (80/80 train/validation) with both turn signs. Combined temporal expert/DAgger/gamma data produced a new artifact that repeated `valid/pass` three times on the gamma-0.8, 2.0 m/s held-out contract (1,200 frames each; RMSE mean 0.28765 m, sample standard deviation 0.00027 m). This is a narrow appearance-contract improvement, not a general driving claim.
 
+That v0.6 gamma artifact also completed the full 12-run interleaved 0/50/100/150 ms delay matrix at gamma 0.8 and 2.0 m/s: every formal run was `valid/pass` with no lane departure, collision, or camera drop. Median RMSE by target delay was 0.28691, 0.28774, 0.28697, and 0.28758 m. The result is limited to the same fixed simulator appearance and speed contract.
+
 An analogous telemetry-targeted 45 m low-speed collection yielded 272 curve samples (136/136 train/validation) and was combined into a gamma+tight artifact. Its 45 m held-out replay reached 1,200 frames and improved RMSE to 0.50021 m, but remained `valid/fail` for lane departure/lateral-error. Geometry generalization is therefore still not achieved.
 
 ## Next

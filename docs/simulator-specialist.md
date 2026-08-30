@@ -96,6 +96,8 @@ The first 2.0 m/s gamma-0.8 expert collection used the old capture schedule and 
 
 On the previous gamma 0.8, 2.0 m/s held-out contract, that artifact completed three independent 1,200-frame `valid/pass` runs. Lateral RMSE was 0.28737–0.28791 m (mean 0.28765 m; sample standard deviation 0.00027 m), compared with the retained artifact's gamma-0.8 `valid/fail` at 1.34232 m. This is repeatable improvement for that exact appearance contract only.
 
+The same v0.6 gamma-contract artifact then completed the standard excluded-warm-up, interleaved 12-run 0/50/100/150 ms transport-delay matrix. Every formal run was `valid/pass`, completed 1,200 camera frames, and had no lane departure, collision, or camera drop. Delay-condition median lateral RMSE was 0.28691, 0.28774, 0.28697, and 0.28758 m respectively. The report is local at `outputs/v0.6-temporal-gamma-curve-speed2-gamma08-delay-matrix-20260830/report.md`. This is fault-delivery evidence for the same fixed gamma-0.8/2.0 m/s simulator contract, not broader delay robustness.
+
 For the 45 m loop, telemetry located the 2.0 m/s curve at frames 4651–6055. A curve-targeted 272-sample collection (136/136 train/validation; `−0.01058 … +0.01170 1/m`) was added to create `v0.6-temporal-gamma-tight-ridge`. Its 45 m, 2.0 m/s held-out run reached all 1,200 frames and improved lateral RMSE to 0.50021 m, but remained `valid/fail` for lane departure and lateral-error KPI. The artifact is therefore not promoted as geometry-generalized driving.
 
 ## 2.0 m/s transport-delay matrix
