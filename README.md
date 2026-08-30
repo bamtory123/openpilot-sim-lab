@@ -52,3 +52,4 @@ The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](exa
 The constrained simulator-specialist delay sample is in [examples/v0.5-specialist-speed2-delay-matrix](examples/v0.5-specialist-speed2-delay-matrix/README.md).
 The planned public release boundary is recorded in the [release checklist](docs/release-checklist.md).
 Camera input diagnostics and their limits are documented in [camera-domain-gap](docs/camera-domain-gap.md).
+The consolidated scope of every positive and negative evaluation result is in [evaluation boundary](docs/evaluation-boundary.md).
