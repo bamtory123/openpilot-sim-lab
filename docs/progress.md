@@ -98,6 +98,8 @@ That v0.6 gamma artifact also completed the full 12-run interleaved 0/50/100/150
 
 An analogous telemetry-targeted 45 m low-speed collection yielded 272 curve samples (136/136 train/validation) and was combined into a gamma+tight artifact. Its 45 m held-out replay reached 1,200 frames and improved RMSE to 0.50021 m, but remained `valid/fail` for lane departure/lateral-error. Geometry generalization is therefore still not achieved.
 
+A second 45 m DAgger collection captured 272 learner-visited curve samples (136/136 train/validation). The resulting gamma+tight+DAgger temporal artifact trained on 522/522 temporal train/validation pairs. Three independent fixed 45 m/2.0 m/s held-out repeats were all `valid/pass`, completed 1,200 frames, and had no lane departure, collision, or camera drop; lateral RMSE was 0.40798–0.41767 m (mean 0.41224 m; population standard deviation 0.00404 m). A separate 60 m/gamma-0.8 regression run was also `valid/pass` but had 0.54819 m RMSE versus the gamma-curve artifact's 0.28765 m mean. The new artifact is therefore scoped to the fixed tight-loop result and does not replace the gamma-curve artifact or establish geometry/appearance generalization.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

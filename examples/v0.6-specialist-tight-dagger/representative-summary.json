@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "run_id": "md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1-20260830T120613Z-27f4116c",
+  "scenario_id": "md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+  "target_delay_ms": 0,
+  "validity": "valid",
+  "outcome": "pass",
+  "reasons": [],
+  "termination_reason": null,
+  "metrics": {
+    "lateral_rmse_m": 0.4110636586451733,
+    "lateral_abs_p95_m": 0.8011107088873332,
+    "lateral_abs_max_m": 0.8228019547353682,
+    "heading_rmse_rad": 0.030502651477736988,
+    "speed_mean_mps": 1.9960632997374688,
+    "speed_std_mps": 0.015511362546339776,
+    "actual_delay_median_ms": 23.893747,
+    "actual_delay_p95_ms": 32.59906675,
+    "actual_delay_max_ms": 51.445368,
+    "camera_frames_published": 1200,
+    "camera_frames_dropped": 0,
+    "lane_departure_occurred": false,
+    "collision_occurred": false
+  }
+}

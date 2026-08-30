@@ -100,6 +100,10 @@ The same v0.6 gamma-contract artifact then completed the standard excluded-warm-
 
 For the 45 m loop, telemetry located the 2.0 m/s curve at frames 4651–6055. A curve-targeted 272-sample collection (136/136 train/validation; `−0.01058 … +0.01170 1/m`) was added to create `v0.6-temporal-gamma-tight-ridge`. Its 45 m, 2.0 m/s held-out run reached all 1,200 frames and improved lateral RMSE to 0.50021 m, but remained `valid/fail` for lane departure and lateral-error KPI. The artifact is therefore not promoted as geometry-generalized driving.
 
+The same 45 m curve window was then recollected from the gamma+tight replay's learner-visited states: 272 samples (136/136 train/validation) with the same `−0.01058 … +0.01170 1/m` reference-curvature coverage. Combining the retained expert, DAgger, gamma, tight-expert, and tight-DAgger sets produced `v0.6-temporal-gamma-tight-dagger-ridge` (522/522 temporal train/validation pairs; validation normalized-steer RMSE 0.00880). On the fixed 45 m, 2.0 m/s held-out contract it completed three independent 1,200-frame `valid/pass` runs with no lane departure, collision, or camera drop. Lateral RMSE was 0.40798–0.41767 m (mean 0.41224 m; population standard deviation 0.00404 m). This is a repeatable tight-loop simulator result, not geometry generalization.
+
+That tight-DAgger artifact was separately checked on the earlier 60 m/gamma-0.8/2.0 m/s contract. It was `valid/pass` for 1,200 frames, but its 0.54819 m lateral RMSE is worse than the gamma-curve artifact's three-run mean of 0.28765 m. It is consequently retained as a tight-loop-specific experimental artifact; the gamma-curve artifact remains the reference artifact for the fixed gamma-0.8 delay matrix.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.
