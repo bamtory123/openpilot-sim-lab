@@ -103,6 +103,8 @@ The retained artifact was also run through the standard excluded-warm-up, interl
 
 This confirms the non-blocking injector's recorded delay under the limited 2.0 m/s contract. It does not overturn the model-driven baseline, 3.0/4.0 m/s specialist failures, route/appearance limits, or any real-road limitation.
 
+The same 2.0 m/s artifact was then evaluated on the 45 m tighter-loop geometry. It was `valid/fail` after 1,145 camera frames with lane departure, 0.54032 m lateral RMSE, and no collision or camera drop. Therefore the 2.0 m/s pass does not generalize from the fixed 60 m loop to this tighter geometry; it remains a narrow fixed-condition result.
+
 Reproduce this matrix only after generating the local artifact named by the scenario:
 
 ```bash

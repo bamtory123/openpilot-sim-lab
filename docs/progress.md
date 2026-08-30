@@ -88,6 +88,8 @@ The complementary 2.0 m/s held-out contract was repeated three times. All reache
 
 The same 2.0 m/s contract then completed the standard 12-run interleaved 0/50/100/150 ms camera transport-delay matrix. Every formal run was `valid/pass` with all 1,200 camera frames and no drop, collision, or lane departure. Median lateral RMSE was 0.33304, 0.33290, 0.33316, and 0.33276 m respectively; recorded actual-delay medians were 23.48, 50.57, 100.66, and 150.63 ms. This validates fault delivery only in the documented narrow specialist contract, not the model-driven baseline or real driving.
 
+The 2.0 m/s artifact was also evaluated unchanged on the 45 m tighter loop. It remained `valid/fail`, ending after 1,145 camera frames with lane departure and 0.54032 m lateral RMSE, while retaining valid timestamps and no collision/drop. The low-speed pass is consequently constrained to the fixed 60 m loop and is not route-geometry generalization.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
