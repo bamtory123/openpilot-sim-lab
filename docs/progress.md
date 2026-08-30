@@ -102,6 +102,8 @@ A second 45 m DAgger collection captured 272 learner-visited curve samples (136/
 
 A 52 m intermediate-loop probe, not used in the 45 m collection, was then repeated three times. All were `valid/pass` at 1,200 frames with no lane departure, collision, or camera drop; lateral RMSE was 0.48670–0.49496 m (mean 0.49060 m; population standard deviation 0.00339 m). This adds a second deterministic geometry point, but does not justify a generalization claim.
 
+The fixed 45 m tight-DAgger artifact also completed the excluded-warm-up, interleaved 12-run 0/50/100/150 ms transport-delay matrix. Every formal run was `valid/pass` at 1,200 frames without lane departure, collision, or camera drop. Median RMSE by target delay was 0.42030, 0.42123, 0.42140, and 0.42123 m; actual-delay medians were 24.57, 50.63, 100.69, and 150.76 ms. This validates the delay injector under the narrow fixed tight-loop contract only.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
