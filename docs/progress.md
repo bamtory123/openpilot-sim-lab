@@ -76,6 +76,8 @@ The retained temporal DAgger artifact also failed both held-out appearance check
 
 A training-only 0.8/1.0/1.2 gamma augmentation study then improved appearance robustness: gamma 0.8 reached 867 frames and 0.704 m RMSE; gamma 1.2 reached 873 frames and 0.668 m. Its gamma 1.0 result regressed to 858 frames and 0.685 m, versus 883/0.491 for the unaugmented artifact. All remain valid lane/KPI failures, so the augmentation result is retained as a robustness trade-off rather than a promoted driving model.
 
+The bridge now exposes `map_track_size_m` while preserving the official 60 m default. A held-out 45 m tighter-loop run of the retained temporal DAgger artifact reached 747 frames and 0.528 m, again a valid lane/KPI failure. This is a controlled geometry variation, not a route-generalization claim.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
