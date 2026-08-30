@@ -74,6 +74,8 @@ The temporal RGB specialist then added a current-frame/0.2-second-difference art
 
 The retained temporal DAgger artifact also failed both held-out appearance checks without retraining: gamma 0.8 reached 682 frames with 1.344 m lateral RMSE and gamma 1.2 reached 139 frames with 1.174 m. This is evidence of fixed-rendering overfit, so no simulator-specialist artifact is promoted beyond the gamma 1.0 experimental condition.
 
+A training-only 0.8/1.0/1.2 gamma augmentation study then improved appearance robustness: gamma 0.8 reached 867 frames and 0.704 m RMSE; gamma 1.2 reached 873 frames and 0.668 m. Its gamma 1.0 result regressed to 858 frames and 0.685 m, versus 883/0.491 for the unaugmented artifact. All remain valid lane/KPI failures, so the augmentation result is retained as a robustness trade-off rather than a promoted driving model.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
