@@ -116,6 +116,8 @@ A single 45 m/gamma-0.8 probe also completed 1,200 frames as `valid/pass` withou
 
 `openpilot_serpentine_v1` is an opt-in versioned MetaDrive route with alternating left/right 90-degree curves. It leaves the v0.1 default-loop profile unchanged and is recorded in each scenario hash and manifest. The tight-DAgger artifact completed three fresh 60 m/2.0 m/s serpentine runs as `valid/pass`, with 1,200 frames, no lane departure/collision/drop, and lateral RMSE 0.44456–0.44550 m (mean 0.44492 m; population standard deviation 0.00042 m). This confirms reproducible operation for one additional deterministic synthetic topology only; the topology was not part of the artifact's training collection, but this is still not arbitrary route or real-road generalization.
 
+The same serpentine contract completed an excluded-warm-up, interleaved 12-run 0/50/100/150 ms delay matrix. Every formal run was `valid/pass` with 1,200 frames and no departure, collision, or camera drop. Median RMSE was 0.44571, 0.44598, 0.44598, and 0.44564 m; actual-delay medians were 24.48, 50.59, 100.70, and 150.71 ms. This is v0.2 fault-delivery evidence for the fixed serpentine contract only.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.

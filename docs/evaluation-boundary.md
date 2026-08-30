@@ -32,6 +32,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | 45 m tight loop, gamma 1.2 | 3 × `valid/pass`, 1,200 frames each, 0.39387 m lateral RMSE | One synthetic rendering parameter; not real-camera appearance robustness. |
 | 45 m tight loop, gamma 0.8 | 1 × `valid/pass`, 1,200 frames, 0.46903 m lateral RMSE | One-run geometry/rendering interaction probe only. |
 | v0.2 60 m serpentine topology | 3 × `valid/pass`, 1,200 frames each, 0.44492 m mean lateral RMSE | One versioned synthetic topology; not arbitrary route generalization. |
+| v0.2 serpentine, 0/50/100/150 ms delay matrix | 3 × `valid/pass` per delay; median RMSE 0.44571/0.44598/0.44598/0.44564 m | Non-blocking delay delivery only for the fixed serpentine contract. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.

@@ -110,6 +110,8 @@ The corresponding 45 m/gamma-0.8 single probe was also `valid/pass` at 1,200 fra
 
 v0.2 adds the opt-in `openpilot_serpentine_v1` map profile with alternating left/right curves while preserving the v0.1 default loop unchanged. The first three 60 m/2.0 m/s serpentine repeats were all `valid/pass` at 1,200 frames with no departure/collision/drop; RMSE was 0.44456–0.44550 m (mean 0.44492 m; population standard deviation 0.00042 m). This is a second versioned synthetic topology, not a general route or road claim.
 
+The serpentine contract then completed the excluded-warm-up, interleaved 12-run 0/50/100/150 ms delay matrix: every formal run was `valid/pass` at 1,200 frames with no departure/collision/drop. Median RMSE by target delay was 0.44571, 0.44598, 0.44598, and 0.44564 m; actual-delay medians were 24.48, 50.59, 100.70, and 150.71 ms.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
