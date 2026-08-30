@@ -84,6 +84,8 @@ Three independent process-to-collection repeats of the retained 60 m temporal DA
 
 The retained temporal artifact was then evaluated unchanged at a held-out 4.0 m/s target speed, versus its 3.0 m/s collection condition. It remained `valid/fail`, ending after 653 camera frames with 0.49527 m lateral RMSE and no collision/drop. Since the fixed 3.0 m/s repeats reached 882–883 frames, this is controlled speed/dynamics sensitivity evidence; it does not promote the artifact or establish road capability.
 
+The complementary 2.0 m/s held-out contract was repeated three times. All reached the full 1,200 camera-frame measurement limit as `valid/pass`, without lane departure, collision, or camera drops; lateral RMSE was 0.33269–0.33285 m (mean 0.33274 m, sample standard deviation 0.000095 m). This is a repeatable pass only for the exact 60 m loop/seed/camera/0 ms/2.0 m/s simulator contract. It does not change openpilot, resolve the 3.0/4.0 m/s failures, or establish generalization or real-road capability.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

@@ -80,4 +80,12 @@ The repeat roots are `outputs/v0.5-temporal-dagger-repeat-{1,2,3}-20260830`. Thi
 
 ## Held-out speed check
 
-`md_default_loop_lane0_temporal_dagger_speed4_heldout_v1` changes only the simulator-specialist speed target from the 3.0 m/s data-collection condition to 4.0 m/s; the map, seed, camera, fault path, and retained artifact are unchanged. It completed as `valid/fail` after 653 published camera frames with 0.49527 m lateral RMSE and 0.06376 rad heading RMSE, without collision or camera drops. The 3.0 m/s fixed-condition repeats reached 882–883 frames, so this is evidence that the retained camera-only artifact is speed/dynamics-sensitive. It is not a visual-domain, route-generalization, or real-road result, and the artifact is not promoted.
+The speed scenarios change only the simulator-specialist target speed; the map, seed, camera, fault path, and retained artifact are unchanged. The artifact was collected at 3.0 m/s.
+
+| Target speed | Repeats | Result | Lateral RMSE | Camera frames | Interpretation |
+|---:|---:|---|---:|---:|---|
+| 2.0 m/s | 3 | 3 × `valid/pass` | 0.33269–0.33285 m (mean 0.33274 m) | 1,200 each | A repeatable pass only for this exact simulator contract. |
+| 3.0 m/s | 3 | 3 × `valid/fail` | 0.48694–0.49146 m | 882–883 | Fixed-condition failure baseline. |
+| 4.0 m/s | 1 | `valid/fail` | 0.49527 m | 653 | Higher-speed sensitivity evidence; a single run. |
+
+The 2.0 m/s repeats have a lateral-RMSE sample standard deviation of 0.000095 m, no lane departures, collisions, or camera drops, and valid timestamps. This does not modify openpilot or establish a usable road controller: it is a camera-only simulator artifact satisfying this particular 60 m loop, 2.0 m/s, 0 ms condition. The 4.0 m/s failure and existing appearance/geometry failures show that the artifact is still speed/dynamics- and domain-sensitive; it is not promoted beyond the documented contract.
