@@ -1,5 +1,19 @@
 import json
+from pathlib import Path
 from simlab.report import generate_report
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_public_example_summaries_have_required_contract_fields():
+  for path in ROOT.glob("examples/*/representative-summary.json"):
+    summary = json.loads(path.read_text(encoding="utf-8"))
+    assert summary["schema_version"] == 1
+    assert summary["validity"] in ("valid", "invalid")
+    assert summary["outcome"] in ("pass", "fail", "not_evaluated")
+    assert isinstance(summary["target_delay_ms"], int)
+    assert isinstance(summary["metrics"]["lateral_rmse_m"], (int, float))
+    assert isinstance(summary["metrics"]["camera_frames_published"], int)
 
 def test_report_writes_markdown_and_svg(tmp_path):
   run = tmp_path / "run-1"; run.mkdir()
