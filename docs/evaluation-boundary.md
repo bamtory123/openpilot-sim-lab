@@ -27,6 +27,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | Target speed 4.0 m/s | `valid/fail`, 653 frames, 0.49527 m lateral RMSE | Higher-speed sensitivity. |
 | 45 m loop after v0.6 targeted data | `valid/fail`, 1,200 frames, 0.50021 m lateral RMSE | Partial RMSE improvement, but no geometry-generalized pass. |
 | 45 m loop after v0.6 tight DAgger data | 3 × `valid/pass`, 1,200 frames each, 0.41224 m mean lateral RMSE | Repeatable result only for the fixed 45 m/2.0 m/s contract. |
+| 52 m intermediate loop using the tight DAgger artifact | 3 × `valid/pass`, 1,200 frames each, 0.49060 m mean lateral RMSE | A second deterministic geometry point, not arbitrary geometry generalization. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.

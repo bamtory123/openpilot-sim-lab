@@ -100,6 +100,8 @@ An analogous telemetry-targeted 45 m low-speed collection yielded 272 curve samp
 
 A second 45 m DAgger collection captured 272 learner-visited curve samples (136/136 train/validation). The resulting gamma+tight+DAgger temporal artifact trained on 522/522 temporal train/validation pairs. Three independent fixed 45 m/2.0 m/s held-out repeats were all `valid/pass`, completed 1,200 frames, and had no lane departure, collision, or camera drop; lateral RMSE was 0.40798–0.41767 m (mean 0.41224 m; population standard deviation 0.00404 m). A separate 60 m/gamma-0.8 regression run was also `valid/pass` but had 0.54819 m RMSE versus the gamma-curve artifact's 0.28765 m mean. The new artifact is therefore scoped to the fixed tight-loop result and does not replace the gamma-curve artifact or establish geometry/appearance generalization.
 
+A 52 m intermediate-loop probe, not used in the 45 m collection, was then repeated three times. All were `valid/pass` at 1,200 frames with no lane departure, collision, or camera drop; lateral RMSE was 0.48670–0.49496 m (mean 0.49060 m; population standard deviation 0.00339 m). This adds a second deterministic geometry point, but does not justify a generalization claim.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

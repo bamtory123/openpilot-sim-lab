@@ -104,6 +104,8 @@ The same 45 m curve window was then recollected from the gamma+tight replay's le
 
 That tight-DAgger artifact was separately checked on the earlier 60 m/gamma-0.8/2.0 m/s contract. It was `valid/pass` for 1,200 frames, but its 0.54819 m lateral RMSE is worse than the gamma-curve artifact's three-run mean of 0.28765 m. It is consequently retained as a tight-loop-specific experimental artifact; the gamma-curve artifact remains the reference artifact for the fixed gamma-0.8 delay matrix.
 
+As a geometry probe outside its 45 m data-collection loop, the tight-DAgger artifact was repeated three times on a 52 m loop at the same seed, direction, rendering, and 2.0 m/s target. All three completed 1,200 frames as `valid/pass` without lane departure, collision, or camera drop; lateral RMSE was 0.48670–0.49496 m (mean 0.49060 m; population standard deviation 0.00339 m). The fixed 45 m and 52 m results demonstrate repeatability at two deterministic simulator sizes, but they do not establish arbitrary geometry, route, appearance, or real-world generalization.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.
