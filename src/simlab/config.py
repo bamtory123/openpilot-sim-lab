@@ -52,6 +52,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   if "camera_gamma" in env and (not isinstance(env["camera_gamma"], (int, float)) or not 0.8 <= float(env["camera_gamma"]) <= 1.2):
     raise ScenarioError("camera_gamma must be between 0.8 and 1.2")
+  if "traffic_density" in env and (not isinstance(env["traffic_density"], (int, float)) or not 0.0 <= float(env["traffic_density"]) <= 0.05):
+    raise ScenarioError("traffic_density must be between 0.0 and 0.05")
   if "show_navi_mark" in env and not isinstance(env["show_navi_mark"], bool):
     raise ScenarioError("show_navi_mark must be boolean")
   for key in ("camera_position_m", "camera_hpr_deg"):
