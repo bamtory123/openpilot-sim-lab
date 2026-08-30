@@ -78,6 +78,8 @@ A training-only 0.8/1.0/1.2 gamma augmentation study then improved appearance ro
 
 The bridge now exposes `map_track_size_m` while preserving the official 60 m default. A held-out 45 m tighter-loop run of the retained temporal DAgger artifact reached 747 frames and 0.528 m, again a valid lane/KPI failure. This is a controlled geometry variation, not a route-generalization claim.
 
+Tighter-loop temporal expert data (124/124 samples, 54 curved) was combined with the retained 60 m temporal DAgger set. Its unseen 52 m intermediate-loop evaluation reached 311 frames and 0.980 m, a valid lane/KPI failure. This negative interpolation result means the multi-geometry artifact is not adopted.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

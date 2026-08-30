@@ -69,3 +69,5 @@ Training-only gamma augmentation (0.8/1.0/1.2) was then applied to temporal pair
 ## Held-out route geometry check
 
 `md_tight_loop_lane0_temporal_dagger_heldout_v1` keeps the same lane count, lane width, seed, direction, camera, and KPI contract, but changes the deterministic loop track size from 60 m to 45 m. This produces tighter curves without changing the official `md_default_loop_lane0_v1` baseline. The retained unaugmented temporal+DAgger artifact reached 747 frames with 0.528 m RMSE and remained `valid/fail`. This is route-geometry evidence only; it does not establish route generalization.
+
+Stable temporal expert data was then collected at 45 m (124/124 train/held-out samples; 54 curved samples) and combined with the retained 60 m temporal DAgger set. The resulting multi-geometry artifact was evaluated at an unseen 52 m track size: it reached 311 frames with 0.980 m RMSE and remained `valid/fail`. The result is retained as negative interpolation evidence; the multi-geometry artifact is not adopted.
