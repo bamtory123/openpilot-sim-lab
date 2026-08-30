@@ -106,6 +106,8 @@ The fixed 45 m tight-DAgger artifact also completed the excluded-warm-up, interl
 
 At the same 45 m/2.0 m/s contract, changing only camera gamma from 1.0 to 1.2 completed three identical `valid/pass` runs at 1,200 frames with 0.39387 m lateral RMSE, no departure/collision, and no frame drop. This is a deterministic synthetic-rendering observation, not real-camera robustness.
 
+The corresponding 45 m/gamma-0.8 single probe was also `valid/pass` at 1,200 frames, with no departure/collision/drop and 0.46903 m lateral RMSE. It is preserved as a one-run geometry/rendering interaction measurement, not an appearance-generalization result.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

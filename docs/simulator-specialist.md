@@ -110,6 +110,8 @@ The tight-loop artifact then completed the standard excluded-warm-up, interleave
 
 Changing only the tight-loop camera gamma from 1.0 to 1.2 produced three identical 1,200-frame `valid/pass` runs with no lane departure, collision, or camera drop (0.39387 m lateral RMSE each). This rendering parameter did not degrade the fixed simulation result, but it is not evidence of real-camera appearance robustness and does not replace the gamma-1.0 or gamma-0.8 artifact boundaries.
 
+A single 45 m/gamma-0.8 probe also completed 1,200 frames as `valid/pass` without lane departure, collision, or camera drop, at 0.46903 m lateral RMSE. It is intentionally retained as a one-run interaction probe: it is worse than the fixed 45 m gamma-1.0/1.2 measurements and cannot establish appearance robustness or resolve the separate 60 m/gamma-0.8 regression.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.
