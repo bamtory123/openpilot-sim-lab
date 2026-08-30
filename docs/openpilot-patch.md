@@ -13,6 +13,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Control telemetry | model path horizon/end geometry, model validity/frame age/drop/execution time, model/planner/control curvature, openpilot steering command, normalized simulator steer, vehicle yaw-rate/curvature | separates perception/planning output from simulator actuation response |
 | Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
+| MetaDrive map profile | opt-in `openpilot_serpentine_v1` left/right alternating route | provides a versioned v0.2 held-out topology without changing `openpilot_default_loop_v1` |
 | Calibration telemetry | modeld calibration RPY and status | exposes the image warp state before any calibration experiment |
 | Model camera contract | modeld device type, camera sensor, width, height, and focal length | records the runtime intrinsics key rather than assuming the PC camera configuration |
 

@@ -108,6 +108,8 @@ At the same 45 m/2.0 m/s contract, changing only camera gamma from 1.0 to 1.2 co
 
 The corresponding 45 m/gamma-0.8 single probe was also `valid/pass` at 1,200 frames, with no departure/collision/drop and 0.46903 m lateral RMSE. It is preserved as a one-run geometry/rendering interaction measurement, not an appearance-generalization result.
 
+v0.2 adds the opt-in `openpilot_serpentine_v1` map profile with alternating left/right curves while preserving the v0.1 default loop unchanged. The first three 60 m/2.0 m/s serpentine repeats were all `valid/pass` at 1,200 frames with no departure/collision/drop; RMSE was 0.44456–0.44550 m (mean 0.44492 m; population standard deviation 0.00042 m). This is a second versioned synthetic topology, not a general route or road claim.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.

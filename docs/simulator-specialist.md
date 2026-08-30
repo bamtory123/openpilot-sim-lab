@@ -112,6 +112,10 @@ Changing only the tight-loop camera gamma from 1.0 to 1.2 produced three identic
 
 A single 45 m/gamma-0.8 probe also completed 1,200 frames as `valid/pass` without lane departure, collision, or camera drop, at 0.46903 m lateral RMSE. It is intentionally retained as a one-run interaction probe: it is worse than the fixed 45 m gamma-1.0/1.2 measurements and cannot establish appearance robustness or resolve the separate 60 m/gamma-0.8 regression.
 
+## v0.2 serpentine topology probe
+
+`openpilot_serpentine_v1` is an opt-in versioned MetaDrive route with alternating left/right 90-degree curves. It leaves the v0.1 default-loop profile unchanged and is recorded in each scenario hash and manifest. The tight-DAgger artifact completed three fresh 60 m/2.0 m/s serpentine runs as `valid/pass`, with 1,200 frames, no lane departure/collision/drop, and lateral RMSE 0.44456–0.44550 m (mean 0.44492 m; population standard deviation 0.00042 m). This confirms reproducible operation for one additional deterministic synthetic topology only; the topology was not part of the artifact's training collection, but this is still not arbitrary route or real-road generalization.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.
