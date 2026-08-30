@@ -50,17 +50,24 @@ def _matrix(samples: list[SpecialistSample]) -> tuple[np.ndarray, np.ndarray]:
           np.asarray([sample.target_steer for sample in samples], dtype=np.float64))
 
 
-def _temporal_matrix(samples: list[SpecialistSample], *, frame_gap: int) -> tuple[np.ndarray, np.ndarray]:
+def _gamma_image(image: np.ndarray, gamma: float) -> np.ndarray:
+  return np.rint(np.power(image.astype(np.float64) / 255.0, gamma) * 255.0).astype(np.uint8)
+
+
+def _temporal_matrix(samples: list[SpecialistSample], *, frame_gap: int, gammas: tuple[float, ...] = (1.0,)) -> tuple[np.ndarray, np.ndarray]:
   features, targets = [], []
   for run in {sample.run for sample in samples}:
     ordered = sorted((sample for sample in samples if sample.run == run), key=lambda sample: sample.simulation_frame)
     for previous, current in zip(ordered, ordered[1:]):
       if previous.simulation_frame < 0 or current.simulation_frame - previous.simulation_frame != frame_gap:
         continue
-      previous_features = image_features(np.asarray(Image.open(previous.image).convert("RGB")))
-      current_features = image_features(np.asarray(Image.open(current.image).convert("RGB")))
-      features.append(np.concatenate((current_features, current_features - previous_features)))
-      targets.append(current.target_steer)
+      previous_image = np.asarray(Image.open(previous.image).convert("RGB"))
+      current_image = np.asarray(Image.open(current.image).convert("RGB"))
+      for gamma in gammas:
+        previous_features = image_features(_gamma_image(previous_image, gamma))
+        current_features = image_features(_gamma_image(current_image, gamma))
+        features.append(np.concatenate((current_features, current_features - previous_features)))
+        targets.append(current.target_steer)
   return np.asarray(features), np.asarray(targets, dtype=np.float64)
 
 
@@ -101,11 +108,13 @@ def train_specialist(dataset_root: Path, artifact_path: Path, *, l2: float = 1e-
   return metrics
 
 
-def train_temporal_specialist(dataset_root: Path, artifact_path: Path, *, frame_gap: int = 20, l2: float = 1e-3) -> dict:
+def train_temporal_specialist(dataset_root: Path, artifact_path: Path, *, frame_gap: int = 20, l2: float = 1e-3,
+                              gamma_augment: bool = False) -> dict:
   samples = load_specialist_samples(dataset_root)
   train = [sample for sample in samples if sample.split == "train"]
   validation = [sample for sample in samples if sample.split == "validation"]
-  x_train, y_train = _temporal_matrix(train, frame_gap=frame_gap)
+  gammas = (0.8, 1.0, 1.2) if gamma_augment else (1.0,)
+  x_train, y_train = _temporal_matrix(train, frame_gap=frame_gap, gammas=gammas)
   x_validation, y_validation = _temporal_matrix(validation, frame_gap=frame_gap)
   if len(x_train) < 32 or not len(x_validation):
     raise ValueError("temporal specialist training requires at least 32 train pairs and one validation pair")
@@ -117,7 +126,7 @@ def train_temporal_specialist(dataset_root: Path, artifact_path: Path, *, frame_
   weights = _dual_ridge_weights(x_train, y_train, l2=l2)
   prediction = np.column_stack((x_validation, np.ones(len(x_validation)))) @ weights
   metrics = {
-    "train_pairs": len(x_train), "validation_pairs": len(x_validation), "frame_gap": frame_gap,
+    "train_pairs": len(x_train), "validation_pairs": len(x_validation), "frame_gap": frame_gap, "gamma_augmentation": list(gammas),
     "validation_mae_normalized_steer": float(np.mean(np.abs(prediction - y_validation))),
     "validation_rmse_normalized_steer": float(np.sqrt(np.mean((prediction - y_validation) ** 2))),
     "feature_height": FEATURE_HEIGHT, "feature_width": FEATURE_WIDTH, "l2": l2,

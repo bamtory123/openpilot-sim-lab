@@ -318,6 +318,7 @@ def main() -> None:
   parser.add_argument("--allow-dirty", action="store_true")
   parser.add_argument("--dataset-root", type=Path)
   parser.add_argument("--artifact", type=Path)
+  parser.add_argument("--gamma-augment", action="store_true")
   args = parser.parse_args()
   if args.command == "report":
     print(generate_report(args.outputs, args.outputs / "report.md"))
@@ -333,7 +334,7 @@ def main() -> None:
   if args.command == "train-temporal-specialist":
     if args.dataset_root is None or args.artifact is None:
       parser.error("train-temporal-specialist requires --dataset-root and --artifact")
-    print(json.dumps(train_temporal_specialist(args.dataset_root, args.artifact), indent=2, sort_keys=True))
+    print(json.dumps(train_temporal_specialist(args.dataset_root, args.artifact, gamma_augment=args.gamma_augment), indent=2, sort_keys=True))
     return
   if args.command == "rebuild-specialist-manifests":
     print(rebuild_specialist_manifests(args.outputs))

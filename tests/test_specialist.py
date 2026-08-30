@@ -34,6 +34,7 @@ def test_temporal_specialist_requires_adjacent_frames_and_trains(tmp_path):
                  "split": "validation" if index >= 34 else "train", "target_normalized_steer": value / 2550.0})
   (run / "specialist_manifest.jsonl").write_text("\n".join(json.dumps(row) for row in rows))
 
-  metrics = train_temporal_specialist(tmp_path, tmp_path / "temporal.npz")
+  metrics = train_temporal_specialist(tmp_path, tmp_path / "temporal.npz", gamma_augment=True)
 
-  assert metrics["train_pairs"] == 33 and metrics["validation_pairs"] == 7
+  assert metrics["train_pairs"] == 99 and metrics["validation_pairs"] == 7
+  assert metrics["gamma_augmentation"] == [0.8, 1.0, 1.2]
