@@ -82,6 +82,8 @@ Tighter-loop temporal expert data (124/124 samples, 54 curved) was combined with
 
 Three independent process-to-collection repeats of the retained 60 m temporal DAgger held-out contract are now complete. All were `valid/fail` for the same lane/lateral criteria without collision or camera drops. Lateral RMSE was 0.48694–0.49146 m (mean 0.48857 m, sample standard deviation 0.00251 m); heading RMSE was 0.06336–0.06371 rad. This is repeatability evidence for the fixed-condition failure, not a driving success or a generalization result.
 
+The retained temporal artifact was then evaluated unchanged at a held-out 4.0 m/s target speed, versus its 3.0 m/s collection condition. It remained `valid/fail`, ending after 653 camera frames with 0.49527 m lateral RMSE and no collision/drop. Since the fixed 3.0 m/s repeats reached 882–883 frames, this is controlled speed/dynamics sensitivity evidence; it does not promote the artifact or establish road capability.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
