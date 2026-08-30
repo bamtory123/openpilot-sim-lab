@@ -92,6 +92,10 @@ The 2.0 m/s artifact was also evaluated unchanged on the 45 m tighter loop. It r
 
 Changing only camera gamma to 0.8 at the same 2.0 m/s caused a `valid/fail` after 1,030 camera frames with lane departure and 1.34232 m lateral RMSE. The low-speed pass is therefore also appearance-sensitive and remains a fixed-rendering result.
 
+Targeted v0.6 data expansion then corrected the low-speed gamma collection schedule after its first 244-sample run contained no curves. The curve-targeted rerun yielded 160 gamma-0.8 curve samples (80/80 train/validation) with both turn signs. Combined temporal expert/DAgger/gamma data produced a new artifact that repeated `valid/pass` three times on the gamma-0.8, 2.0 m/s held-out contract (1,200 frames each; RMSE mean 0.28765 m, sample standard deviation 0.00027 m). This is a narrow appearance-contract improvement, not a general driving claim.
+
+An analogous telemetry-targeted 45 m low-speed collection yielded 272 curve samples (136/136 train/validation) and was combined into a gamma+tight artifact. Its 45 m held-out replay reached 1,200 frames and improved RMSE to 0.50021 m, but remained `valid/fail` for lane departure/lateral-error. Geometry generalization is therefore still not achieved.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

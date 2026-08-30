@@ -90,6 +90,14 @@ The speed scenarios change only the simulator-specialist target speed; the map, 
 
 The 2.0 m/s repeats have a lateral-RMSE sample standard deviation of 0.000095 m, no lane departures, collisions, or camera drops, and valid timestamps. This does not modify openpilot or establish a usable road controller: it is a camera-only simulator artifact satisfying this particular 60 m loop, 2.0 m/s, 0 ms condition. The 4.0 m/s failure and existing appearance/geometry failures show that the artifact is still speed/dynamics- and domain-sensitive; it is not promoted beyond the documented contract.
 
+## v0.6 targeted data expansion
+
+The first 2.0 m/s gamma-0.8 expert collection used the old capture schedule and produced 244 straight-only samples (`reference_curvature == 0`); it is retained as a data-coverage failure and was not used for training. Telemetry located the actual 60 m curve at frames 5401–6260, so a curve-targeted rerun captured 160 samples (80/80 train/validation) spanning `−0.00803 … +0.00866 1/m`. Combining that set with the retained temporal expert/DAgger data produced `v0.6-temporal-gamma-curve-ridge`.
+
+On the previous gamma 0.8, 2.0 m/s held-out contract, that artifact completed three independent 1,200-frame `valid/pass` runs. Lateral RMSE was 0.28737–0.28791 m (mean 0.28765 m; sample standard deviation 0.00027 m), compared with the retained artifact's gamma-0.8 `valid/fail` at 1.34232 m. This is repeatable improvement for that exact appearance contract only.
+
+For the 45 m loop, telemetry located the 2.0 m/s curve at frames 4651–6055. A curve-targeted 272-sample collection (136/136 train/validation; `−0.01058 … +0.01170 1/m`) was added to create `v0.6-temporal-gamma-tight-ridge`. Its 45 m, 2.0 m/s held-out run reached all 1,200 frames and improved lateral RMSE to 0.50021 m, but remained `valid/fail` for lane departure and lateral-error KPI. The artifact is therefore not promoted as geometry-generalized driving.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.

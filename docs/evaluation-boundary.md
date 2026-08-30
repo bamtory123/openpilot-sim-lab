@@ -12,7 +12,7 @@ This page is the decision record for what the repository's results do and do not
 
 ## Strongest positive result
 
-The only repeatable specialist pass is the fixed 60 m loop with seed `20260829`, reference lane 0, default rendering, 2.0 m/s target speed, and the local `v0.4-temporal-expert-dagger-ridge.npz` artifact. Three 0 ms repeats and the 12-run 0/50/100/150 ms matrix all completed the 1,200-camera-frame budget as `valid/pass` with no lane departure, collision, or camera drop.
+The retained v0.4 specialist has a repeatable pass on the fixed 60 m loop with seed `20260829`, reference lane 0, default rendering, and 2.0 m/s target speed. Three 0 ms repeats and the 12-run 0/50/100/150 ms matrix all completed the 1,200-camera-frame budget as `valid/pass` with no lane departure, collision, or camera drop. A separate v0.6 targeted-data artifact repeats that result under gamma 0.8 at 2.0 m/s only.
 
 The delay matrix proves that the non-blocking delay injector delivered its configured transport delay in this narrow contract. It does not prove delay robustness outside that contract.
 
@@ -22,8 +22,10 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 |---|---|---|
 | 45 m tighter loop | `valid/fail`, 1,145 frames, 0.54032 m lateral RMSE | No route-geometry generalization. |
 | Camera gamma 0.8 | `valid/fail`, 1,030 frames, 1.34232 m lateral RMSE | No appearance generalization. |
+| Gamma 0.8 after v0.6 targeted data | 3 × `valid/pass`, 1,200 frames, 0.28765 m RMSE mean | Improvement only for the same 60 m/2.0 m/s/gamma-0.8 contract. |
 | Target speed 3.0 m/s | 3 × `valid/fail`, 882–883 frames | No speed/dynamics robustness at the collection condition. |
 | Target speed 4.0 m/s | `valid/fail`, 653 frames, 0.49527 m lateral RMSE | Higher-speed sensitivity. |
+| 45 m loop after v0.6 targeted data | `valid/fail`, 1,200 frames, 0.50021 m lateral RMSE | Partial RMSE improvement, but no geometry-generalized pass. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.
 
