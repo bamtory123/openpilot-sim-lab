@@ -110,6 +110,6 @@ The corresponding 45 m/gamma-0.8 single probe was also `valid/pass` at 1,200 fra
 
 ## Next
 
-1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
+1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
 2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
-3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
+3. Maintain the sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
