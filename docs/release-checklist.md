@@ -21,3 +21,7 @@ The release may state that the deterministic MetaDrive harness, delay injector, 
 ## Publish gate
 
 Before creating the tag, run `uv run pytest -q`, confirm a clean worktree, wait for CI success on the release commit, and verify the sample JSON parses. The tag should point only to that green commit.
+
+## Post-v0.1 experimental extensions
+
+The opt-in simulator-specialist and `openpilot_serpentine_v1` evidence added after the v0.1 tag remains on `main` as v0.2 experimental material. It must not move `v0.1.0-portfolio` or change the v0.1 release statement. Any later tag must separately identify its generated local artifact, exact scenario, output sample, CI revision, and simulator-only limitations.
