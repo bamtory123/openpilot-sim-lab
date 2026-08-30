@@ -104,6 +104,8 @@ A 52 m intermediate-loop probe, not used in the 45 m collection, was then repeat
 
 The fixed 45 m tight-DAgger artifact also completed the excluded-warm-up, interleaved 12-run 0/50/100/150 ms transport-delay matrix. Every formal run was `valid/pass` at 1,200 frames without lane departure, collision, or camera drop. Median RMSE by target delay was 0.42030, 0.42123, 0.42140, and 0.42123 m; actual-delay medians were 24.57, 50.63, 100.69, and 150.76 ms. This validates the delay injector under the narrow fixed tight-loop contract only.
 
+At the same 45 m/2.0 m/s contract, changing only camera gamma from 1.0 to 1.2 completed three identical `valid/pass` runs at 1,200 frames with 0.39387 m lateral RMSE, no departure/collision, and no frame drop. This is a deterministic synthetic-rendering observation, not real-camera robustness.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.

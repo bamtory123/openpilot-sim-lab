@@ -108,6 +108,8 @@ As a geometry probe outside its 45 m data-collection loop, the tight-DAgger arti
 
 The tight-loop artifact then completed the standard excluded-warm-up, interleaved 12-run 0/50/100/150 ms camera transport-delay matrix on its fixed 45 m/2.0 m/s contract. Every formal run was `valid/pass`, completed 1,200 frames, and had no lane departure, collision, or camera drop. Delay-condition median lateral RMSE was 0.42030, 0.42123, 0.42140, and 0.42123 m; actual-delay medians were 24.57, 50.63, 100.69, and 150.76 ms. The local report is at `outputs/v0.6-temporal-gamma-tight-dagger-tight-loop-delay-matrix-20260831/report.md`. This is non-blocking fault-delivery evidence for that fixed tight-loop artifact, not a pretrained-model, broader geometry, or real-road robustness result.
 
+Changing only the tight-loop camera gamma from 1.0 to 1.2 produced three identical 1,200-frame `valid/pass` runs with no lane departure, collision, or camera drop (0.39387 m lateral RMSE each). This rendering parameter did not degrade the fixed simulation result, but it is not evidence of real-camera appearance robustness and does not replace the gamma-1.0 or gamma-0.8 artifact boundaries.
+
 ## 2.0 m/s transport-delay matrix
 
 The retained artifact was also run through the standard excluded-warm-up, interleaved 12-run delay matrix at 2.0 m/s. All formal runs were `valid/pass`, completed all 1,200 camera frames, and had no lane departure, collision, or camera drop. The generated report is local at `outputs/v0.5-temporal-dagger-speed2-delay-matrix-20260830/report.md`.

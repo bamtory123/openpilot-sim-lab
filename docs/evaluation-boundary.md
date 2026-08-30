@@ -29,6 +29,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | 45 m loop after v0.6 tight DAgger data | 3 × `valid/pass`, 1,200 frames each, 0.41224 m mean lateral RMSE | Repeatable result only for the fixed 45 m/2.0 m/s contract. |
 | 52 m intermediate loop using the tight DAgger artifact | 3 × `valid/pass`, 1,200 frames each, 0.49060 m mean lateral RMSE | A second deterministic geometry point, not arbitrary geometry generalization. |
 | 45 m tight loop, 0/50/100/150 ms delay matrix | 3 × `valid/pass` per delay; median RMSE 0.42030/0.42123/0.42140/0.42123 m | Non-blocking delay delivery under the fixed tight-loop contract only. |
+| 45 m tight loop, gamma 1.2 | 3 × `valid/pass`, 1,200 frames each, 0.39387 m lateral RMSE | One synthetic rendering parameter; not real-camera appearance robustness. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.
