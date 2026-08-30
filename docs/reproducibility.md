@@ -42,6 +42,21 @@ $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/tight-specialist-del
 
 Apply the same acceptance checks above. The checked-in sample documents a fixed 45 m loop, seed, direction, default rendering, and 2.0 m/s target only. A missing local artifact is a preflight failure, not a reason to substitute ground truth or alter the scenario.
 
+## Opt-in v0.2 serpentine matrix
+
+`openpilot_serpentine_v1` is a versioned alternating-turn MetaDrive profile. It requires the same local tight-DAgger artifact and does not alter the v0.1 formal scenario.
+
+```bash
+$OPENPILOT_PYTHON -m simlab.runner preflight \
+  --scenario configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml
+$OPENPILOT_PYTHON -m simlab.runner batch \
+  --scenario configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml \
+  --outputs outputs/serpentine-specialist-delay-matrix
+$OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/serpentine-specialist-delay-matrix
+```
+
+This is v0.2 experimental evidence only. Do not combine it with the v0.1 default-loop release result or interpret it as arbitrary route/road validation.
+
 ## Camera alignment diagnostic
 
 ```bash
