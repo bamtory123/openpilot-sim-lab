@@ -70,8 +70,10 @@ The first simulator-specialist path is now implemented and evaluated separately.
 
 The next expert-data study established a stable pure-pursuit ground-truth teacher (1,200 camera frames, `valid/pass`, 0.0249 m lateral RMSE) and collected a held-out mixed straight/curve set. The camera-only ridge artifact trained from 54/54 train/held-out samples failed after 404 frames (1.029 m lateral RMSE); adding 32/32 train/held-out learner-visited DAgger samples extended this to 594 frames and 0.995 m. Both closed-loop results remain `valid/fail` due to lane departure/lateral error. The improvement is retained as controlled evidence, not promoted to a driving success.
 
+The temporal RGB specialist then added a current-frame/0.2-second-difference artifact with camera-frame-gated runtime history. Its expert-only run failed after 196 frames (1.085 m); 62/62 temporal DAgger samples improved it to 883 frames and 0.491 m. A subsequent curve-state DAgger collection (122/122 samples, 154 curved) regressed slightly to 809 frames and 0.505 m. All are valid lane/KPI failures. The first temporal DAgger result is retained as the best specialist experiment; the curve artifact is retained as a non-adopted result.
+
 ## Next
 
-1. Add temporal camera context and genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
+1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
 2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
 3. Package sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
