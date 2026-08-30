@@ -133,7 +133,7 @@ def _openpilot_root() -> Path:
 def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> None:
   if not allow_dirty and (git_metadata(ROOT)["dirty"] or git_metadata(openpilot_root)["dirty"]):
     raise RuntimeError("refusing dirty working tree; commit first or pass --allow-dirty")
-  if scenario.data["environment"]["map_id"] != "openpilot_default_loop_v1":
+  if scenario.data["environment"]["map_id"] not in ("openpilot_default_loop_v1", "openpilot_serpentine_v1"):
     raise ScenarioError("unsupported map")
   specialist_replay = scenario.data.get("specialist_replay")
   if specialist_replay is not None and not (ROOT / specialist_replay["artifact_path"]).is_file():

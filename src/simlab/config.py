@@ -40,8 +40,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
   for section in ("environment", "run", "fault", "validity", "logging"):
     _require(data, section, dict)
   env, run, fault, validity, logging = (data[x] for x in ("environment", "run", "fault", "validity", "logging"))
-  if env.get("map_id") != "openpilot_default_loop_v1":
-    raise ScenarioError("v0.1 supports only openpilot_default_loop_v1")
+  if env.get("map_id") not in ("openpilot_default_loop_v1", "openpilot_serpentine_v1"):
+    raise ScenarioError("unsupported map_id")
   if not isinstance(env.get("seed"), int) or env.get("reference_lane_index") not in (0, 1):
     raise ScenarioError("seed and reference_lane_index must be concrete")
   if env.get("map_curve_direction", 0) not in (0, 1):

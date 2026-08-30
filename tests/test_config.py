@@ -16,6 +16,14 @@ def test_unsupported_delay_is_rejected(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_serpentine_map_is_supported_but_unknown_map_is_rejected(tmp_path):
+  path = tmp_path / "serpentine.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("openpilot_default_loop_v1", "openpilot_serpentine_v1"))
+  assert load_scenario(path).data["environment"]["map_id"] == "openpilot_serpentine_v1"
+  path.write_text(path.read_text().replace("openpilot_serpentine_v1", "unknown_map"))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_unsupported_camera_fov_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_fov_deg: 55"))
