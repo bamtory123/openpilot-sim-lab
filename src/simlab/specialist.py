@@ -64,6 +64,12 @@ def _temporal_matrix(samples: list[SpecialistSample], *, frame_gap: int) -> tupl
   return np.asarray(features), np.asarray(targets, dtype=np.float64)
 
 
+def _dual_ridge_weights(features: np.ndarray, targets: np.ndarray, *, l2: float) -> np.ndarray:
+  centered_targets = targets - targets.mean()
+  coefficients = features.T @ np.linalg.solve(features @ features.T + np.eye(len(features)) * l2, centered_targets)
+  return np.append(coefficients, targets.mean())
+
+
 def train_specialist(dataset_root: Path, artifact_path: Path, *, l2: float = 1e-3) -> dict:
   samples = load_specialist_samples(dataset_root)
   train = [sample for sample in samples if sample.split == "train"]
@@ -108,12 +114,8 @@ def train_temporal_specialist(dataset_root: Path, artifact_path: Path, *, frame_
   scale[scale < 1e-6] = 1.0
   x_train = (x_train - mean) / scale
   x_validation = (x_validation - mean) / scale
-  x_train = np.column_stack((x_train, np.ones(len(x_train))))
-  x_validation = np.column_stack((x_validation, np.ones(len(x_validation))))
-  regularizer = np.eye(x_train.shape[1]) * l2
-  regularizer[-1, -1] = 0.0
-  weights = np.linalg.solve(x_train.T @ x_train + regularizer, x_train.T @ y_train)
-  prediction = x_validation @ weights
+  weights = _dual_ridge_weights(x_train, y_train, l2=l2)
+  prediction = np.column_stack((x_validation, np.ones(len(x_validation)))) @ weights
   metrics = {
     "train_pairs": len(x_train), "validation_pairs": len(x_validation), "frame_gap": frame_gap,
     "validation_mae_normalized_steer": float(np.mean(np.abs(prediction - y_validation))),
