@@ -10,7 +10,7 @@ Target tag: `v0.1.0-portfolio`.
 | Non-blocking delay path | camera queue, timestamp/drop fields, camera transport audit | complete |
 | Formal repeatability matrix | 12 formal runs, 0/50/100/150 ms × 3; warm-up excluded | complete |
 | Result distinction | report shows valid runs, valid failures, and invalid runs separately | complete |
-| Unit tests and CI | local test suite; GitHub CI required to be green at release commit | pending release commit |
+| Unit tests and CI | local test suite; GitHub CI green for the release commit and current documentation commit | complete |
 | Sample/reproduction material | `examples/v0.2-formal-delay-matrix`, `docs/reproducibility.md` | complete |
 | Scope limitations | README, instrumentation, progress, and CARLA smoke documents | complete |
 
