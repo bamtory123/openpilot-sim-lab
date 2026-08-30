@@ -105,6 +105,8 @@ This confirms the non-blocking injector's recorded delay under the limited 2.0 m
 
 The same 2.0 m/s artifact was then evaluated on the 45 m tighter-loop geometry. It was `valid/fail` after 1,145 camera frames with lane departure, 0.54032 m lateral RMSE, and no collision or camera drop. Therefore the 2.0 m/s pass does not generalize from the fixed 60 m loop to this tighter geometry; it remains a narrow fixed-condition result.
 
+At the same 2.0 m/s speed, changing only camera gamma to 0.8 also produced `valid/fail` after 1,030 camera frames with lane departure and 1.34232 m lateral RMSE. The 2.0 m/s pass is therefore appearance-sensitive as well as geometry-sensitive, and remains constrained to its fixed rendering contract.
+
 Reproduce this matrix only after generating the local artifact named by the scenario:
 
 ```bash

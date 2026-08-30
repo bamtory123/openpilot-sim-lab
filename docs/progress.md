@@ -90,6 +90,8 @@ The same 2.0 m/s contract then completed the standard 12-run interleaved 0/50/10
 
 The 2.0 m/s artifact was also evaluated unchanged on the 45 m tighter loop. It remained `valid/fail`, ending after 1,145 camera frames with lane departure and 0.54032 m lateral RMSE, while retaining valid timestamps and no collision/drop. The low-speed pass is consequently constrained to the fixed 60 m loop and is not route-geometry generalization.
 
+Changing only camera gamma to 0.8 at the same 2.0 m/s caused a `valid/fail` after 1,030 camera frames with lane departure and 1.34232 m lateral RMSE. The low-speed pass is therefore also appearance-sensitive and remains a fixed-rendering result.
+
 ## Next
 
 1. Add genuinely varied held-out route/appearance conditions before increasing specialist model capacity.
