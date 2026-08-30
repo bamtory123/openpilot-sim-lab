@@ -102,3 +102,15 @@ The retained artifact was also run through the standard excluded-warm-up, interl
 | 150 ms | 3 × `valid/pass` | 0.33276 m | 150.63 ms |
 
 This confirms the non-blocking injector's recorded delay under the limited 2.0 m/s contract. It does not overturn the model-driven baseline, 3.0/4.0 m/s specialist failures, route/appearance limits, or any real-road limitation.
+
+Reproduce this matrix only after generating the local artifact named by the scenario:
+
+```bash
+cd /home/hyunsung/src/openpilot-sim-lab
+export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
+$OPENPILOT_ROOT/.venv/bin/python3 -m simlab.runner batch \
+  --scenario configs/scenarios/md_default_loop_lane0_temporal_dagger_speed2_heldout_v1.yaml \
+  --outputs outputs/specialist-speed2-delay-matrix
+$OPENPILOT_ROOT/.venv/bin/python3 -m simlab.runner report \
+  --outputs outputs/specialist-speed2-delay-matrix
+```
