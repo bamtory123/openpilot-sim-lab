@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "source_run_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_probe_v1-20260831T050645Z-bcb5b1e7",
+  "captures": [
+    {
+      "image": "road-frame-000200.png",
+      "simulation_time_s": 2.0,
+      "collision": false,
+      "traffic_nearest_distance_m": 18.16730139113247,
+      "traffic_nearest_closing_speed_mps": 1.565201678891487,
+      "traffic_nearest_ttc_s": 11.607003516632426
+    },
+    {
+      "image": "road-frame-000400.png",
+      "simulation_time_s": 4.0,
+      "collision": false,
+      "traffic_nearest_distance_m": 14.63479169308065,
+      "traffic_nearest_closing_speed_mps": 1.9026799283390967,
+      "traffic_nearest_ttc_s": 7.691672926752203
+    },
+    {
+      "image": "road-frame-000800.png",
+      "simulation_time_s": 8.0,
+      "collision": false,
+      "traffic_nearest_distance_m": 6.761103726567395,
+      "traffic_nearest_closing_speed_mps": 1.9908582368732983,
+      "traffic_nearest_ttc_s": 3.396074919521095
+    }
+  ]
+}

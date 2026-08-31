@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "run_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_probe_v1-20260831T050645Z-bcb5b1e7",
+  "scenario_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_probe_v1",
+  "target_delay_ms": 0,
+  "validity": "valid",
+  "outcome": "fail",
+  "reasons": ["collision"],
+  "metrics": {
+    "lateral_rmse_m": 0.5014088551831276,
+    "speed_mean_mps": 1.7861110402546996,
+    "actual_delay_median_ms": 23.516790999999998,
+    "camera_frames_published": 1200,
+    "camera_frames_dropped": 0,
+    "lane_departure_occurred": false,
+    "collision_occurred": true,
+    "traffic_ego_nearest_distance_min_m": 4.466391490326059,
+    "traffic_nearest_closing_speed_max_mps": 1.9997764559029532,
+    "traffic_nearest_ttc_min_s": 2.29168341049242
+  }
+}
