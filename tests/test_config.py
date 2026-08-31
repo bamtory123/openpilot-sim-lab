@@ -4,6 +4,13 @@ from simlab.config import ScenarioError, load_scenario, scenario_with_delay, sce
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
+def test_all_tracked_scenarios_validate():
+  paths = sorted((ROOT / "configs/scenarios").glob("*.yaml"))
+  assert paths
+  for path in paths:
+    load_scenario(path)
+
 def test_default_scenario_is_supported_and_hash_is_stable():
   scenario = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   assert scenario.scenario_id == "md_default_loop_lane0_v1" and len(scenario.hash) == 64
