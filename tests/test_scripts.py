@@ -1,5 +1,6 @@
 import py_compile
 from pathlib import Path
+import re
 import subprocess
 
 
@@ -14,3 +15,11 @@ def test_shell_scripts_have_valid_bash_syntax():
 def test_python_scripts_compile_without_runtime_dependencies():
   for path in sorted((ROOT / "scripts").glob("*.py")):
     py_compile.compile(str(path), doraise=True)
+
+
+def test_local_documentation_links_exist():
+  documents = [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md"))]
+  for document in documents:
+    for target in re.findall(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text(encoding="utf-8")):
+      if "://" not in target and not target.startswith("mailto:"):
+        assert (document.parent / target).resolve().exists(), f"{document}: {target}"
