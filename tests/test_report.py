@@ -6,7 +6,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_public_example_summaries_have_required_contract_fields():
-  for path in ROOT.glob("examples/*/representative-summary.json"):
+  paths = sorted(ROOT.glob("examples/*/representative-summary.json"))
+  assert paths
+  for path in paths:
+    assert (path.parent / "README.md").is_file()
     summary = json.loads(path.read_text(encoding="utf-8"))
     assert summary["schema_version"] == 1
     assert summary["validity"] in ("valid", "invalid")
