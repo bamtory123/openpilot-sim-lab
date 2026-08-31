@@ -160,6 +160,8 @@ The same diagnostic's terminal telemetry reached 2.24 m lateral error and −0.1
 
 After adding Windows event collection, a bounded combined host-stack recheck completed a 5-second CUDA soak, a two-step offscreen renderer probe, and sim-lab preflight with the same WSL boot ID (`445d8741-37e4-4429-ab6d-16bd97f5ced5`). This verifies the diagnostic sequence and its clean shutdown only; it does not clear the separate long CUDA-backed bridge stability boundary.
 
+New manifests now include `created_at_utc`; recovered `host_interrupted` summaries preserve that timestamp with their boot-ID comparison. This gives every future interrupted artifact a direct, UTC-aligned window for the Windows event collector.
+
 ## Next
 
 1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
