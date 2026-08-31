@@ -40,6 +40,14 @@ def test_traffic_actor_requirement_must_be_a_nonnegative_integer(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_traffic_mode_is_limited_to_trigger_or_respawn(tmp_path):
+  path = tmp_path / "traffic.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  traffic_mode: respawn"))
+  assert load_scenario(path).data["environment"]["traffic_mode"] == "respawn"
+  path.write_text(path.read_text().replace("traffic_mode: respawn", "traffic_mode: hybrid"))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_unsupported_camera_fov_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_fov_deg: 55"))
