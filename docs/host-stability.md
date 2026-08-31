@@ -14,6 +14,8 @@ A standalone 20-second tinygrad CUDA soak (4,096-element reduction) completed 14
 
 The renderer-only probe completed 20 MetaDrive steps with four 1928×1208 offscreen road-camera captures and clean shutdown. Together with the CUDA soak, this excludes neither the combined openpilot manager/modeld plus bridge workload nor other host factors; it is only a short successful probe, not evidence of long-duration renderer stability.
 
+A separate end-to-end openpilot-manager/bridge smoke also completed a 23.94-second measured interval on the same recorded boot ID before normal simulator termination. It validates the new summary/coverage path through the real bridge, but remains too short and too diagnostically scoped to clear the long-run host-stability gate.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
