@@ -34,3 +34,13 @@ For a small independent CUDA check, run `SIM_TINYGRAD_DEVICE=CUDA $OPENPILOT_PYT
 For an offscreen MetaDrive renderer-only check, run `PYTHONPATH="$OPENPILOT_ROOT" $OPENPILOT_PYTHON scripts/check_metadrive_renderer.py`. It uses the bridge's 1928×1208 road camera with host-memory images but does not start modeld, CAN, or the openpilot manager. Add `--steps` only for a bounded renderer probe.
 
 For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check. It compares WSL boot IDs before and after a normally completed sequence.
+
+For a long-run investigation, collect Windows-side evidence immediately after the run (or after WSL recovers) and retain it beside the run artifact:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File '\\wsl.localhost\Ubuntu-24.04\home\hyunsung\src\openpilot-sim-lab\scripts\collect_windows_wsl_events.ps1' `
+  -Since '2026-08-31T16:00:00+09:00' `
+  -OutputPath 'C:\path\to\run\windows-host-events.json'
+```
+
+The collector records only matching System-log records in the selected time window (Hyper-V WSL switch, display/NVIDIA providers, or messages mentioning WSL/NVIDIA/display/GPU). It is evidence for temporal correlation; an event record by itself does not assign a driver root cause.
