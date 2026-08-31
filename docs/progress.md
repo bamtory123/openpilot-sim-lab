@@ -154,6 +154,10 @@ Host-stability instrumentation now records WSL boot ID and GPU start state in ne
 
 Validity classification now prioritizes data integrity: short telemetry coverage or an unmet measured simulation-time span produces `invalid/not_evaluated` even if a driving failure was observed. The `min_active_time_s` contract is enforced from telemetry simulation timestamps and exposed as `active_time_s`; the 400-camera-frame rendered-lead smoke explicitly declares a 15-second active requirement.
 
+A fresh end-to-end `reference_lane_assist` smoke exercised this policy through the real bridge. It ended at 23.94 s with 479/1,200 camera frames after lane departure, so its report correctly contains `invalid/not_evaluated` with `telemetry_coverage` and `insufficient_active_time:23.94s<55.00s`, rather than reporting a driving KPI outcome. The run's manifest also verified the new boot-ID and GPU-start snapshot fields.
+
+The same diagnostic's terminal telemetry reached 2.24 m lateral error and −0.172 rad heading error while its simulator-only controller target curvature was zero. This is retained as a diagnostic-controller limitation only; no controller gain change is applied and it does not alter the frozen pretrained or specialist evidence.
+
 ## Next
 
 1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
