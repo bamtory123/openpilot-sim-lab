@@ -150,6 +150,10 @@ The runner now preserves watchdog, unexpected bridge exit, and Python-level runn
 
 The explicit 400-frame rendered-lead smoke subsequently completed with a visible Ferra vehicle, no lane departure, and `valid/fail: collision` (0.35976 m lateral RMSE). Its manifest records full asset version and mesh hash. The separate baseline rerun completed too, but remained `valid/fail: lane_departure, lateral_error_threshold`; it is retained as post-experiment recovery evidence, not a new performance result.
 
+Host-stability instrumentation now records WSL boot ID and GPU start state in new manifests, provides bounded CUDA/renderer/preflight probes, and distinguishes invalid infrastructure reasons in reports. A 20-second CUDA-only soak and 20-step offscreen renderer probe completed, while `dxgkio_escape` messages also appeared without a boot-ID change; those messages are therefore not treated as restart evidence on their own.
+
+Validity classification now prioritizes data integrity: short telemetry coverage or an unmet measured simulation-time span produces `invalid/not_evaluated` even if a driving failure was observed. The `min_active_time_s` contract is enforced from telemetry simulation timestamps and exposed as `active_time_s`; the 400-camera-frame rendered-lead smoke explicitly declares a 15-second active requirement.
+
 ## Next
 
 1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
