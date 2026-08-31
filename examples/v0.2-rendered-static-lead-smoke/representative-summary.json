@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_rendered_smoke_v1-20260831T075904Z-967191d2",
+  "scenario_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_rendered_smoke_v1",
+  "target_delay_ms": 0,
+  "validity": "valid",
+  "outcome": "fail",
+  "reasons": ["collision"],
+  "termination_reason": null,
+  "metrics": {
+    "lateral_rmse_m": 0.359759618835753,
+    "camera_frames_published": 400,
+    "camera_frames_dropped": 0,
+    "collision_occurred": true,
+    "lane_departure_occurred": false
+  }
+}
