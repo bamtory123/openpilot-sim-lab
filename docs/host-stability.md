@@ -18,6 +18,8 @@ A separate end-to-end openpilot-manager/bridge smoke also completed a 23.94-seco
 
 On 2026-08-31, a background 1,200-frame specialist probe left only an empty launcher log; no runner manifest or summary was created, and the next inspection observed a new WSL boot ID plus a fresh system journal. The selected Windows event window contained Hyper-V WSL-switch creation records but no NVIDIA/TDR record. Because that attempt predated the pre-launch wrapper and has no durable start timestamp, the repository records it as an infrastructure interruption observation, not a causal attribution to the scenario or driver.
 
+The same fixed 1,200-frame specialist contract then completed once through the foreground pre-launch wrapper: 59.99 s active time, 1,200 published road frames, zero drops, 1.0 telemetry/road-camera coverage, and unchanged WSL boot ID. Its actual delay median/P95/max were 25.06/33.38/44.09 ms on the common 0 ms scheduler path. The matching UTC Windows-event window contained no selected WSL/GPU events. This is one successful end-to-end stability probe, not a long-run clearance or a new formal performance replicate.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
