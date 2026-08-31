@@ -56,6 +56,9 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("traffic_density must be between 0.0 and 0.05")
   if "traffic_mode" in env and env["traffic_mode"] not in ("trigger", "respawn"):
     raise ScenarioError("traffic_mode must be trigger or respawn")
+  lead_vehicle = env.get("lead_vehicle")
+  if lead_vehicle is not None and (not isinstance(lead_vehicle, dict) or set(lead_vehicle) != {"gap_m"} or not isinstance(lead_vehicle["gap_m"], (int, float)) or not 5.0 <= float(lead_vehicle["gap_m"]) <= 40.0):
+    raise ScenarioError("lead_vehicle must contain gap_m between 5 and 40")
   if "show_navi_mark" in env and not isinstance(env["show_navi_mark"], bool):
     raise ScenarioError("show_navi_mark must be boolean")
   for key in ("camera_position_m", "camera_hpr_deg"):

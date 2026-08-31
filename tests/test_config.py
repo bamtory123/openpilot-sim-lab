@@ -56,6 +56,14 @@ def test_traffic_proximity_requirement_must_be_positive(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_lead_vehicle_gap_is_bounded(tmp_path):
+  path = tmp_path / "lead.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  lead_vehicle:\n    gap_m: 20"))
+  assert load_scenario(path).data["environment"]["lead_vehicle"]["gap_m"] == 20
+  path.write_text(path.read_text().replace("gap_m: 20", "gap_m: 2"))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_unsupported_camera_fov_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_fov_deg: 55"))
