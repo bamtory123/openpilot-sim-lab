@@ -18,7 +18,7 @@ def test_python_scripts_compile_without_runtime_dependencies():
 
 
 def test_local_documentation_links_exist():
-  documents = [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md"))]
+  documents = sorted([ROOT / "README.md", *ROOT.glob("docs/**/*.md"), *ROOT.glob("examples/**/*.md")])
   for document in documents:
     for target in re.findall(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text(encoding="utf-8")):
       if "://" not in target and not target.startswith("mailto:"):
