@@ -1,5 +1,6 @@
 import csv
 import sys
+from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from pathlib import Path
@@ -245,6 +246,7 @@ def test_manifest_records_metadrive_source_state(monkeypatch, tmp_path):
   assert manifest["metadrive_source"] == {"path": str(package.parent), "commit": "abc", "dirty": True, "submodules": ""}
   assert manifest["metadrive_assets"]["version"] == "0.4.2.3"
   assert manifest["metadrive_assets"]["ferra_vehicle_available"] is True
+  assert datetime.fromisoformat(manifest["created_at_utc"]).tzinfo is not None
 
 
 def test_gpu_runtime_snapshot_parses_nvidia_smi_fields(monkeypatch):

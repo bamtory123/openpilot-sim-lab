@@ -7,6 +7,7 @@ from pathlib import Path
 import platform
 import subprocess
 import sys
+from datetime import datetime, timezone
 from typing import Any
 
 from .config import Scenario
@@ -73,7 +74,7 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
     metadrive_version = "not-installed"
   env = {key: os.environ[key] for key in ("SIMULATION", "SIM_TINYGRAD_DEVICE", "OPENPILOT_ROOT") if key in os.environ}
   return {
-    "schema_version": 1, "run_id": run_id, "scenario_hash": scenario.hash,
+    "schema_version": 1, "run_id": run_id, "created_at_utc": datetime.now(timezone.utc).isoformat(), "scenario_hash": scenario.hash,
     "sim_lab": git_metadata(simlab_root), "openpilot": git_metadata(openpilot_root),
     "metadrive_source": metadrive_source_metadata(),
     "metadrive_assets": metadrive_assets_metadata(),
