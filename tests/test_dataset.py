@@ -26,3 +26,14 @@ def test_audit_dataset_reports_traffic_label_coverage(tmp_path):
   assert result["traffic_labeled_sample_count"] == 2
   assert result["traffic_nearest_distance_min_m"] == 4.5 and result["traffic_nearest_ttc_min_s"] == 6.0
   assert result["collision_labeled_sample_count"] == 1
+
+
+def test_audit_dataset_reports_static_obstacle_bbox_coverage(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  sample = {"split": "train", "metadata": {"static_obstacle_bbox_xyxy_px": [1, 2, 4, 6]}, "labels": {}}
+  (run / "dataset_manifest.jsonl").write_text(json.dumps(sample))
+
+  result = audit_dataset(tmp_path)
+
+  assert result["static_obstacle_bbox_labeled_sample_count"] == 1
+  assert result["static_obstacle_bbox_area_min_px2"] == 12.0

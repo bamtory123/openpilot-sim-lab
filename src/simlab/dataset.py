@@ -14,6 +14,8 @@ def audit_dataset(root: Path) -> dict:
                       if sample["labels"].get("traffic_nearest_distance_m") not in (None, "")]
   traffic_ttc = [float(sample["labels"]["traffic_nearest_ttc_s"]) for sample in samples
                  if sample["labels"].get("traffic_nearest_ttc_s") not in (None, "")]
+  bbox_area = [float((bbox[2] - bbox[0]) * (bbox[3] - bbox[1])) for sample in samples
+               if (bbox := sample.get("metadata", {}).get("static_obstacle_bbox_xyxy_px")) is not None]
   return {
     "sample_count": len(samples),
     "split_counts": dict(sorted(Counter(sample["split"] for sample in samples).items())),
@@ -24,4 +26,7 @@ def audit_dataset(root: Path) -> dict:
     "traffic_nearest_distance_min_m": min(traffic_distance, default=None),
     "traffic_nearest_ttc_min_s": min(traffic_ttc, default=None),
     "collision_labeled_sample_count": sum(bool(sample["labels"].get("collision")) for sample in samples),
+    "static_obstacle_bbox_labeled_sample_count": len(bbox_area),
+    "static_obstacle_bbox_area_min_px2": min(bbox_area, default=None),
+    "static_obstacle_bbox_area_max_px2": max(bbox_area, default=None),
   }
