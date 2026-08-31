@@ -49,6 +49,11 @@ def metadrive_assets_metadata() -> dict[str, Any]:
   }
 
 
+def wsl_boot_id() -> str | None:
+  path = Path("/proc/sys/kernel/random/boot_id")
+  return path.read_text(encoding="utf-8").strip() if path.is_file() else None
+
+
 def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot_root: Path, command: list[str]) -> dict[str, Any]:
   try:
     from importlib.metadata import version
@@ -62,7 +67,8 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
     "metadrive_source": metadrive_source_metadata(),
     "metadrive_assets": metadrive_assets_metadata(),
     "python_version": sys.version, "metadrive_version": metadrive_version,
-    "wsl_kernel": platform.release(), "gpu": _command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"]),
+    "wsl_kernel": platform.release(), "wsl_boot_id": wsl_boot_id(),
+    "gpu": _command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"]),
     "driver": _command(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"]),
     "command": command, "environment": env,
   }

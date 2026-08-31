@@ -12,7 +12,7 @@ At the time of inspection the host exposed WSL `2.7.12.0`, kernel `6.18.33.2-mic
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
 - A watchdog, unexpected bridge exit, or Python-level runner exception is recorded as `invalid/not_evaluated`.
-- If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. It writes an explicit `invalid/not_evaluated: host_interrupted` summary and refuses to overwrite an existing result.
+- Every manifest records the WSL boot ID. If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. It writes an explicit `invalid/not_evaluated: host_interrupted` summary, records the pre-run and recovery boot IDs plus whether they changed, and refuses to overwrite an existing result.
 - Do not treat a missing summary as a failed driving result or silently omit it from a report.
 
 ## Operating rule

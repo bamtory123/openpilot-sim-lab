@@ -17,7 +17,7 @@ import yaml
 
 from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed, scenario_with_map_curve_direction
 from .dataset import audit_dataset
-from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json
+from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json, wsl_boot_id
 from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
 from .specialist import train_specialist, train_temporal_specialist
@@ -327,10 +327,13 @@ def recover_incomplete_run(run_dir: Path) -> Path:
     raise RuntimeError("refusing to overwrite an existing summary")
   manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
   scenario = yaml.safe_load((run_dir / "scenario.yaml").read_text(encoding="utf-8"))
+  recorded_boot_id, observed_boot_id = manifest.get("wsl_boot_id"), wsl_boot_id()
   write_json(summary, {"schema_version": 1, "run_id": manifest["run_id"], "scenario_id": scenario["scenario_id"],
                        "target_delay_ms": scenario["fault"]["target_delay_ms"], "validity": "invalid",
                        "outcome": "not_evaluated", "reasons": ["host_interrupted"],
-                       "termination_reason": "host_interrupted", "metrics": {}})
+                       "termination_reason": "host_interrupted", "metrics": {}, "host_recovery": {
+                         "recorded_wsl_boot_id": recorded_boot_id, "observed_wsl_boot_id": observed_boot_id,
+                         "wsl_boot_changed": bool(recorded_boot_id and observed_boot_id and recorded_boot_id != observed_boot_id)}})
   return summary
 
 
