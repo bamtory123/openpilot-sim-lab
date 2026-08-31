@@ -1,6 +1,8 @@
 # Portfolio release checklist
 
-Target tag: `v0.1.0-portfolio`.
+Released tags: `v0.1.0-portfolio`, `v0.1.1-portfolio`, and `v0.1.2-portfolio`.
+
+The latest v0.1 release is `v0.1.2-portfolio` at `d27c0920af16f6d54928ec382d8d057674caa50a`. It adds measurement-period disengagement classification while retaining the frozen formal matrix's reproducible `valid/fail` baseline status.
 
 | Requirement | Evidence | Status |
 |---|---|---|
@@ -18,9 +20,9 @@ Target tag: `v0.1.0-portfolio`.
 
 The release may state that the deterministic MetaDrive harness, delay injector, telemetry, KPI report, and repeatability data collection are complete. It must state that the current model-driven baseline produces reproducible `valid/fail` lane departures. It must not claim successful closed-loop openpilot driving, real-vehicle validation, HIL, trained-model improvement, or CARLA closed-loop validation.
 
-## Publish gate
+## Future publish gate
 
-Before creating the tag, run `uv run pytest -q`, confirm a clean worktree, wait for CI success on the release commit, and verify the sample JSON parses. The tag should point only to that green commit.
+Before creating any additional tag, run `uv run pytest -q`, confirm a clean worktree, wait for CI success on the release commit, and verify the sample JSON parses. The tag should point only to that green commit. The v0.2 experimental branch additionally requires a documented disposition of the Windows/WSL CUDA stability boundary; it must not promote rendered-lead smoke results to a perception, avoidance, or real-driving claim.
 
 ## Post-v0.1 experimental extensions
 
