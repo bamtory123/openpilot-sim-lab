@@ -60,7 +60,9 @@ def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
                      "model_camera_focal_length_px", "calibration_status", "calibration_roll_rad",
                      "calibration_pitch_rad", "calibration_yaw_rad", "model_left_lane_prob",
                      "model_right_lane_prob", "model_left_lane_y0_m", "model_right_lane_y0_m",
-                     "specialist_teacher_curvature_1pm", "specialist_teacher_normalized_steer")}})
+                     "specialist_teacher_curvature_1pm", "specialist_teacher_normalized_steer",
+                     "traffic_vehicle_count", "traffic_active_vehicle_count", "traffic_nearest_distance_m",
+                     "traffic_nearest_closing_speed_mps", "traffic_nearest_ttc_s", "collision")}})
   if captures:
     write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
 
