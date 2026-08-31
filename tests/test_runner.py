@@ -6,7 +6,7 @@ from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
 from simlab.manifest import build_manifest, gpu_runtime_snapshot
-from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight, recover_incomplete_run
+from simlab.runner import RunData, _classify, _coverage_ratios, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight, recover_incomplete_run
 
 
 def test_stops_the_manager_process_group():
@@ -60,6 +60,13 @@ def test_camera_coverage_is_required_even_with_full_telemetry():
 
   assert (validity, outcome) == ("invalid", "not_evaluated")
   assert reasons == ["camera_coverage"]
+
+
+def test_coverage_ratios_use_measured_road_camera_frames_only():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(telemetry=_complete_measurement(), camera=_complete_road_camera() + [{"measurement": False, "camera": "road"}])
+
+  assert _coverage_ratios(data, scenario) == (1.0, 1.0)
 
 
 def test_watchdog_is_invalid_even_after_a_collision():

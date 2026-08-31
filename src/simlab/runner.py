@@ -171,6 +171,13 @@ def _disengaged_during_measurement(events: list[dict]) -> bool:
   return False
 
 
+def _coverage_ratios(data: RunData, scenario: Scenario) -> tuple[float, float]:
+  telemetry = sum(bool(row.get("measurement")) for row in data.telemetry)
+  camera = sum(bool(row.get("measurement")) and row.get("camera") == "road" and not row.get("dropped") for row in data.camera)
+  expected_telemetry = scenario.data["run"]["measurement_camera_frames"] * scenario.data["logging"]["telemetry_hz"] / scenario.data["logging"]["camera_hz_nominal"]
+  return telemetry / expected_telemetry, camera / scenario.data["run"]["measurement_camera_frames"]
+
+
 def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tuple[str, str, list[str]]:
   measured = [row for row in data.telemetry if row.get("measurement")]
   thresholds = _outcome_thresholds()
@@ -196,11 +203,10 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     invalid.append("traffic_actor_coverage")
   if traffic_proximity_not_met:
     invalid.append("traffic_proximity_coverage")
-  expected = scenario.data["run"]["measurement_camera_frames"] * scenario.data["logging"]["telemetry_hz"] / scenario.data["logging"]["camera_hz_nominal"]
-  if len(measured) / expected < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
+  telemetry_coverage, camera_coverage = _coverage_ratios(data, scenario)
+  if telemetry_coverage < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
     invalid.append("telemetry_coverage")
-  measured_road_frames = [row for row in data.camera if row.get("measurement") and row.get("camera") == "road" and not row.get("dropped")]
-  if len(measured_road_frames) / scenario.data["run"]["measurement_camera_frames"] < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
+  if camera_coverage < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
     invalid.append("camera_coverage")
   min_active_time_s = scenario.data["validity"].get("min_active_time_s")
   if min_active_time_s is not None:
@@ -320,6 +326,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
       handle.write(json.dumps(event, sort_keys=True) + "\n")
   validity, outcome, reasons = _classify(data, scenario, stop_reason)
   metrics = calculate_metrics([row for row in data.telemetry if row.get("measurement")], [row for row in data.camera if row.get("measurement")])
+  metrics["telemetry_coverage_ratio"], metrics["road_camera_coverage_ratio"] = _coverage_ratios(data, scenario)
   write_json(run_dir / "summary.json", {"schema_version": 1, "run_id": run_id, "scenario_id": scenario.scenario_id,
     "target_delay_ms": scenario.data["fault"]["target_delay_ms"], "validity": validity, "outcome": outcome,
     "reasons": reasons, "termination_reason": stop_reason, "metrics": metrics})
