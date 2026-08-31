@@ -25,6 +25,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | Gamma 0.8 after v0.6 targeted data | 3 × `valid/pass`; 12-run 0/50/100/150 ms matrix also all `valid/pass` | Improvement only for the same 60 m/2.0 m/s/gamma-0.8 contract. |
 | Target speed 3.0 m/s | 3 × `valid/fail`, 882–883 frames | No speed/dynamics robustness at the collection condition. |
 | Target speed 3.0 m/s using v0.6 gamma-0.8 artifact | 3 × `valid/pass`, 1,200 frames each; 0.49226 m mean lateral RMSE | Fixed-seed speed diagnostics only; not a formal delay matrix or speed robustness. |
+| Target speed 3.0 m/s v0.6 gamma-0.8 delay matrix | 3 × `valid/pass` per 0/50/100/150 ms; median RMSE 0.44359/0.59736/0.54405/0.43795 m | Delay delivery under one fixed default-loop/gamma/speed contract only. |
 | Target speed 4.0 m/s using v0.6 gamma-0.8 artifact | `invalid/not_evaluated`, 50.44 s, coverage 0.841; lane departure observed | Insufficient measurement coverage prevents a driving-performance verdict. |
 | Target speed 4.0 m/s | `valid/fail`, 653 frames, 0.49527 m lateral RMSE | Higher-speed sensitivity. |
 | 45 m loop after v0.6 targeted data | `valid/fail`, 1,200 frames, 0.50021 m lateral RMSE | Partial RMSE improvement, but no geometry-generalized pass. |

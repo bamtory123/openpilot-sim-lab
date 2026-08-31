@@ -168,6 +168,8 @@ Two foreground retries through that wrapper completed the full 1,200-frame speci
 
 The same v0.6 gamma-0.8 artifact completed three separate 3.0 m/s default-loop diagnostics as `valid/pass`: each had 59.99 s active time, 1,200 frames, zero departure/collision/drop, and 1.0 coverage. Mean speed was 2.986–2.989 m/s and lateral RMSE was 0.42902–0.52452 m (mean 0.49226 m). They are fixed-seed speed diagnostics, not a formal delay matrix or general speed robustness.
 
+The separated 3.0 m/s formal delay matrix then completed its excluded warm-up and interleaved 12 formal runs. Every 0/50/100/150 ms condition had three `valid/pass` results with 1.0 telemetry/road-camera coverage and zero drops. Median lateral RMSE was 0.44359, 0.59736, 0.54405, and 0.43795 m; median actual transport delay was 22.07, 50.65, 100.57, and 150.67 ms. This is only the declared default-loop/gamma-0.8/3.0 m/s simulator contract.
+
 At 4.0 m/s, the same artifact reached 3.981 m/s mean speed but terminated after a lane departure at 50.44 s. Its 0.841 telemetry/road-camera coverage and unmet 55 s active-time contract correctly classify it as `invalid/not_evaluated`, not a valid driving failure. The observed departure is retained for diagnosis, but the run cannot support a 4.0 m/s performance conclusion.
 
 ## Next
