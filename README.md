@@ -41,6 +41,8 @@ For unit tests of the orchestration package, use `uv run pytest -q` from this re
 
 Each run contains `manifest.json`, the resolved `scenario.yaml`, 100 Hz `telemetry.csv`, 20 Hz `camera.csv`, `events.jsonl`, `summary.json`, and process logs. `validity` describes whether the infrastructure/data is usable; `outcome` describes closed-loop performance. Lane departure and disengagement are valid failures, not invalid data.
 
+If Windows/WSL restarts during a run and leaves a directory without `summary.json`, run `scripts/recover_interrupted_runs.sh outputs`. It writes only missing summaries as `invalid/not_evaluated: host_interrupted` and never overwrites an existing result.
+
 ## Limitations
 
 This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and actuator behaviour differ from an ECU and a real vehicle. CARLA is documented as a Windows–WSL smoke-test effort and is not a v0.1 release gate.
