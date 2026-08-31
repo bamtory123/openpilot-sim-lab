@@ -146,6 +146,8 @@ The bbox-enabled 20 m three-seed matrix then completed with 30/30 projected-box-
 
 The optional full MetaDrive 0.4.2.3 asset archive was then verified to render its Ferra vehicle mesh in road RGB. The first 20 m lead smoke produced a visible red vehicle but collided, as expected because no perception or avoidance control is connected. A subsequent full-asset attempt ended without a summary during a WSL `dxg`/unclean-restart incident. The active test environment was restored to minimal assets and the full archive was retained separately; rendered-vehicle results remain an environment smoke boundary, while the box proxy remains the reproducible visible-object path.
 
+The runner now preserves watchdog, unexpected bridge exit, and Python-level runner exceptions as `invalid/not_evaluated` rather than allowing a simultaneous collision to mask an infrastructure failure. This is a harness integrity change; it does not alter previously collected results or convert the rendered-vehicle smoke into a formal evaluation.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
