@@ -164,7 +164,7 @@ New manifests now include `created_at_utc`; recovered `host_interrupted` summari
 
 A subsequent background 1,200-frame specialist stability probe ended before the runner wrote a manifest or summary and the next check saw a new WSL boot ID and fresh journal. The concurrent Windows window had only Hyper-V WSL-switch creation records, not an NVIDIA/TDR record. It is retained as an infrastructure-interruption observation without driver or scenario causality; the new pre-launch host-probe wrapper exists specifically so any retry preserves an attempt artifact before runner startup.
 
-The foreground retry through that wrapper completed one full 1,200-frame specialist contract with 59.99 s active time, 1.0 telemetry/road-camera coverage, zero drops, unchanged WSL boot ID, and no selected Windows WSL/GPU event in the exact UTC window. It is a successful single host probe and not an additional formal replicate or long-duration stability clearance.
+Two foreground retries through that wrapper completed the full 1,200-frame specialist contract with 59.99 s active time, 1.0 telemetry/road-camera coverage, zero drops, unchanged WSL boot ID, and no selected Windows WSL/GPU event in their exact UTC windows. They are successful host probes, not formal replicates or long-duration stability clearance.
 
 ## Next
 

@@ -35,6 +35,6 @@ The opt-in simulator-specialist and `openpilot_serpentine_v1` evidence added aft
 | Interrupted-run integrity | manifest UTC timestamp and WSL boot ID; `recover` preserves both in `host_recovery` | complete |
 | Windows-side correlation | `collect_windows_wsl_events.ps1` writes a bounded System-log JSON beside an artifact | complete |
 | Bounded component check | CUDA soak, offscreen renderer, preflight, and boot-ID comparison in `check_host_stack.sh` | complete |
-| Long CUDA-backed bridge stability | one 59.99 s/1,200-frame foreground probe retained boot ID with no selected Windows event; no independent root-cause isolation or long-run clearance | open |
+| Long CUDA-backed bridge stability | two 59.99 s/1,200-frame foreground probes retained boot ID with no selected Windows event; no independent root-cause isolation or long-run clearance | open |
 
 The completed rows make infrastructure interruptions auditable and non-misleading. They do not clear the last row or authorize a long formal matrix solely to obtain more samples.
