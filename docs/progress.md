@@ -132,6 +132,8 @@ The new fixed static-lead fixture provides that deliberate encounter without fee
 
 Camera diagnostics now join each saved RGB frame to the measured traffic actor count, nearest distance, closing speed, TTC, and collision state. The static-lead fixture captures the approach at 2, 4, and 8 s: distance/TTC fall from 18.17 m/11.61 s to 14.63 m/7.69 s and 6.76 m/3.40 s before the collision-state capture at 12 s. This produces a traceable local camera-to-ground-truth analysis artifact only; the labels remain excluded from the runtime control path and no lead-perception model has been trained.
 
+The separate static-lead dataset smoke now writes 10 run-relative RGB samples to `dataset_manifest.jsonl`; all carry traffic labels, the sampled minimum distance is 4.52 m, the minimum sampled positive TTC is 3.40 s, and two samples carry collision state. `simlab.runner audit` reports this label coverage automatically. The run remains `valid/fail: collision`, and this small fixed encounter is retained only as data-contract evidence, not lead-perception training or driving capability.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
