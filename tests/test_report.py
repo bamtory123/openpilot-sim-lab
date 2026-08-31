@@ -27,6 +27,17 @@ def test_report_writes_markdown_and_svg(tmp_path):
   assert "| 0 | 1 | 0 | 1 | - | - | n/a | 0.12 |" in report.read_text() and report.with_suffix(".svg").is_file()
 
 
+def test_report_discovers_nested_host_probe_runs(tmp_path):
+  run = tmp_path / "host-probe" / "runs" / "run-1"
+  run.mkdir(parents=True)
+  (run / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "valid", "outcome": "pass",
+                                                   "reasons": [], "metrics": {"lateral_rmse_m": 0.12}}))
+
+  report = generate_report(tmp_path, tmp_path / "report.md")
+
+  assert "| 0 | 1 | 0 | 0 | - | - | n/a | 0.12 |" in report.read_text()
+
+
 def test_report_groups_valid_failure_reasons(tmp_path):
   run = tmp_path / "run"; run.mkdir()
   (run / "summary.json").write_text(json.dumps({"target_delay_ms": 50, "validity": "valid", "outcome": "fail",

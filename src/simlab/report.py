@@ -18,7 +18,7 @@ def _svg(points: list[tuple[int, float]], title: str, unit: str) -> str:
 def generate_report(results_root: Path, output: Path) -> Path:
   summaries = []
   manifests = []
-  for path in sorted(results_root.glob("*/summary.json")):
+  for path in sorted(results_root.rglob("summary.json")):
     summaries.append(json.loads(path.read_text(encoding="utf-8")))
     manifest = path.with_name("manifest.json")
     if manifest.is_file():
