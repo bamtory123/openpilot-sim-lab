@@ -21,4 +21,4 @@ At the time of inspection the host exposed WSL `2.7.12.0`, kernel `6.18.33.2-mic
 
 Until the host problem is independently reproduced and isolated, avoid starting new long CUDA-backed formal matrices merely to collect more data. Use local unit tests, preflight, short MetaDrive reset/close checks, and already-completed artifacts for routine verification. Any future long run must preserve its manifest, Windows/WSL log timestamps, and outcome classification.
 
-For a small independent CUDA check, run `SIM_TINYGRAD_DEVICE=CUDA $OPENPILOT_PYTHON scripts/check_cuda_runtime.py`. It verifies tinygrad's CUDA default device and one 1,024-element arithmetic result; it is not a simulator, modeld, or long-duration stability test.
+For a small independent CUDA check, run `SIM_TINYGRAD_DEVICE=CUDA $OPENPILOT_PYTHON scripts/check_cuda_runtime.py`. It verifies tinygrad's CUDA default device and one 1,024-element arithmetic result. Add `--duration-s 20` for the repeatable 20-second, 4,096-element soak used here. Neither mode is a simulator, modeld, or long-duration bridge stability test.
