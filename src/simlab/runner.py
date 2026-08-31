@@ -189,7 +189,7 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     failures.append("lateral_error_threshold")
   if not thresholds["allow_disengagement_during_measurement"] and _disengaged_during_measurement(data.events):
     failures.append("disengagement")
-  if data.measured and failures and not traffic_requirement_not_met and not traffic_proximity_not_met and stop_reason != "watchdog":
+  if data.measured and failures and not traffic_requirement_not_met and not traffic_proximity_not_met and stop_reason not in ("watchdog", "bridge_exit", "runner_exception"):
     return "valid", "fail", failures
 
   invalid: list[str] = []
@@ -208,6 +208,10 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     invalid.append("camera_timestamp")
   if stop_reason == "watchdog":
     invalid.append("wall_watchdog")
+  elif stop_reason == "bridge_exit":
+    invalid.append("bridge_exit")
+  elif stop_reason == "runner_exception":
+    invalid.append("runner_exception")
   if invalid:
     return "invalid", "not_evaluated", invalid
   return "valid", "fail" if failures else "pass", failures
@@ -280,6 +284,9 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
       time.sleep(0.01)
     else:
       stop_reason = "watchdog"
+  except Exception as error:
+    data.termination = {"runner_error": f"{type(error).__name__}: {error}"}
+    stop_reason = "runner_exception"
   finally:
     if bridge is not None:
       bridge.shutdown()
