@@ -168,6 +168,8 @@ Two foreground retries through that wrapper completed the full 1,200-frame speci
 
 The same v0.6 gamma-0.8 artifact completed one separate 3.0 m/s default-loop diagnostic as `valid/pass`: 59.99 s active time, 2.986 m/s mean speed, zero departure/collision/drop, and 0.52325 m lateral RMSE. It is a single speed point, not speed robustness or a formal replicate.
 
+At 4.0 m/s, the same artifact reached 3.981 m/s mean speed but terminated after a lane departure at 50.44 s. Its 0.841 telemetry/road-camera coverage and unmet 55 s active-time contract correctly classify it as `invalid/not_evaluated`, not a valid driving failure. The observed departure is retained for diagnosis, but the run cannot support a 4.0 m/s performance conclusion.
+
 ## Next
 
 1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
