@@ -140,6 +140,8 @@ An opt-in `lead_vehicle.visual_proxy: box` attaches the minimal asset package's 
 
 The three-seed visible-box matrix completed with three `valid/fail` outcomes for lane departure and collision. It yielded 30 RGB samples split 20 train / 10 held-out validation; all carry traffic labels, seven carry collision state, and the sampled minima are 4.52 m distance and 3.37 s positive TTC. This repeats a fixed black-box obstacle failure and its data contract only; it does not demonstrate detection or avoidance.
 
+Distance smoke runs at 10 m and 30 m confirmed the same proxy is visible at 1 s and 2 s respectively, providing three fixed image-scale strata (10/20/30 m). Both were `valid/fail` for lane departure, collision, and lateral-error KPI. They establish only deterministic rendering and telemetry coverage across those starting gaps; no classifier, range estimator, braking, or avoidance controller has been trained.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
