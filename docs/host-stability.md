@@ -6,11 +6,13 @@ Two long-running openpilot + MetaDrive bridge attempts coincided with WSL instan
 
 Windows did not record an NVIDIA Display/TDR error in the inspected interval. Therefore this repository does not attribute the event to a particular NVIDIA driver defect. It records only the observed boundary: CUDA-backed long bridge processes can interrupt the WSL guest on this host.
 
+`dxgkio_escape: Ioctl failed: -22` also appeared during a later successful bounded CUDA-plus-renderer check that retained the same WSL boot ID and passed preflight. Treat this message alone as diagnostic noise, not restart evidence. A host interruption requires a boot-ID change, an unclean-journal boundary, or correlated Windows Hyper-V WSL recreation evidence.
+
 At the time of inspection the host exposed WSL `2.7.12.0`, kernel `6.18.33.2-microsoft-standard-WSL2`, RTX 4080 driver `616.56`, 16,376 MiB GPU memory, about 14 GiB WSL memory available, and 4 GiB swap. No user `.wslconfig` was present. This does not prove the failure is unrelated to memory, but it rules out a configured low-memory cap as the immediate explanation. New manifests also record the GPU temperature, utilization, used/total memory, and P-state at run start for later comparison.
 
-A standalone 20-second tinygrad CUDA soak (4,096-element reduction) completed 14,962 iterations with the expected result and no observed WSL/DXG error; GPU temperature remained 52°C afterward. This narrows the observed instability boundary to the longer combined simulator/bridge workload, but does not isolate a root cause or prove that workload stable.
+A standalone 20-second tinygrad CUDA soak (4,096-element reduction) completed 14,962 iterations with the expected result; GPU temperature remained 52°C afterward. This does not isolate a root cause or prove the longer combined simulator/bridge workload stable.
 
-The renderer-only probe completed 20 MetaDrive steps with four 1928×1208 offscreen road-camera captures and clean shutdown. Together with the CUDA soak, this keeps the current suspected boundary at the combined openpilot manager/modeld plus bridge workload. It is still a short probe, not evidence of long-duration renderer stability.
+The renderer-only probe completed 20 MetaDrive steps with four 1928×1208 offscreen road-camera captures and clean shutdown. Together with the CUDA soak, this excludes neither the combined openpilot manager/modeld plus bridge workload nor other host factors; it is only a short successful probe, not evidence of long-duration renderer stability.
 
 ## Harness behavior
 
@@ -29,4 +31,4 @@ For a small independent CUDA check, run `SIM_TINYGRAD_DEVICE=CUDA $OPENPILOT_PYT
 
 For an offscreen MetaDrive renderer-only check, run `PYTHONPATH="$OPENPILOT_ROOT" $OPENPILOT_PYTHON scripts/check_metadrive_renderer.py`. It uses the bridge's 1928×1208 road camera with host-memory images but does not start modeld, CAN, or the openpilot manager. Add `--steps` only for a bounded renderer probe.
 
-For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check.
+For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check. It compares WSL boot IDs before and after a normally completed sequence.
