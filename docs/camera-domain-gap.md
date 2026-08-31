@@ -76,7 +76,7 @@ These values are regression baselines only. They cannot be compared to a real ca
 
 ## Minimal-asset traffic limitation
 
-The installed MetaDrive `0.4.2.3` minimal asset package contains road assets but no vehicle meshes. A deterministic static physics lead can therefore generate collision, distance, closing-speed, and TTC telemetry while remaining absent from the RGB road camera. Enabling vehicle rendering raises a missing `models/ferra/right_tire_front.gltf` error and terminates the bridge. Static-lead runs are consequently retained only for simulator-physics/telemetry contracts; no RGB lead-perception dataset, training, or evaluation claim is permitted until a versioned asset package with a renderable vehicle is installed and separately verified.
+The installed MetaDrive `0.4.2.3` minimal asset package contains road assets but no vehicle meshes. A deterministic static physics lead can therefore generate collision, distance, closing-speed, and TTC telemetry while remaining absent from the RGB road camera. Enabling vehicle rendering raises a missing `models/ferra/right_tire_front.gltf` error and terminates the bridge. Static-lead runs are consequently retained only for simulator-physics/telemetry contracts; no RGB lead-perception dataset, training, or evaluation claim is permitted until a versioned asset package with a renderable vehicle is installed and separately verified. A scenario that declares `diagnostics.require_visible_lead: true` is now rejected at preflight when that mesh is unavailable.
 
 ## Gamma sensitivity result
 
