@@ -6,7 +6,7 @@ from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
 from simlab.manifest import build_manifest
-from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight
+from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight, recover_incomplete_run
 
 
 def test_stops_the_manager_process_group():
@@ -50,6 +50,17 @@ def test_runner_exception_is_invalid_even_after_a_collision():
 
   assert (validity, outcome) == ("invalid", "not_evaluated")
   assert "runner_exception" in reasons
+
+
+def test_host_interrupted_run_is_recovered_without_overwriting_results(tmp_path):
+  (tmp_path / "manifest.json").write_text('{"run_id": "interrupted"}')
+  (tmp_path / "scenario.yaml").write_text("scenario_id: interrupted\nfault:\n  target_delay_ms: 50\n")
+
+  summary = recover_incomplete_run(tmp_path)
+
+  assert __import__("json").loads(summary.read_text())["reasons"] == ["host_interrupted"]
+  with __import__("pytest").raises(RuntimeError, match="existing summary"):
+    recover_incomplete_run(tmp_path)
 
 
 def test_timestamp_error_is_invalid_without_a_measured_failure():

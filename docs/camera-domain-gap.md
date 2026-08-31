@@ -86,6 +86,8 @@ MetaDrive 0.4.2.3's full upstream asset archive contains the Ferra vehicle mesh 
 
 On this Windows/WSL host, the first full-asset smoke rendered the red Ferra lead vehicle in the road RGB capture. A subsequent attempt left no `summary.json` and coincided with WSL `dxg` ioctl errors and an unclean journal restart. The full archive is retained outside the source tree for investigation, but the active environment has been restored to the known-stable minimal assets. Consequently the rendered-vehicle scenario is currently a guarded environment smoke only, not a release artifact or a repeatable test claim.
 
+A shorter 400-camera-frame rerun did complete and recorded the full asset provenance: MetaDrive asset version `0.4.2.3`, Ferra mesh SHA-256 `6f99d045…5182e79e`. It was `valid/fail: collision` with no lane departure (0.360 m lateral RMSE). The collision is expected: the lead is rendered and physically static, but no perception input, distance estimation, longitudinal response, or avoidance policy consumes it. This confirms only camera visibility plus physics alignment for one fixed synthetic vehicle asset.
+
 ## Gamma sensitivity result
 
 With every camera/model contract field fixed, gamma 0.8 increased curve-segment mean absolute model curvature from about `4.7e-06` to `1.09e-05 1/m`; gamma 1.2 produced `4.05e-06 1/m`. Required reference curvature is about `8.66e-03 1/m`. All three gamma conditions remained valid lane/KPI failures with a roughly 4–5 m model path horizon. Global luminance affects output slightly but is not the primary camera/model mismatch.

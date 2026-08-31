@@ -148,6 +148,8 @@ The optional full MetaDrive 0.4.2.3 asset archive was then verified to render it
 
 The runner now preserves watchdog, unexpected bridge exit, and Python-level runner exceptions as `invalid/not_evaluated` rather than allowing a simultaneous collision to mask an infrastructure failure. This is a harness integrity change; it does not alter previously collected results or convert the rendered-vehicle smoke into a formal evaluation.
 
+The explicit 400-frame rendered-lead smoke subsequently completed with a visible Ferra vehicle, no lane departure, and `valid/fail: collision` (0.35976 m lateral RMSE). Its manifest records full asset version and mesh hash. The separate baseline rerun completed too, but remained `valid/fail: lane_departure, lateral_error_threshold`; it is retained as post-experiment recovery evidence, not a new performance result.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.

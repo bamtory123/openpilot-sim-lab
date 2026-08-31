@@ -320,6 +320,20 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   return run_dir
 
 
+def recover_incomplete_run(run_dir: Path) -> Path:
+  """Write an explicit invalid result after a host restart interrupted a run."""
+  summary = run_dir / "summary.json"
+  if summary.exists():
+    raise RuntimeError("refusing to overwrite an existing summary")
+  manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+  scenario = yaml.safe_load((run_dir / "scenario.yaml").read_text(encoding="utf-8"))
+  write_json(summary, {"schema_version": 1, "run_id": manifest["run_id"], "scenario_id": scenario["scenario_id"],
+                       "target_delay_ms": scenario["fault"]["target_delay_ms"], "validity": "invalid",
+                       "outcome": "not_evaluated", "reasons": ["host_interrupted"],
+                       "termination_reason": "host_interrupted", "metrics": {}})
+  return summary
+
+
 def run_batch(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> list[Path]:
   blocks = ((0, 100, 50, 150), (150, 50, 100, 0), (50, 0, 150, 100))
   run_once(scenario_with_delay(scenario, 0), output_root=output_root / "warmup", allow_dirty=allow_dirty)
@@ -337,12 +351,13 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "audit", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "audit", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
   parser.add_argument("--dataset-root", type=Path)
   parser.add_argument("--artifact", type=Path)
+  parser.add_argument("--run-dir", type=Path)
   parser.add_argument("--gamma-augment", action="store_true")
   args = parser.parse_args()
   if args.command == "report":
@@ -363,6 +378,11 @@ def main() -> None:
     return
   if args.command == "rebuild-specialist-manifests":
     print(rebuild_specialist_manifests(args.outputs))
+    return
+  if args.command == "recover":
+    if args.run_dir is None:
+      parser.error("recover requires --run-dir")
+    print(recover_incomplete_run(args.run_dir))
     return
   scenario = load_scenario(args.scenario)
   if args.command == "preflight":
