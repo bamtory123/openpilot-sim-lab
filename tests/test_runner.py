@@ -125,6 +125,17 @@ def test_camera_alignment_includes_traffic_interaction_labels(tmp_path):
   assert capture["telemetry"]["traffic_nearest_ttc_s"] == 8.0
 
 
+def test_camera_alignment_preserves_static_obstacle_bbox_metadata(tmp_path):
+  debug = tmp_path / "debug"
+  debug.mkdir()
+  (debug / "road-frame-000100.png.json").write_text('{"simulation_frame":100,"static_obstacle_bbox_xyxy_px":[1,2,3,4]}')
+
+  _write_camera_alignment(tmp_path, [{"simulation_frame": 100}])
+
+  capture = __import__("json").loads((tmp_path / "camera_alignment.json").read_text())["captures"][0]
+  assert capture["metadata"]["static_obstacle_bbox_xyxy_px"] == [1, 2, 3, 4]
+
+
 def test_dataset_manifest_uses_run_relative_image_paths(tmp_path):
   (tmp_path / "camera_alignment.json").write_text('{"captures":[{"image":"road.png","metadata":{"simulation_frame":1},"telemetry":{"lateral_error_m":0.2}}]}')
 

@@ -45,3 +45,5 @@ This establishes only an explicit synthetic **box-obstacle** camera/physics alig
 The three-seed matrix repeats this same fixed proxy with train seeds `20260831`/`20260901` and held-out `20260902`. It produced 30 labeled images (20/10 split), all traffic-labeled; seven carry collision state, with 4.52 m minimum sampled distance and 3.37 s minimum sampled positive TTC. All three runs are `valid/fail` for lane departure and collision. This is dataset/provenance evidence for a single visible synthetic object, not a detector or avoidance validation set.
 
 Separate 10 m and 30 m smoke contracts add visible near-field and distant image scales. Both retain the same fixed black-box appearance and fail the driving KPI; they are capture-coverage checks only, not sufficient data to fit or evaluate a perception model.
+
+For the explicit box proxy, capture metadata also records `static_obstacle_bbox_xyxy_px`, projected from the proxy's Panda3D world bounds through the active road-camera lens. A rerun verified the 8 s box label `[568, 692, 1227, 874]` covers the visible lower-centre obstacle. This is an offline synthetic box label only, not a vehicle bounding-box contract.
