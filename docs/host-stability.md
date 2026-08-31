@@ -16,6 +16,8 @@ The renderer-only probe completed 20 MetaDrive steps with four 1928×1208 offscr
 
 A separate end-to-end openpilot-manager/bridge smoke also completed a 23.94-second measured interval on the same recorded boot ID before normal simulator termination. It validates the new summary/coverage path through the real bridge, but remains too short and too diagnostically scoped to clear the long-run host-stability gate.
 
+On 2026-08-31, a background 1,200-frame specialist probe left only an empty launcher log; no runner manifest or summary was created, and the next inspection observed a new WSL boot ID plus a fresh system journal. The selected Windows event window contained Hyper-V WSL-switch creation records but no NVIDIA/TDR record. Because that attempt predated the pre-launch wrapper and has no durable start timestamp, the repository records it as an infrastructure interruption observation, not a causal attribution to the scenario or driver.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.

@@ -162,6 +162,8 @@ After adding Windows event collection, a bounded combined host-stack recheck com
 
 New manifests now include `created_at_utc`; recovered `host_interrupted` summaries preserve that timestamp with their boot-ID comparison. This gives every future interrupted artifact a direct, UTC-aligned window for the Windows event collector.
 
+A subsequent background 1,200-frame specialist stability probe ended before the runner wrote a manifest or summary and the next check saw a new WSL boot ID and fresh journal. The concurrent Windows window had only Hyper-V WSL-switch creation records, not an NVIDIA/TDR record. It is retained as an infrastructure-interruption observation without driver or scenario causality; the new pre-launch host-probe wrapper exists specifically so any retry preserves an attempt artifact before runner startup.
+
 ## Next
 
 1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
