@@ -134,6 +134,8 @@ Camera diagnostics now join each saved RGB frame to the measured traffic actor c
 
 The separate static-lead dataset smoke now writes 10 run-relative RGB samples to `dataset_manifest.jsonl`; all carry traffic labels, the sampled minimum distance is 4.52 m, the minimum sampled positive TTC is 3.40 s, and two samples carry collision state. `simlab.runner audit` reports this label coverage automatically. The run remains `valid/fail: collision`, and this small fixed encounter is retained only as data-contract evidence, not lead-perception training or driving capability.
 
+The follow-up three-seed static-lead matrix (`20260831`, `20260901`, held-out `20260902`) completed with three `valid/fail: collision` outcomes. It yielded 30 labeled images split 20 train / 10 validation; all were traffic-labeled, 13 carried collision state, and sampled minima were 3.66 m distance and 3.37 s positive TTC. This repeats the encounter and data-provenance contract, but is still far too small and too topology-specific to train or validate lead perception.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
