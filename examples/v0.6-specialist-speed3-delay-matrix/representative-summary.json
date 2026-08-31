@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "run_id": "md_default_loop_lane0_temporal_v06_gamma_tight_dagger_speed3_gamma08_heldout_v1-20260831T205326Z-0449c7bf",
+  "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_tight_dagger_speed3_gamma08_heldout_v1",
+  "target_delay_ms": 150,
+  "validity": "valid",
+  "outcome": "pass",
+  "reasons": [],
+  "termination_reason": null,
+  "metrics": {
+    "active_time_s": 59.99,
+    "actual_delay_median_ms": 150.670769,
+    "actual_delay_p95_ms": 153.32228475,
+    "actual_delay_max_ms": 157.436219,
+    "camera_frames_published": 1200,
+    "camera_frames_dropped": 0,
+    "camera_timestamps_valid": true,
+    "collision_occurred": false,
+    "lane_departure_occurred": false,
+    "lateral_rmse_m": 0.43794902932389784,
+    "road_camera_coverage_ratio": 1.0,
+    "speed_mean_mps": 2.9889309369671864,
+    "telemetry_coverage_ratio": 1.0
+  }
+}
