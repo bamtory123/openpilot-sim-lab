@@ -37,6 +37,8 @@ The runner rejects dirty repositories by default. Use `--allow-dirty` only durin
 
 The environment script also runs the short CUDA sanity check. In this workstation's intended dirty MetaDrive source state, use `SIMLAB_ALLOW_DIRTY=1 scripts/check_environment.sh`.
 
+Before any long CUDA-backed matrix, follow the bounded checks and Windows-event collection procedure in [host stability](docs/host-stability.md). A host interruption is invalid infrastructure data, not a driving result.
+
 For unit tests of the orchestration package, use `uv run pytest -q` from this repository. The MetaDrive runtime itself is intentionally supplied by the instrumented openpilot virtual environment above.
 
 ## Output contract
