@@ -28,12 +28,14 @@ cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
 export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python3"
 $OPENPILOT_PYTHON -m pip install --no-deps -e .
-$OPENPILOT_PYTHON -m simlab.runner preflight
+scripts/check_environment.sh
 $OPENPILOT_PYTHON -m simlab.runner batch --outputs outputs
 $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs
 ```
 
 The runner rejects dirty repositories by default. Use `--allow-dirty` only during development; dirty state is recorded in `manifest.json`.
+
+The environment script also runs the short CUDA sanity check. In this workstation's intended dirty MetaDrive source state, use `SIMLAB_ALLOW_DIRTY=1 scripts/check_environment.sh`.
 
 For unit tests of the orchestration package, use `uv run pytest -q` from this repository. The MetaDrive runtime itself is intentionally supplied by the instrumented openpilot virtual environment above.
 
