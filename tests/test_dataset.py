@@ -37,3 +37,14 @@ def test_audit_dataset_reports_static_obstacle_bbox_coverage(tmp_path):
 
   assert result["static_obstacle_bbox_labeled_sample_count"] == 1
   assert result["static_obstacle_bbox_area_min_px2"] == 12.0
+
+
+def test_audit_dataset_counts_invalid_static_obstacle_bboxes(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  sample = {"split": "train", "metadata": {"static_obstacle_bbox_xyxy_px": [4, 2, 1, 6]}, "labels": {}}
+  (run / "dataset_manifest.jsonl").write_text(json.dumps(sample))
+
+  result = audit_dataset(tmp_path)
+
+  assert result["static_obstacle_bbox_labeled_sample_count"] == 1
+  assert result["static_obstacle_bbox_invalid_sample_count"] == 1
