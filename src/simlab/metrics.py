@@ -64,6 +64,8 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
   model_horizon = [float(row["model_path_end_x_m"]) for row in rows if row.get("model_path_end_x_m") is not None]
   model_terminal_speed = [float(row["model_path_end_speed_mps"]) for row in rows if row.get("model_path_end_speed_mps") is not None]
   traffic_vehicle_count = [float(row["traffic_vehicle_count"]) for row in rows if row.get("traffic_vehicle_count") is not None]
+  traffic_active_vehicle_count = [float(row["traffic_active_vehicle_count"]) for row in rows if row.get("traffic_active_vehicle_count") is not None]
+  traffic_nearest_distance = [float(row["traffic_nearest_distance_m"]) for row in rows if row.get("traffic_nearest_distance_m") is not None]
   return {
     "lateral_rmse_m": _rms(lateral), "lateral_abs_p95_m": _quantile([abs(value) for value in lateral], 0.95),
     "lateral_abs_max_m": max(map(abs, lateral), default=None), "heading_rmse_rad": _rms(heading),
@@ -81,6 +83,10 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
     "model_path_terminal_speed_median_mps": _quantile(model_terminal_speed, 0.5),
     "traffic_vehicle_count_mean": fmean(traffic_vehicle_count) if traffic_vehicle_count else None,
     "traffic_vehicle_count_max": max(traffic_vehicle_count, default=None),
+    "traffic_active_vehicle_count_mean": fmean(traffic_active_vehicle_count) if traffic_active_vehicle_count else None,
+    "traffic_active_vehicle_count_max": max(traffic_active_vehicle_count, default=None),
+    "traffic_ego_nearest_distance_min_m": min(traffic_nearest_distance, default=None),
+    "traffic_ego_nearest_distance_p05_m": _quantile(traffic_nearest_distance, 0.05),
     "telemetry_samples": len(rows), "lane_departure_occurred": any(bool(row.get("lane_departure")) for row in rows),
     "collision_occurred": any(bool(row.get("collision")) for row in rows),
   }
