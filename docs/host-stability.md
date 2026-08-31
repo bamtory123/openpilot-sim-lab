@@ -15,6 +15,7 @@ At the time of inspection the host exposed WSL `2.7.12.0`, kernel `6.18.33.2-mic
 - Every manifest records the WSL boot ID. If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. It writes an explicit `invalid/not_evaluated: host_interrupted` summary, records the pre-run and recovery boot IDs plus whether they changed, and refuses to overwrite an existing result.
 - Do not treat a missing summary as a failed driving result or silently omit it from a report.
 - Generated reports list valid-failure reasons and invalid-infrastructure reasons in separate columns, so `host_interrupted` cannot be mistaken for a collision or lane-control outcome.
+- New reports also summarize available manifest host provenance (GPU, driver, distinct WSL boot count, and GPU start-temperature range). Older artifacts without these fields remain readable and are shown as not recorded.
 
 ## Operating rule
 

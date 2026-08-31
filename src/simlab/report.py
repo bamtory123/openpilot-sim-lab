@@ -17,8 +17,12 @@ def _svg(points: list[tuple[int, float]], title: str, unit: str) -> str:
 
 def generate_report(results_root: Path, output: Path) -> Path:
   summaries = []
+  manifests = []
   for path in sorted(results_root.glob("*/summary.json")):
     summaries.append(json.loads(path.read_text(encoding="utf-8")))
+    manifest = path.with_name("manifest.json")
+    if manifest.is_file():
+      manifests.append(json.loads(manifest.read_text(encoding="utf-8")))
   grouped = defaultdict(list)
   for summary in summaries:
     grouped[summary["target_delay_ms"]].append(summary)
@@ -45,6 +49,15 @@ def generate_report(results_root: Path, output: Path) -> Path:
                   f"| model valid coverage | {sorted(metric['model_valid_coverage_ratio'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |",
                   f"| model path horizon (m) | {sorted(metric['model_path_horizon_median_m'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |",
                   f"| model terminal speed (m/s) | {sorted(metric['model_path_terminal_speed_median_mps'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |"])
+  if manifests:
+    values = lambda key: sorted({str(manifest[key]) for manifest in manifests if manifest.get(key) is not None})
+    temperatures = sorted(int(manifest["gpu_runtime_snapshot"]["temperature_c"]) for manifest in manifests
+                          if manifest.get("gpu_runtime_snapshot", {}).get("temperature_c", "").isdigit())
+    lines.extend(["", "## Host provenance", "",
+                  f"- GPU: {', '.join(values('gpu')) or 'not recorded'}",
+                  f"- Driver: {', '.join(values('driver')) or 'not recorded'}",
+                  f"- Distinct WSL boot IDs: {len(values('wsl_boot_id'))}",
+                  f"- GPU start temperature range: {f'{temperatures[0]}–{temperatures[-1]} °C' if temperatures else 'not recorded'}"])
   output.parent.mkdir(parents=True, exist_ok=True)
   output.write_text("\n".join(lines) + "\n", encoding="utf-8")
   output.with_suffix(".svg").write_text(_svg(graph_points, "Median lateral RMSE", "m"), encoding="utf-8")

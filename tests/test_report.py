@@ -41,3 +41,15 @@ def test_report_groups_invalid_reasons_separately(tmp_path):
   report = generate_report(tmp_path, tmp_path / "report.md")
 
   assert "| 0 | 0 | 0 | 1 | - | host_interrupted:1 | n/a |" in report.read_text()
+
+
+def test_report_summarizes_adjacent_host_manifests(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  (run / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "valid", "outcome": "pass", "metrics": {"lateral_rmse_m": 0.2}}))
+  (run / "manifest.json").write_text(json.dumps({"gpu": "RTX", "driver": "616.56", "wsl_boot_id": "boot-a",
+                                                    "gpu_runtime_snapshot": {"temperature_c": "52"}}))
+
+  report = generate_report(tmp_path, tmp_path / "report.md")
+
+  text = report.read_text()
+  assert "## Host provenance" in text and "Distinct WSL boot IDs: 1" in text and "52–52 °C" in text
