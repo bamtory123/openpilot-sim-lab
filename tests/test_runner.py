@@ -23,6 +23,11 @@ def _complete_measurement():
   return [{"measurement": True, "simulation_time_s": index / 100} for index in range(6000)]
 
 
+def _complete_road_camera():
+  return [{"measurement": True, "camera": "road", "source_frame_id": index, "capture_mono_ns": index + 1,
+           "scheduled_publish_mono_ns": index + 2, "actual_publish_mono_ns": index + 3} for index in range(1200)]
+
+
 def test_coverage_shortfall_is_invalid_even_after_lane_departure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   data = RunData(
@@ -33,18 +38,28 @@ def test_coverage_shortfall_is_invalid_even_after_lane_departure():
 
   validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
 
-  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "insufficient_active_time:0.00s<55.00s"])
+  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "camera_coverage", "insufficient_active_time:0.00s<55.00s"])
 
 
 def test_lane_departure_is_a_valid_failure_with_full_coverage():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   telemetry = _complete_measurement()
   telemetry[-1]["lane_departure"] = True
-  data = RunData(measured=True, telemetry=telemetry, termination={"out_of_lane": True})
+  data = RunData(measured=True, telemetry=telemetry, camera=_complete_road_camera(), termination={"out_of_lane": True})
 
   validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
 
   assert (validity, outcome, reasons) == ("valid", "fail", ["lane_departure"])
+
+
+def test_camera_coverage_is_required_even_with_full_telemetry():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(measured=True, telemetry=_complete_measurement())
+
+  validity, outcome, reasons = _classify(data, scenario, None)
+
+  assert (validity, outcome) == ("invalid", "not_evaluated")
+  assert reasons == ["camera_coverage"]
 
 
 def test_watchdog_is_invalid_even_after_a_collision():
@@ -87,14 +102,14 @@ def test_timestamp_error_is_invalid_without_a_measured_failure():
 
   validity, outcome, reasons = _classify(data, scenario, None)
 
-  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "insufficient_active_time:0.00s<55.00s", "camera_timestamp"])
+  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "camera_coverage", "insufficient_active_time:0.00s<55.00s", "camera_timestamp"])
 
 
 def test_lateral_kpi_threshold_is_a_valid_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   telemetry = _complete_measurement()
   telemetry[-1]["lateral_error_m"] = 1.26
-  data = RunData(measured=True, telemetry=telemetry)
+  data = RunData(measured=True, telemetry=telemetry, camera=_complete_road_camera())
 
   validity, outcome, reasons = _classify(data, scenario, None)
 
@@ -105,7 +120,7 @@ def test_disengagement_after_measurement_starts_is_a_valid_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   telemetry = _complete_measurement()
   data = RunData(measured=True, events=[{"type": "run_state", "state": "MEASURE"},
-                                        {"type": "openpilot_state", "engaged": False}], telemetry=telemetry)
+                                        {"type": "openpilot_state", "engaged": False}], telemetry=telemetry, camera=_complete_road_camera())
 
   validity, outcome, reasons = _classify(data, scenario, None)
 
