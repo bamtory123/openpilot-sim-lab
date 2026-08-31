@@ -6,6 +6,8 @@ Two long-running openpilot + MetaDrive bridge attempts coincided with WSL instan
 
 Windows did not record an NVIDIA Display/TDR error in the inspected interval. Therefore this repository does not attribute the event to a particular NVIDIA driver defect. It records only the observed boundary: CUDA-backed long bridge processes can interrupt the WSL guest on this host.
 
+At the time of inspection the host exposed WSL `2.7.12.0`, kernel `6.18.33.2-microsoft-standard-WSL2`, RTX 4080 driver `616.56`, 16,376 MiB GPU memory, about 14 GiB WSL memory available, and 4 GiB swap. No user `.wslconfig` was present. This does not prove the failure is unrelated to memory, but it rules out a configured low-memory cap as the immediate explanation.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
