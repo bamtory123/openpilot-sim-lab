@@ -144,6 +144,8 @@ Distance smoke runs at 10 m and 30 m confirmed the same proxy is visible at 1 s 
 
 The bbox-enabled 20 m three-seed matrix then completed with 30/30 projected-box-labeled RGB samples, a 20/10 train/held-out split, and 21,673–439,333 px² label areas. Every run remained `valid/fail: collision` (two also lane-departed). This completes the synthetic box image/geometry label contract while retaining the driving failure; no detector or avoidance model has been added.
 
+The optional full MetaDrive 0.4.2.3 asset archive was then verified to render its Ferra vehicle mesh in road RGB. The first 20 m lead smoke produced a visible red vehicle but collided, as expected because no perception or avoidance control is connected. A subsequent full-asset attempt ended without a summary during a WSL `dxg`/unclean-restart incident. The active test environment was restored to minimal assets and the full archive was retained separately; rendered-vehicle results remain an environment smoke boundary, while the box proxy remains the reproducible visible-object path.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
