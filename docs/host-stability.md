@@ -28,3 +28,5 @@ Until the host problem is independently reproduced and isolated, avoid starting 
 For a small independent CUDA check, run `SIM_TINYGRAD_DEVICE=CUDA $OPENPILOT_PYTHON scripts/check_cuda_runtime.py`. It verifies tinygrad's CUDA default device and one 1,024-element arithmetic result. Add `--duration-s 20` for the repeatable 20-second, 4,096-element soak used here. Neither mode is a simulator, modeld, or long-duration bridge stability test.
 
 For an offscreen MetaDrive renderer-only check, run `PYTHONPATH="$OPENPILOT_ROOT" $OPENPILOT_PYTHON scripts/check_metadrive_renderer.py`. It uses the bridge's 1928×1208 road camera with host-memory images but does not start modeld, CAN, or the openpilot manager. Add `--steps` only for a bounded renderer probe.
+
+For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check.
