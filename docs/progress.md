@@ -166,6 +166,8 @@ A subsequent background 1,200-frame specialist stability probe ended before the 
 
 Two foreground retries through that wrapper completed the full 1,200-frame specialist contract with 59.99 s active time, 1.0 telemetry/road-camera coverage, zero drops, unchanged WSL boot ID, and no selected Windows WSL/GPU event in their exact UTC windows. They are successful host probes, not formal replicates or long-duration stability clearance.
 
+The same v0.6 gamma-0.8 artifact completed one separate 3.0 m/s default-loop diagnostic as `valid/pass`: 59.99 s active time, 2.986 m/s mean speed, zero departure/collision/drop, and 0.52325 m lateral RMSE. It is a single speed point, not speed robustness or a formal replicate.
+
 ## Next
 
 1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.

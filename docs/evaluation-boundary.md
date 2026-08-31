@@ -24,6 +24,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | Camera gamma 0.8 | `valid/fail`, 1,030 frames, 1.34232 m lateral RMSE | No appearance generalization. |
 | Gamma 0.8 after v0.6 targeted data | 3 × `valid/pass`; 12-run 0/50/100/150 ms matrix also all `valid/pass` | Improvement only for the same 60 m/2.0 m/s/gamma-0.8 contract. |
 | Target speed 3.0 m/s | 3 × `valid/fail`, 882–883 frames | No speed/dynamics robustness at the collection condition. |
+| Target speed 3.0 m/s using v0.6 gamma-0.8 artifact | 1 × `valid/pass`, 1,200 frames, 0.52325 m lateral RMSE | One later artifact and one fixed speed point only; not speed robustness. |
 | Target speed 4.0 m/s | `valid/fail`, 653 frames, 0.49527 m lateral RMSE | Higher-speed sensitivity. |
 | 45 m loop after v0.6 targeted data | `valid/fail`, 1,200 frames, 0.50021 m lateral RMSE | Partial RMSE improvement, but no geometry-generalized pass. |
 | 45 m loop after v0.6 tight DAgger data | 3 × `valid/pass`, 1,200 frames each, 0.41224 m mean lateral RMSE | Repeatable result only for the fixed 45 m/2.0 m/s contract. |
