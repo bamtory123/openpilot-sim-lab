@@ -18,6 +18,16 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 
 ## Boundary probes
 
+### Fixed default-loop speed evidence
+
+| Target speed | Artifact / protocol | Observed result | Interpretation |
+|---:|---|---|---|
+| 2.0 m/s | v0.6 gamma-0.8, fixed contract | 0/50/100/150 ms matrix: 3 × `valid/pass` per delay | Original fixed-speed specialist evidence. |
+| 3.0 m/s | v0.6 gamma-0.8, fixed contract | 0/50/100/150 ms matrix: 3 × `valid/pass` per delay | A second fixed speed contract; not interpolation or general speed robustness. |
+| 4.0 m/s | v0.6 gamma-0.8, single diagnostic | `invalid/not_evaluated` after 50.44 s; lane departure observed | Coverage was 0.841, so no 4.0 m/s driving verdict is permitted. |
+
+The 2.0 and 3.0 m/s matrices are separate experiments. Do not combine their 12-run groups into a single aggregate or infer behavior between, above, or below those exact speeds.
+
 | Changed factor from the 2.0 m/s fixed contract | Result | Meaning |
 |---|---|---|
 | 45 m tighter loop | `valid/fail`, 1,145 frames, 0.54032 m lateral RMSE | No route-geometry generalization. |
