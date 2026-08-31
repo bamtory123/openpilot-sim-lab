@@ -19,7 +19,7 @@ The batch performs one excluded warm-up followed by three interleaved runs for e
 
 Coverage and infrastructure integrity take precedence over driving outcome: insufficient telemetry coverage, timestamp faults, frame loss, watchdog expiry, or host interruption produce `invalid/not_evaluated` even if a lane departure or collision was observed. Only a coverage-complete run can be classified as `valid/fail` for those driving events.
 
-When a scenario declares `validity.min_active_time_s`, the measured simulation-time span is also enforced and recorded as `active_time_s`. This keeps short diagnostic smoke contracts explicit rather than allowing their camera-frame count to imply a longer active window.
+Every scenario requires `validity.min_active_time_s`; the measured simulation-time span is enforced and recorded as `active_time_s`. This keeps short diagnostic smoke contracts explicit rather than allowing their camera-frame count to imply a longer active window.
 
 ## Acceptance checks
 

@@ -28,6 +28,12 @@ def test_invalid_min_active_time_is_rejected(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_missing_min_active_time_is_rejected(tmp_path):
+  path = tmp_path / "invalid.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("  min_active_time_s: 55\n", ""))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_serpentine_map_is_supported_but_unknown_map_is_rejected(tmp_path):
   path = tmp_path / "serpentine.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("openpilot_default_loop_v1", "openpilot_serpentine_v1"))
