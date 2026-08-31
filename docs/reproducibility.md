@@ -74,6 +74,8 @@ $OPENPILOT_PYTHON -m simlab.runner --allow-dirty run \
 
 Confirm `traffic_vehicle_count_mean` and `traffic_vehicle_count_max` in `summary.json` before describing this as a traffic-present run. The actor count alone does not demonstrate detection, prediction, yielding, braking, or collision avoidance.
 
+The tracked traffic scenario sets `validity.min_traffic_vehicle_count: 1`. If no measured telemetry row reaches that count, the runner returns `invalid/not_evaluated` with `traffic_actor_coverage`, even if lane-following KPIs would otherwise pass.
+
 ## Camera alignment diagnostic
 
 ```bash

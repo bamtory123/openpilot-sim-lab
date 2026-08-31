@@ -120,6 +120,8 @@ The opt-in low-traffic serpentine probe now records MetaDrive's traffic-manager 
 
 The same low-traffic contract completed its excluded-warm-up, interleaved 12-run 0/50/100/150 ms delay matrix. All formal runs were `valid/pass` at 1,200 frames with no ego collision, lane departure, or camera drop. Median lateral RMSE was 0.44696, 0.44734, 0.44628, and 0.44710 m; actual-delay medians were 24.18, 50.58, 100.65, and 150.66 ms. Every formal run recorded a maximum of four traffic actors. This validates the non-blocking delay delivery only for the declared fixed low-density synthetic-traffic contract, not traffic interaction behavior.
 
+The traffic scenario now declares `min_traffic_vehicle_count: 1` as a validity contract. A run with no measured actor present is classified `invalid/not_evaluated: traffic_actor_coverage`, rather than being reported as a traffic-present pass. A fresh contract run recorded 3.343 mean and 4 maximum actors and remained `valid/pass`.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
