@@ -35,6 +35,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | v0.2 serpentine, 0/50/100/150 ms delay matrix | 3 × `valid/pass` per delay; median RMSE 0.44571/0.44598/0.44598/0.44564 m | Non-blocking delay delivery only for the fixed serpentine contract. |
 | v0.2 mirrored serpentine, 0 ms | 3 × `valid/pass`, 1,200 frames each, 0.23674 m mean lateral RMSE | A second fixed direction contract; not arbitrary direction robustness. |
 | v0.2 mirrored serpentine, 0/50/100/150 ms delay matrix | 3 × `valid/pass` per delay; median RMSE 0.23643/0.23651/0.23654/0.23672 m | Non-blocking delay delivery only for the fixed mirrored contract. |
+| v0.2 serpentine, `traffic_density: 0.03`, 0 ms | 3 × `valid/pass`, 1,200 frames each; 3.34–3.35 mean traffic actors, maximum 4 | Fixed-seed low-density synthetic traffic lane-following only; no interaction, yielding, braking, or avoidance evaluation. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.
@@ -48,7 +49,7 @@ These are valid measurements, not invalid infrastructure runs. Their failure is 
 ## Claims excluded
 
 - Successful openpilot automated driving, a better pretrained openpilot model, or a real-vehicle control improvement.
-- Generalization across road geometry, rendering, speed, traffic, weather, camera hardware, or real-world data.
+- Generalization across road geometry, rendering, speed, traffic interaction, weather, camera hardware, or real-world data.
 - HIL, CAN-bus integration, EPS/actuator validation, safety validation, or CARLA closed-loop validation.
 
 For experiment details see [simulator-specialist](simulator-specialist.md), [camera-domain-gap](camera-domain-gap.md), and [reproducibility](reproducibility.md).

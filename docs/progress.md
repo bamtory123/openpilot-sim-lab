@@ -116,8 +116,11 @@ The mirrored serpentine (`map_curve_direction: 0`) also repeated 3 × `valid/pas
 
 The mirrored contract then completed the excluded-warm-up 12-run delay matrix. Every 0/50/100/150 ms formal run was `valid/pass` at 1,200 frames with no departure/collision/drop; median RMSE was 0.23643, 0.23651, 0.23654, and 0.23672 m.
 
+The opt-in low-traffic serpentine probe now records MetaDrive's traffic-manager actor count on every telemetry row. After preserving the original actor-spawn configuration failure, the corrected fixed-seed `traffic_density: 0.03` contract completed three 0 ms repeats as `valid/pass`: all reached 1,200 frames with no ego collision, lane departure, or camera drop; lateral RMSE was 0.44683–0.44747 m (mean 0.44712 m, population standard deviation 0.00027 m), and the recorded traffic count was 3.34–3.35 on average (maximum 4). This establishes only a deterministic, low-density synthetic-traffic lane-following probe. It neither tests nor claims traffic perception, yielding, braking for actors, or obstacle avoidance.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
 2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
 3. Maintain the sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
+4. Keep any traffic experiment opt-in and versioned, with actor-count telemetry and separate interaction KPIs before making an avoidance-related claim.

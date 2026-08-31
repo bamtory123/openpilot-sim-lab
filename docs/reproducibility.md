@@ -57,6 +57,18 @@ $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/serpentine-specialis
 
 This is v0.2 experimental evidence only. Do not combine it with the v0.1 default-loop release result or interpret it as arbitrary route/road validation.
 
+## Opt-in v0.2 low-traffic probe
+
+This is a single 0 ms fixed-seed lane-following probe, not an actor-interaction or avoidance test. It requires the locally recorded MetaDrive 0.4.2.3 traffic-config correction described in [openpilot-patch](openpilot-patch.md); its dirty dependency state is retained in the manifest.
+
+```bash
+$OPENPILOT_PYTHON -m simlab.runner run \
+  --scenario configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_traffic03_heldout_v1.yaml \
+  --outputs outputs/serpentine-low-traffic-probe
+```
+
+Confirm `traffic_vehicle_count_mean` and `traffic_vehicle_count_max` in `summary.json` before describing this as a traffic-present run. The actor count alone does not demonstrate detection, prediction, yielding, braking, or collision avoidance.
+
 ## Camera alignment diagnostic
 
 ```bash

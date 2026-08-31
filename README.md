@@ -9,7 +9,7 @@ Reproducible **MetaDrive closed-loop repeatability study** for openpilot. The v0
 - non-blocking 0/50/100/150 ms camera transport-delay experiments
 - valid/pass/fail separation, KPI calculation, batch orchestration, and Markdown/SVG reporting
 
-The environment uses openpilot's existing synthetic Honda Civic CAN/Panda emulation. It does **not** implement SocketCAN, reverse engineer a vehicle CAN bus, validate real EPS/actuator dynamics, train an AI model, perform HIL, or prove real-road performance.
+The environment uses openpilot's existing synthetic Honda Civic CAN/Panda emulation. It does **not** implement SocketCAN, reverse engineer a vehicle CAN bus, validate real EPS/actuator dynamics, train an AI model, perform HIL, or prove real-road performance. Its opt-in low-density traffic probe records actor presence only; it is not an obstacle-avoidance evaluation.
 
 ## Scenario and protocol
 

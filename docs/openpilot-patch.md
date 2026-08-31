@@ -14,10 +14,13 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
 | MetaDrive map profile | opt-in `openpilot_serpentine_v1` left/right alternating route | provides a versioned v0.2 held-out topology without changing `openpilot_default_loop_v1` |
+| MetaDrive traffic probe | scenario `traffic_density` plus per-frame traffic-actor count | enables fixed-seed, low-density synthetic-traffic instrumentation; it does not add an avoidance planner |
 | Calibration telemetry | modeld calibration RPY and status | exposes the image warp state before any calibration experiment |
 | Model camera contract | modeld device type, camera sensor, width, height, and focal length | records the runtime intrinsics key rather than assuming the PC camera configuration |
 
 The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. No CARLA adapter or specialist model code is part of the v0.1 branch.
+
+The workstation's MetaDrive 0.4.2.3 source also has one local dependency correction: its default `traffic_vehicle_config` now declares `render_vehicle: false`. `BaseVehicle` requires that key when a nonzero traffic density creates an actor, while the stock traffic-only override omitted it. This dependency change is deliberately kept outside this repository and is recorded as dirty in each affected run manifest; it must not be silently substituted for a clean pinned dependency.
 
 ## Diagnostic boundary
 
