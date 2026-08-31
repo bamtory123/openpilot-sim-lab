@@ -47,3 +47,5 @@ The three-seed matrix repeats this same fixed proxy with train seeds `20260831`/
 Separate 10 m and 30 m smoke contracts add visible near-field and distant image scales. Both retain the same fixed black-box appearance and fail the driving KPI; they are capture-coverage checks only, not sufficient data to fit or evaluate a perception model.
 
 For the explicit box proxy, capture metadata also records `static_obstacle_bbox_xyxy_px`, projected from the proxy's Panda3D world bounds through the active road-camera lens. A rerun verified the 8 s box label `[568, 692, 1227, 874]` covers the visible lower-centre obstacle. This is an offline synthetic box label only, not a vehicle bounding-box contract.
+
+The bbox-enabled 20 m three-seed matrix produced 30/30 bbox-labeled RGB samples with the existing 20/10 train/held-out split. Projected areas span 21,673–439,333 px². All three runs remain `valid/fail` for collision (two also have lane departure), so the matrix validates label coverage and preserves an avoidance failure; it does not validate an object detector or control policy.

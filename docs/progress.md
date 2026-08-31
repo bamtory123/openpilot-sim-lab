@@ -142,6 +142,8 @@ The three-seed visible-box matrix completed with three `valid/fail` outcomes for
 
 Distance smoke runs at 10 m and 30 m confirmed the same proxy is visible at 1 s and 2 s respectively, providing three fixed image-scale strata (10/20/30 m). Both were `valid/fail` for lane departure, collision, and lateral-error KPI. They establish only deterministic rendering and telemetry coverage across those starting gaps; no classifier, range estimator, braking, or avoidance controller has been trained.
 
+The bbox-enabled 20 m three-seed matrix then completed with 30/30 projected-box-labeled RGB samples, a 20/10 train/held-out split, and 21,673–439,333 px² label areas. Every run remained `valid/fail: collision` (two also lane-departed). This completes the synthetic box image/geometry label contract while retaining the driving failure; no detector or avoidance model has been added.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
