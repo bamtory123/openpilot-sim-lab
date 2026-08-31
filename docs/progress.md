@@ -128,6 +128,8 @@ The separate respawn-traffic probe provides the first controlled proximity expos
 
 The follow-up closing-speed/TTC probe preserved that boundary: closest distance was 27.87 m, maximum closing speed was −2.60 m/s (separating), and no positive-TTC sample existed. The respawn layout therefore has proximity but no closing encounter. A future interaction scenario must deliberately specify relative spawn position and speed before any longitudinal-control or avoidance result is evaluated.
 
+The new fixed static-lead fixture provides that deliberate encounter without feeding actor ground truth to control. The lead starts 20 m ahead on the reference lane; its first 0 ms run was `valid/fail: collision`, with a 4.47 m closest distance, 2.00 m/s maximum closing speed, and 2.29 s minimum positive TTC. This is the intended baseline failure for future lead-perception and longitudinal-planning work. It is not evidence of following or avoidance capability.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.

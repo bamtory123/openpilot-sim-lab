@@ -40,6 +40,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | v0.2 low-traffic active-actor proximity probe | 0.656 mean active actors; closest ego-to-active-actor distance 239.57 m | Confirms no meaningful encounter exposure; this is not an interaction, following, braking, or avoidance test. |
 | v0.2 respawn-traffic proximity probe | 2 active actors throughout; closest ego-to-active-actor distance 28.00 m | Meets a versioned ≤30 m exposure contract only; it does not evaluate traffic policy, following, braking, or avoidance. |
 | v0.2 respawn-traffic closing-speed/TTC probe | Closest distance 27.87 m; maximum closing speed −2.60 m/s; no positive TTC | Actor and ego are separating, not approaching; no longitudinal interaction exposure exists. |
+| v0.2 fixed static lead, 20 m gap | `valid/fail: collision`; closest distance 4.47 m; maximum closing speed 2.00 m/s; minimum TTC 2.29 s | Reproducible approaching-lead baseline failure, not following, braking, or avoidance capability. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.
