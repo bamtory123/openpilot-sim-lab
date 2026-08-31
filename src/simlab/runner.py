@@ -132,6 +132,11 @@ def _openpilot_root() -> Path:
   return root
 
 
+def _has_renderable_vehicle_assets() -> bool:
+  import metadrive
+  return (Path(metadrive.__file__).resolve().parent / "assets/models/ferra/right_tire_front.gltf").is_file()
+
+
 def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> None:
   if not allow_dirty and (git_metadata(ROOT)["dirty"] or git_metadata(openpilot_root)["dirty"] or metadrive_source_metadata()["dirty"]):
     raise RuntimeError("refusing dirty working tree; commit first or pass --allow-dirty")
@@ -144,6 +149,8 @@ def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> No
     import metadrive  # noqa: F401
   except ImportError as error:
     raise RuntimeError("MetaDrive is not importable in this Python environment") from error
+  if scenario.data.get("diagnostics", {}).get("require_visible_lead") and not _has_renderable_vehicle_assets():
+    raise RuntimeError("renderable MetaDrive vehicle assets are required for a visible-lead scenario")
 
 
 def _outcome_thresholds() -> dict:

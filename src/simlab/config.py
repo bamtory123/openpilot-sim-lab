@@ -87,6 +87,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
       raise ScenarioError("diagnostics.camera_capture_frames must be unique and increasing")
     if "dataset_collection" in diagnostics and diagnostics["dataset_collection"] is not True:
       raise ScenarioError("diagnostics.dataset_collection must be true when specified")
+    if "require_visible_lead" in diagnostics and not isinstance(diagnostics["require_visible_lead"], bool):
+      raise ScenarioError("diagnostics.require_visible_lead must be boolean")
   dataset = data.get("dataset")
   if dataset is not None:
     seeds = dataset.get("seeds") if isinstance(dataset, dict) else None

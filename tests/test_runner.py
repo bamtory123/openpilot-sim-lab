@@ -6,7 +6,7 @@ from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
 from simlab.manifest import build_manifest
-from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest
+from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight
 
 
 def test_stops_the_manager_process_group():
@@ -79,6 +79,18 @@ def test_required_traffic_proximity_absence_is_invalid():
   validity, outcome, reasons = _classify(data, scenario, None)
 
   assert (validity, outcome) == ("invalid", "not_evaluated") and "traffic_proximity_coverage" in reasons
+
+
+def test_visible_lead_preflight_requires_vehicle_assets(monkeypatch, tmp_path):
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  scenario.data["diagnostics"] = {"camera_capture_frames": [100], "require_visible_lead": True}
+  monkeypatch.setattr("simlab.runner.git_metadata", lambda _: {"dirty": False})
+  monkeypatch.setattr("simlab.runner.metadrive_source_metadata", lambda: {"dirty": False})
+  monkeypatch.setattr("simlab.runner._has_renderable_vehicle_assets", lambda: False)
+  monkeypatch.setitem(sys.modules, "metadrive", SimpleNamespace(__file__="/tmp/metadrive/__init__.py"))
+
+  with __import__("pytest").raises(RuntimeError, match="renderable MetaDrive vehicle assets"):
+    preflight(scenario, tmp_path, allow_dirty=False)
 
 
 def test_csv_writes_none_as_an_empty_field(tmp_path):

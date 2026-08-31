@@ -93,6 +93,12 @@ def test_unsorted_camera_capture_frames_are_rejected(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_visible_lead_requirement_must_be_boolean(tmp_path):
+  path = tmp_path / "invalid.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\ndiagnostics:\n  camera_capture_frames: [100]\n  require_visible_lead: 1\n")
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_duplicate_dataset_seeds_are_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\ndataset:\n  seeds: [1, 1]\n")
