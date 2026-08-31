@@ -152,7 +152,7 @@ The explicit 400-frame rendered-lead smoke subsequently completed with a visible
 
 ## Next
 
-1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
+1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
 2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
 3. Maintain the sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
 4. Keep any traffic experiment opt-in and versioned, with actor-count telemetry and separate interaction KPIs before making an avoidance-related claim.
