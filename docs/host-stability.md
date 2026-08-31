@@ -8,6 +8,8 @@ Windows did not record an NVIDIA Display/TDR error in the inspected interval. Th
 
 At the time of inspection the host exposed WSL `2.7.12.0`, kernel `6.18.33.2-microsoft-standard-WSL2`, RTX 4080 driver `616.56`, 16,376 MiB GPU memory, about 14 GiB WSL memory available, and 4 GiB swap. No user `.wslconfig` was present. This does not prove the failure is unrelated to memory, but it rules out a configured low-memory cap as the immediate explanation. New manifests also record the GPU temperature, utilization, used/total memory, and P-state at run start for later comparison.
 
+A standalone 20-second tinygrad CUDA soak (4,096-element reduction) completed 14,962 iterations with the expected result and no observed WSL/DXG error; GPU temperature remained 52°C afterward. This narrows the observed instability boundary to the longer combined simulator/bridge workload, but does not isolate a root cause or prove that workload stable.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
