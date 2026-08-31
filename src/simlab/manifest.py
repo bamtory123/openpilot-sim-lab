@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 from pathlib import Path
 import platform
@@ -35,6 +36,19 @@ def metadrive_source_metadata() -> dict[str, Any]:
   return {"path": str(root), **git_metadata(root)}
 
 
+def metadrive_assets_metadata() -> dict[str, Any]:
+  source = metadrive_source_metadata().get("path")
+  assets = Path(source) / "metadrive" / "assets" if source else None
+  version_file = assets / "version.txt" if assets else None
+  vehicle_file = assets / "models" / "ferra" / "vehicle.gltf" if assets else None
+  return {
+    "path": str(assets) if assets else None,
+    "version": version_file.read_text(encoding="utf-8").strip() if version_file and version_file.is_file() else None,
+    "ferra_vehicle_available": bool(vehicle_file and vehicle_file.is_file()),
+    "ferra_vehicle_sha256": hashlib.sha256(vehicle_file.read_bytes()).hexdigest() if vehicle_file and vehicle_file.is_file() else None,
+  }
+
+
 def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot_root: Path, command: list[str]) -> dict[str, Any]:
   try:
     from importlib.metadata import version
@@ -46,6 +60,7 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
     "schema_version": 1, "run_id": run_id, "scenario_hash": scenario.hash,
     "sim_lab": git_metadata(simlab_root), "openpilot": git_metadata(openpilot_root),
     "metadrive_source": metadrive_source_metadata(),
+    "metadrive_assets": metadrive_assets_metadata(),
     "python_version": sys.version, "metadrive_version": metadrive_version,
     "wsl_kernel": platform.release(), "gpu": _command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"]),
     "driver": _command(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"]),

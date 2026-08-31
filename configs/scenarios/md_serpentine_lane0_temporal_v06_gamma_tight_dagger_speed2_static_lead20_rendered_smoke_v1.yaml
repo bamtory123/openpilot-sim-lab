@@ -19,8 +19,8 @@ run:
   wait_ready_timeout_s: 60
   wait_engage_timeout_s: 30
   fault_settle_s: 5
-  measurement_camera_frames: 1200
-  wall_watchdog_s: 220
+  measurement_camera_frames: 400
+  wall_watchdog_s: 180
 
 fault:
   type: camera_transport_delay

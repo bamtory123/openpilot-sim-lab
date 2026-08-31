@@ -170,9 +170,15 @@ def test_specialist_manifest_joins_teacher_label_to_run_relative_image(tmp_path)
 def test_manifest_records_metadrive_source_state(monkeypatch, tmp_path):
   package = tmp_path / "metadrive" / "metadrive"
   package.mkdir(parents=True)
+  assets = package / "assets"
+  (assets / "models" / "ferra").mkdir(parents=True)
+  (assets / "version.txt").write_text("0.4.2.3")
+  (assets / "models" / "ferra" / "vehicle.gltf").write_bytes(b"vehicle")
   monkeypatch.setitem(sys.modules, "metadrive", SimpleNamespace(__file__=str(package / "__init__.py")))
   monkeypatch.setattr("simlab.manifest.git_metadata", lambda root: {"commit": "abc", "dirty": True, "submodules": ""})
 
   manifest = build_manifest("run", Scenario({}, tmp_path), tmp_path, tmp_path, ["simlab"])
 
   assert manifest["metadrive_source"] == {"path": str(package.parent), "commit": "abc", "dirty": True, "submodules": ""}
+  assert manifest["metadrive_assets"]["version"] == "0.4.2.3"
+  assert manifest["metadrive_assets"]["ferra_vehicle_available"] is True
