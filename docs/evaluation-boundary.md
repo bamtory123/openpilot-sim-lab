@@ -41,8 +41,8 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | v0.2 respawn-traffic proximity probe | 2 active actors throughout; closest ego-to-active-actor distance 28.00 m | Meets a versioned ≤30 m exposure contract only; it does not evaluate traffic policy, following, braking, or avoidance. |
 | v0.2 respawn-traffic closing-speed/TTC probe | Closest distance 27.87 m; maximum closing speed −2.60 m/s; no positive TTC | Actor and ego are separating, not approaching; no longitudinal interaction exposure exists. |
 | v0.2 fixed static lead, 20 m gap | `valid/fail: collision`; closest distance 4.47 m; maximum closing speed 2.00 m/s; minimum TTC 2.29 s | Reproducible approaching-lead baseline failure, not following, braking, or avoidance capability. |
-| v0.2 static-lead camera alignment | RGB captures at 2/4/8 s are joined to 18.17/14.63/6.76 m and 11.61/7.69/3.40 s TTC labels | Analysis-only camera/ground-truth join; labels are never runtime control input and no lead model is trained. |
-| v0.2 static-lead three-seed dataset matrix | 30 RGB labels, 20/10 train/held-out split; 3 × `valid/fail: collision` | Repeats one fixed synthetic collision/data contract; not a sufficient or independent lead-perception dataset. |
+| v0.2 static-lead camera alignment | RGB captures at 2/4/8 s are joined to 18.17/14.63/6.76 m and 11.61/7.69/3.40 s TTC labels | Physics lead is absent from RGB under minimal assets; analysis-only telemetry/camera alignment, not lead-perception data. |
+| v0.2 static-lead three-seed dataset matrix | 30 RGB labels, 20/10 train/held-out split; 3 × `valid/fail: collision` | Repeats one fixed collision/data contract; invisible lead means it is not a visual-perception dataset. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.

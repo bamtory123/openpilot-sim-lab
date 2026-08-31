@@ -74,6 +74,10 @@ These values are regression baselines only. They cannot be compared to a real ca
 2. Inspect model path/curvature output against those frame sets without changing controller gains.
 3. If a camera change is proposed, alter one documented variable at a time and preserve the 40-degree formal baseline unchanged.
 
+## Minimal-asset traffic limitation
+
+The installed MetaDrive `0.4.2.3` minimal asset package contains road assets but no vehicle meshes. A deterministic static physics lead can therefore generate collision, distance, closing-speed, and TTC telemetry while remaining absent from the RGB road camera. Enabling vehicle rendering raises a missing `models/ferra/right_tire_front.gltf` error and terminates the bridge. Static-lead runs are consequently retained only for simulator-physics/telemetry contracts; no RGB lead-perception dataset, training, or evaluation claim is permitted until a versioned asset package with a renderable vehicle is installed and separately verified.
+
 ## Gamma sensitivity result
 
 With every camera/model contract field fixed, gamma 0.8 increased curve-segment mean absolute model curvature from about `4.7e-06` to `1.09e-05 1/m`; gamma 1.2 produced `4.05e-06 1/m`. Required reference curvature is about `8.66e-03 1/m`. All three gamma conditions remained valid lane/KPI failures with a roughly 4–5 m model path horizon. Global luminance affects output slightly but is not the primary camera/model mismatch.
