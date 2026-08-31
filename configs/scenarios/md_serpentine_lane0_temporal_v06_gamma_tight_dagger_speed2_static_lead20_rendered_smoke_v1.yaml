@@ -29,7 +29,7 @@ fault:
   overflow_policy: invalid_run
 
 validity:
-  min_active_time_s: 55
+  min_active_time_s: 15
   min_telemetry_coverage_ratio: 0.99
   min_traffic_vehicle_count: 1
   max_traffic_ego_nearest_distance_m: 25

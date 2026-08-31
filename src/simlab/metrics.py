@@ -68,6 +68,7 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
   traffic_nearest_distance = [float(row["traffic_nearest_distance_m"]) for row in rows if row.get("traffic_nearest_distance_m") is not None]
   traffic_closing_speed = [float(row["traffic_nearest_closing_speed_mps"]) for row in rows if row.get("traffic_nearest_closing_speed_mps") is not None]
   traffic_ttc = [float(row["traffic_nearest_ttc_s"]) for row in rows if row.get("traffic_nearest_ttc_s") is not None]
+  simulation_times = [float(row["simulation_time_s"]) for row in rows if row.get("simulation_time_s") is not None]
   return {
     "lateral_rmse_m": _rms(lateral), "lateral_abs_p95_m": _quantile([abs(value) for value in lateral], 0.95),
     "lateral_abs_max_m": max(map(abs, lateral), default=None), "heading_rmse_rad": _rms(heading),
@@ -91,6 +92,7 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
     "traffic_ego_nearest_distance_p05_m": _quantile(traffic_nearest_distance, 0.05),
     "traffic_nearest_closing_speed_max_mps": max(traffic_closing_speed, default=None),
     "traffic_nearest_ttc_min_s": min(traffic_ttc, default=None),
+    "active_time_s": max(simulation_times) - min(simulation_times) if simulation_times else 0.0,
     "telemetry_samples": len(rows), "lane_departure_occurred": any(bool(row.get("lane_departure")) for row in rows),
     "collision_occurred": any(bool(row.get("collision")) for row in rows),
   }

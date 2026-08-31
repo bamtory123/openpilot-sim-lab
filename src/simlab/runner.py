@@ -199,6 +199,12 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
   expected = scenario.data["run"]["measurement_camera_frames"] * scenario.data["logging"]["telemetry_hz"] / scenario.data["logging"]["camera_hz_nominal"]
   if len(measured) / expected < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
     invalid.append("telemetry_coverage")
+  min_active_time_s = scenario.data["validity"].get("min_active_time_s")
+  if min_active_time_s is not None:
+    timestamps = [float(row["simulation_time_s"]) for row in measured if row.get("simulation_time_s") is not None]
+    active_time_s = max(timestamps) - min(timestamps) if timestamps else 0.0
+    if active_time_s < float(min_active_time_s):
+      invalid.append(f"insufficient_active_time:{active_time_s:.2f}s<{float(min_active_time_s):.2f}s")
   if not scenario.data["validity"]["allow_frame_drop"] and any(row.get("dropped") for row in data.camera):
     invalid.append("camera_frame_drop")
   if not camera_timestamps_valid(data.camera):

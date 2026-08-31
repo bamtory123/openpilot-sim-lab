@@ -19,6 +19,10 @@ def test_stops_the_manager_process_group():
   process.wait.assert_called_once_with(timeout=10)
 
 
+def _complete_measurement():
+  return [{"measurement": True, "simulation_time_s": index / 100} for index in range(6000)]
+
+
 def test_coverage_shortfall_is_invalid_even_after_lane_departure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   data = RunData(
@@ -29,12 +33,12 @@ def test_coverage_shortfall_is_invalid_even_after_lane_departure():
 
   validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
 
-  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage"])
+  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "insufficient_active_time:0.00s<55.00s"])
 
 
 def test_lane_departure_is_a_valid_failure_with_full_coverage():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
-  telemetry = [{"measurement": True} for _ in range(6000)]
+  telemetry = _complete_measurement()
   telemetry[-1]["lane_departure"] = True
   data = RunData(measured=True, telemetry=telemetry, termination={"out_of_lane": True})
 
@@ -83,12 +87,12 @@ def test_timestamp_error_is_invalid_without_a_measured_failure():
 
   validity, outcome, reasons = _classify(data, scenario, None)
 
-  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "camera_timestamp"])
+  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage", "insufficient_active_time:0.00s<55.00s", "camera_timestamp"])
 
 
 def test_lateral_kpi_threshold_is_a_valid_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
-  telemetry = [{"measurement": True} for _ in range(6000)]
+  telemetry = _complete_measurement()
   telemetry[-1]["lateral_error_m"] = 1.26
   data = RunData(measured=True, telemetry=telemetry)
 
@@ -99,7 +103,7 @@ def test_lateral_kpi_threshold_is_a_valid_failure():
 
 def test_disengagement_after_measurement_starts_is_a_valid_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
-  telemetry = [{"measurement": True} for _ in range(6000)]
+  telemetry = _complete_measurement()
   data = RunData(measured=True, events=[{"type": "run_state", "state": "MEASURE"},
                                         {"type": "openpilot_state", "engaged": False}], telemetry=telemetry)
 

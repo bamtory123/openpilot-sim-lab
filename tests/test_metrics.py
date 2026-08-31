@@ -53,3 +53,9 @@ def test_traffic_vehicle_count_metrics():
   assert result["traffic_ego_nearest_distance_p05_m"] == 4.2
   assert result["traffic_nearest_closing_speed_max_mps"] == 2.0
   assert result["traffic_nearest_ttc_min_s"] == 2.0
+
+
+def test_active_time_uses_simulation_timestamps():
+  result = calculate_metrics([{"simulation_time_s": 10.0}, {"simulation_time_s": 14.25}], [])
+
+  assert result["active_time_s"] == 4.25

@@ -77,6 +77,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("measurement and watchdog must be positive")
   if not isinstance(validity.get("min_telemetry_coverage_ratio"), (int, float)) or not 0 < float(validity["min_telemetry_coverage_ratio"]) <= 1:
     raise ScenarioError("min_telemetry_coverage_ratio must be in (0, 1]")
+  if "min_active_time_s" in validity and (not isinstance(validity["min_active_time_s"], (int, float)) or validity["min_active_time_s"] <= 0):
+    raise ScenarioError("min_active_time_s must be positive")
   if logging.get("telemetry_hz") != 100 or logging.get("camera_hz_nominal") != 20:
     raise ScenarioError("v0.1 rate contract is 100 Hz telemetry / 20 Hz camera")
   if not isinstance(validity.get("allow_frame_drop"), bool):
