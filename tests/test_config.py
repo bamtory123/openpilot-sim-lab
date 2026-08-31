@@ -70,10 +70,24 @@ def test_lead_vehicle_box_proxy_is_supported(tmp_path):
   assert load_scenario(path).data["environment"]["lead_vehicle"]["visual_proxy"] == "box"
 
 
+def test_lead_vehicle_rendering_is_explicit_and_boolean(tmp_path):
+  path = tmp_path / "lead.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  lead_vehicle:\n    gap_m: 20\n    render_vehicle: true"))
+  assert load_scenario(path).data["environment"]["lead_vehicle"]["render_vehicle"] is True
+  path.write_text(path.read_text().replace("render_vehicle: true", "render_vehicle: 1"))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_static_lead_dataset_scenario_is_a_valid_diagnostic_contract():
   scenario = load_scenario(ROOT / "configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_dataset_v1.yaml")
   assert scenario.data["diagnostics"]["dataset_collection"] is True
   assert scenario.data["environment"]["lead_vehicle"] == {"gap_m": 20}
+
+
+def test_rendered_static_lead_smoke_requires_visible_lead_assets():
+  scenario = load_scenario(ROOT / "configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_rendered_smoke_v1.yaml")
+  assert scenario.data["environment"]["lead_vehicle"]["render_vehicle"] is True
+  assert scenario.data["diagnostics"]["require_visible_lead"] is True
 
 
 def test_static_lead_dataset_matrix_has_a_held_out_seed():

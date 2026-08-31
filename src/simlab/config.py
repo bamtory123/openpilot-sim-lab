@@ -58,10 +58,12 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("traffic_mode must be trigger or respawn")
   lead_vehicle = env.get("lead_vehicle")
   if lead_vehicle is not None:
-    if not isinstance(lead_vehicle, dict) or set(lead_vehicle) - {"gap_m", "visual_proxy"} or not isinstance(lead_vehicle.get("gap_m"), (int, float)) or not 5.0 <= float(lead_vehicle["gap_m"]) <= 40.0:
+    if not isinstance(lead_vehicle, dict) or set(lead_vehicle) - {"gap_m", "visual_proxy", "render_vehicle"} or not isinstance(lead_vehicle.get("gap_m"), (int, float)) or not 5.0 <= float(lead_vehicle["gap_m"]) <= 40.0:
       raise ScenarioError("lead_vehicle must contain gap_m between 5 and 40")
     if "visual_proxy" in lead_vehicle and lead_vehicle["visual_proxy"] != "box":
       raise ScenarioError("lead_vehicle.visual_proxy must be box")
+    if "render_vehicle" in lead_vehicle and not isinstance(lead_vehicle["render_vehicle"], bool):
+      raise ScenarioError("lead_vehicle.render_vehicle must be boolean")
   if "show_navi_mark" in env and not isinstance(env["show_navi_mark"], bool):
     raise ScenarioError("show_navi_mark must be boolean")
   for key in ("camera_position_m", "camera_hpr_deg"):
