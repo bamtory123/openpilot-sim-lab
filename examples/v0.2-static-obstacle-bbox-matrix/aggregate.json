@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "scenario_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_obstacle_box20_matrix_v1",
+  "run_counts": {"valid_fail": 3, "valid_pass": 0, "invalid": 0},
+  "dataset_audit": {
+    "sample_count": 30,
+    "split_counts": {"train": 20, "validation": 10},
+    "static_obstacle_bbox_labeled_sample_count": 30,
+    "static_obstacle_bbox_invalid_sample_count": 0,
+    "static_obstacle_bbox_area_min_px2": 21672.6279895436,
+    "static_obstacle_bbox_area_max_px2": 439332.9487370617
+  }
+}
