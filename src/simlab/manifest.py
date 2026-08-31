@@ -54,6 +54,17 @@ def wsl_boot_id() -> str | None:
   return path.read_text(encoding="utf-8").strip() if path.is_file() else None
 
 
+def gpu_runtime_snapshot() -> dict[str, str] | None:
+  value = _command(["nvidia-smi", "--query-gpu=temperature.gpu,utilization.gpu,memory.used,memory.total,pstate",
+                    "--format=csv,noheader,nounits"])
+  if value is None:
+    return None
+  fields = [field.strip() for field in value.splitlines()[0].split(",")]
+  if len(fields) != 5:
+    return None
+  return dict(zip(("temperature_c", "utilization_percent", "memory_used_mib", "memory_total_mib", "pstate"), fields))
+
+
 def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot_root: Path, command: list[str]) -> dict[str, Any]:
   try:
     from importlib.metadata import version
@@ -70,6 +81,7 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
     "wsl_kernel": platform.release(), "wsl_boot_id": wsl_boot_id(),
     "gpu": _command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"]),
     "driver": _command(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"]),
+    "gpu_runtime_snapshot": gpu_runtime_snapshot(),
     "command": command, "environment": env,
   }
 

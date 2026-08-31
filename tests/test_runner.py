@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
-from simlab.manifest import build_manifest
+from simlab.manifest import build_manifest, gpu_runtime_snapshot
 from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight, recover_incomplete_run
 
 
@@ -205,3 +205,12 @@ def test_manifest_records_metadrive_source_state(monkeypatch, tmp_path):
   assert manifest["metadrive_source"] == {"path": str(package.parent), "commit": "abc", "dirty": True, "submodules": ""}
   assert manifest["metadrive_assets"]["version"] == "0.4.2.3"
   assert manifest["metadrive_assets"]["ferra_vehicle_available"] is True
+
+
+def test_gpu_runtime_snapshot_parses_nvidia_smi_fields(monkeypatch):
+  monkeypatch.setattr("simlab.manifest._command", lambda args, cwd=None: "52, 0, 1000, 16376, P0")
+
+  snapshot = gpu_runtime_snapshot()
+
+  assert snapshot == {"temperature_c": "52", "utilization_percent": "0", "memory_used_mib": "1000",
+                      "memory_total_mib": "16376", "pstate": "P0"}
