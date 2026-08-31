@@ -17,7 +17,7 @@ import yaml
 
 from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed, scenario_with_map_curve_direction
 from .dataset import audit_dataset
-from .manifest import build_manifest, git_metadata, write_json
+from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json
 from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
 from .specialist import train_specialist, train_temporal_specialist
@@ -131,7 +131,7 @@ def _openpilot_root() -> Path:
 
 
 def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> None:
-  if not allow_dirty and (git_metadata(ROOT)["dirty"] or git_metadata(openpilot_root)["dirty"]):
+  if not allow_dirty and (git_metadata(ROOT)["dirty"] or git_metadata(openpilot_root)["dirty"] or metadrive_source_metadata()["dirty"]):
     raise RuntimeError("refusing dirty working tree; commit first or pass --allow-dirty")
   if scenario.data["environment"]["map_id"] not in ("openpilot_default_loop_v1", "openpilot_serpentine_v1"):
     raise ScenarioError("unsupported map")

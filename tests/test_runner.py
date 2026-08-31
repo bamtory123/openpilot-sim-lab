@@ -1,8 +1,11 @@
 import csv
+import sys
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
+from simlab.manifest import build_manifest
 from simlab.runner import RunData, _classify, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest
 
 
@@ -96,3 +99,14 @@ def test_specialist_manifest_joins_teacher_label_to_run_relative_image(tmp_path)
 
   sample = __import__("json").loads((tmp_path / "specialist_manifest.jsonl").read_text())
   assert sample == {"image": "debug/road-frame-000010.png", "split": "validation", "simulation_frame": 10, "target_normalized_steer": 0.05}
+
+
+def test_manifest_records_metadrive_source_state(monkeypatch, tmp_path):
+  package = tmp_path / "metadrive" / "metadrive"
+  package.mkdir(parents=True)
+  monkeypatch.setitem(sys.modules, "metadrive", SimpleNamespace(__file__=str(package / "__init__.py")))
+  monkeypatch.setattr("simlab.manifest.git_metadata", lambda root: {"commit": "abc", "dirty": True, "submodules": ""})
+
+  manifest = build_manifest("run", Scenario({}, tmp_path), tmp_path, tmp_path, ["simlab"])
+
+  assert manifest["metadrive_source"] == {"path": str(package.parent), "commit": "abc", "dirty": True, "submodules": ""}

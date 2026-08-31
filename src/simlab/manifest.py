@@ -26,6 +26,15 @@ def git_metadata(root: Path) -> dict[str, Any]:
   }
 
 
+def metadrive_source_metadata() -> dict[str, Any]:
+  try:
+    import metadrive
+    root = Path(metadrive.__file__).resolve().parent.parent
+  except (ImportError, AttributeError, TypeError):
+    return {"path": None, "commit": None, "dirty": None, "submodules": ""}
+  return {"path": str(root), **git_metadata(root)}
+
+
 def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot_root: Path, command: list[str]) -> dict[str, Any]:
   try:
     from importlib.metadata import version
@@ -36,6 +45,7 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
   return {
     "schema_version": 1, "run_id": run_id, "scenario_hash": scenario.hash,
     "sim_lab": git_metadata(simlab_root), "openpilot": git_metadata(openpilot_root),
+    "metadrive_source": metadrive_source_metadata(),
     "python_version": sys.version, "metadrive_version": metadrive_version,
     "wsl_kernel": platform.release(), "gpu": _command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"]),
     "driver": _command(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"]),
