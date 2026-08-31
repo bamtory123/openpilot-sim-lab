@@ -130,6 +130,8 @@ The follow-up closing-speed/TTC probe preserved that boundary: closest distance 
 
 The new fixed static-lead fixture provides that deliberate encounter without feeding actor ground truth to control. The lead starts 20 m ahead on the reference lane; its first 0 ms run was `valid/fail: collision`, with a 4.47 m closest distance, 2.00 m/s maximum closing speed, and 2.29 s minimum positive TTC. This is the intended baseline failure for future lead-perception and longitudinal-planning work. It is not evidence of following or avoidance capability.
 
+Camera diagnostics now join each saved RGB frame to the measured traffic actor count, nearest distance, closing speed, TTC, and collision state. The static-lead fixture captures the approach at 2, 4, and 8 s: distance/TTC fall from 18.17 m/11.61 s to 14.63 m/7.69 s and 6.76 m/3.40 s before the collision-state capture at 12 s. This produces a traceable local camera-to-ground-truth analysis artifact only; the labels remain excluded from the runtime control path and no lead-perception model has been trained.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
