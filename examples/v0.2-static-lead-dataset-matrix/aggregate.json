@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "scenario_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_lead20_dataset_matrix_v1",
+  "seeds": [20260831, 20260901, 20260902],
+  "validation_seeds": [20260902],
+  "run_counts": {
+    "valid_fail": 3,
+    "valid_pass": 0,
+    "invalid": 0
+  },
+  "failure_reasons": {
+    "collision": 3
+  },
+  "dataset_audit": {
+    "sample_count": 30,
+    "split_counts": {
+      "train": 20,
+      "validation": 10
+    },
+    "traffic_labeled_sample_count": 30,
+    "collision_labeled_sample_count": 13,
+    "traffic_nearest_distance_min_m": 3.6648643021462095,
+    "traffic_nearest_ttc_min_s": 3.367934447766664
+  }
+}
