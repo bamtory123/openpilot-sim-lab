@@ -35,6 +35,8 @@ For an offscreen MetaDrive renderer-only check, run `PYTHONPATH="$OPENPILOT_ROOT
 
 For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check. It compares WSL boot IDs before and after a normally completed sequence.
 
+For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It writes `attempt.json` before launching the runner, so a WSL restart before the runner creates its own manifest still leaves a UTC timestamp, scenario path, and pre-run boot ID. On normal return it also records exit code, completion time, and the post-run boot-ID comparison. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
+
 For a long-run investigation, collect Windows-side evidence immediately after the run (or after WSL recovers) and retain it beside the run artifact:
 
 ```powershell
