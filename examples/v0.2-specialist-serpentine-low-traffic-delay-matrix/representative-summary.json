@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "actual_delay_max_ms": 158.644581,
+    "actual_delay_median_ms": 150.658145,
+    "actual_delay_p95_ms": 152.51324865,
+    "camera_frames_dropped": 0,
+    "camera_frames_published": 1200,
+    "camera_timestamps_valid": true,
+    "collision_occurred": false,
+    "lateral_rmse_m": 0.4532947794214695,
+    "lane_departure_occurred": false,
+    "telemetry_samples": 6000,
+    "traffic_vehicle_count_max": 4.0,
+    "traffic_vehicle_count_mean": 3.345833333333333
+  },
+  "outcome": "pass",
+  "reasons": [],
+  "run_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_traffic03_heldout_v1-20260831T015458Z-0c37dc7f",
+  "scenario_id": "md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_traffic03_heldout_v1",
+  "target_delay_ms": 150,
+  "validity": "valid"
+}

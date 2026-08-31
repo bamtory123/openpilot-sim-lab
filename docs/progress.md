@@ -118,6 +118,8 @@ The mirrored contract then completed the excluded-warm-up 12-run delay matrix. E
 
 The opt-in low-traffic serpentine probe now records MetaDrive's traffic-manager actor count on every telemetry row. After preserving the original actor-spawn configuration failure, the corrected fixed-seed `traffic_density: 0.03` contract completed three 0 ms repeats as `valid/pass`: all reached 1,200 frames with no ego collision, lane departure, or camera drop; lateral RMSE was 0.44683–0.44747 m (mean 0.44712 m, population standard deviation 0.00027 m), and the recorded traffic count was 3.34–3.35 on average (maximum 4). This establishes only a deterministic, low-density synthetic-traffic lane-following probe. It neither tests nor claims traffic perception, yielding, braking for actors, or obstacle avoidance.
 
+The same low-traffic contract completed its excluded-warm-up, interleaved 12-run 0/50/100/150 ms delay matrix. All formal runs were `valid/pass` at 1,200 frames with no ego collision, lane departure, or camera drop. Median lateral RMSE was 0.44696, 0.44734, 0.44628, and 0.44710 m; actual-delay medians were 24.18, 50.58, 100.65, and 150.66 ms. Every formal run recorded a maximum of four traffic actors. This validates the non-blocking delay delivery only for the declared fixed low-density synthetic-traffic contract, not traffic interaction behavior.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
