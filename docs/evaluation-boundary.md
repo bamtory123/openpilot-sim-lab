@@ -37,6 +37,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | v0.2 mirrored serpentine, 0/50/100/150 ms delay matrix | 3 × `valid/pass` per delay; median RMSE 0.23643/0.23651/0.23654/0.23672 m | Non-blocking delay delivery only for the fixed mirrored contract. |
 | v0.2 serpentine, `traffic_density: 0.03`, 0 ms | 3 × `valid/pass`, 1,200 frames each; 3.34–3.35 mean traffic actors, maximum 4 | Fixed-seed low-density synthetic traffic lane-following only; no interaction, yielding, braking, or avoidance evaluation. |
 | v0.2 low-traffic serpentine, 0/50/100/150 ms delay matrix | 3 × `valid/pass` per delay; median RMSE 0.44696/0.44734/0.44628/0.44710 m; maximum 4 actors/run | Delay delivery only for this fixed low-density synthetic-traffic contract, not traffic-interaction robustness. |
+| v0.2 low-traffic active-actor proximity probe | 0.656 mean active actors; closest ego-to-active-actor distance 239.57 m | Confirms no meaningful encounter exposure; this is not an interaction, following, braking, or avoidance test. |
 | 60 m gamma 0.8 using the tight DAgger artifact | `valid/pass`, 1,200 frames, 0.54819 m lateral RMSE | Passes the KPI but regresses versus the gamma-curve artifact; artifacts remain condition-specific. |
 
 These are valid measurements, not invalid infrastructure runs. Their failure is retained as evidence and is not hidden by selecting the 2.0 m/s result.
