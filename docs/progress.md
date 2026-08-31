@@ -136,6 +136,8 @@ The separate static-lead dataset smoke now writes 10 run-relative RGB samples to
 
 The follow-up three-seed static-lead matrix (`20260831`, `20260901`, held-out `20260902`) completed with three `valid/fail: collision` outcomes. It yielded 30 labeled images split 20 train / 10 validation; all were traffic-labeled, 13 carried collision state, and sampled minima were 3.66 m distance and 3.37 s positive TTC. This repeats the encounter and data-provenance contract, but the lead mesh is absent from the RGB frames; it is not lead-perception data, regardless of sample count.
 
+An opt-in `lead_vehicle.visual_proxy: box` attaches the minimal asset package's `box.bam` to the non-rendered static physics lead. The first visible-obstacle smoke confirmed the black rectangle in the 2 s and 8 s RGB captures and wrote ten traffic-labeled samples. It was `valid/fail` for lane departure, collision, and lateral-error KPI. This is a synthetic box-obstacle alignment path only, not vehicle perception, obstacle avoidance, or a trained control result.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.

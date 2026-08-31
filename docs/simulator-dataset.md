@@ -35,3 +35,9 @@ The dataset audit reports only `0 … +0.008658 1/m` reference curvature for the
 `simlab.runner audit` reports `traffic_labeled_sample_count`, nearest-distance minimum, TTC minimum, and collision-labeled sample count for this subset. These labels are simulator ground truth for offline audit only: they must not be fed into the replay controller. The installed MetaDrive minimal asset package omits vehicle meshes, so this physics lead is not visible in the RGB frames; this subset is not lead-perception data or evidence for following, braking, or avoidance.
 
 The three-seed matrix version uses seeds `20260831`, `20260901`, and held-out `20260902`. Its completed collection produced 30 labeled images with a 20/10 train/validation split; all three runs were `valid/fail: collision`. The audit found 30 traffic-labeled images, 13 collision-state images, 3.66 m minimum sampled distance, and 3.37 s minimum sampled positive TTC. This confirms repeatability of the fixed encounter and offline-label contract, not a visual-perception dataset.
+
+## Visible static-obstacle proxy smoke
+
+The minimal package does contain `box.bam`, so `lead_vehicle.visual_proxy: box` attaches a black rectangular visual proxy to the same non-rendered static physics lead. A first 20 m smoke captured the proxy in RGB at 2 and 8 s and wrote 10 traffic-labeled samples (three collision-state samples; 4.52 m minimum sampled distance; 3.40 s minimum sampled positive TTC). The run was `valid/fail` for lane departure, collision, and lateral-error KPI.
+
+This establishes only an explicit synthetic **box-obstacle** camera/physics alignment path. It is not a vehicle, pedestrian, or traffic-participant representation; no detector, distance estimator, braking policy, or avoidance policy is trained or evaluated. The black box's rendering and geometry are fixed and intentionally unsuitable for a real-world or vehicle-perception claim.
