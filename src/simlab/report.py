@@ -22,18 +22,20 @@ def generate_report(results_root: Path, output: Path) -> Path:
   grouped = defaultdict(list)
   for summary in summaries:
     grouped[summary["target_delay_ms"]].append(summary)
-  lines = ["# MetaDrive Repeatability Study", "", "This report compares deterministic camera transport-delay conditions on one fixed two-lane loop map. It is not a statistical validation or real-vehicle result.", "", "| Delay (ms) | Valid runs | Valid failures | Invalid runs | Failure reasons | Median lateral RMSE (m) |", "|---:|---:|---:|---:|---|---:|"]
+  lines = ["# MetaDrive Repeatability Study", "", "This report compares deterministic camera transport-delay conditions on one fixed two-lane loop map. It is not a statistical validation or real-vehicle result.", "", "| Delay (ms) | Valid runs | Valid failures | Invalid runs | Valid-failure reasons | Invalid reasons | Median lateral RMSE (m) |", "|---:|---:|---:|---:|---|---|---:|"]
   graph_points = []
   for delay in sorted(grouped):
     runs = grouped[delay]
     valid = [run for run in runs if run["validity"] == "valid"]
     failures = sum(run["outcome"] == "fail" for run in valid)
     invalid = len(runs) - len(valid)
-    reason_counts = Counter(reason for run in valid for reason in run.get("reasons", []))
-    reasons = ", ".join(f"{reason}:{count}" for reason, count in sorted(reason_counts.items())) or "-"
+    failure_counts = Counter(reason for run in valid for reason in run.get("reasons", []))
+    invalid_counts = Counter(reason for run in runs if run["validity"] != "valid" for reason in run.get("reasons", []))
+    failures_text = ", ".join(f"{reason}:{count}" for reason, count in sorted(failure_counts.items())) or "-"
+    invalid_text = ", ".join(f"{reason}:{count}" for reason, count in sorted(invalid_counts.items())) or "-"
     rms = sorted(run["metrics"].get("lateral_rmse_m") for run in valid if run["metrics"].get("lateral_rmse_m") is not None)
     median = rms[len(rms)//2] if rms else None
-    lines.append(f"| {delay} | {len(valid)} | {failures} | {invalid} | {reasons} | {median if median is not None else 'n/a'} |")
+    lines.append(f"| {delay} | {len(valid)} | {failures} | {invalid} | {failures_text} | {invalid_text} | {median if median is not None else 'n/a'} |")
     if median is not None:
       graph_points.append((delay, median))
   diagnostics = [run["metrics"] for runs in grouped.values() for run in runs if run["metrics"].get("model_valid_coverage_ratio") is not None]
