@@ -73,6 +73,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("allow_frame_drop must be boolean")
   if "min_traffic_vehicle_count" in validity and (not isinstance(validity["min_traffic_vehicle_count"], int) or validity["min_traffic_vehicle_count"] < 0):
     raise ScenarioError("min_traffic_vehicle_count must be a non-negative integer")
+  if "max_traffic_ego_nearest_distance_m" in validity and (not isinstance(validity["max_traffic_ego_nearest_distance_m"], (int, float)) or validity["max_traffic_ego_nearest_distance_m"] <= 0):
+    raise ScenarioError("max_traffic_ego_nearest_distance_m must be positive")
   diagnostics = data.get("diagnostics")
   if diagnostics is not None:
     frames = diagnostics.get("camera_capture_frames") if isinstance(diagnostics, dict) else None

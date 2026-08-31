@@ -167,6 +167,9 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
   thresholds = _outcome_thresholds()
   required_traffic = scenario.data["validity"].get("min_traffic_vehicle_count")
   traffic_requirement_not_met = required_traffic is not None and (not measured or max((int(row.get("traffic_vehicle_count", 0)) for row in measured), default=0) < required_traffic)
+  max_traffic_distance = scenario.data["validity"].get("max_traffic_ego_nearest_distance_m")
+  observed_traffic_distance = min((float(row["traffic_nearest_distance_m"]) for row in measured if row.get("traffic_nearest_distance_m") is not None), default=None)
+  traffic_proximity_not_met = max_traffic_distance is not None and (observed_traffic_distance is None or observed_traffic_distance > max_traffic_distance)
   failures = []
   if not thresholds["allow_lane_departure"] and (any(row.get("lane_departure") for row in measured) or (data.termination or {}).get("out_of_lane")):
     failures.append("lane_departure")
@@ -177,7 +180,7 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     failures.append("lateral_error_threshold")
   if not thresholds["allow_disengagement_during_measurement"] and _disengaged_during_measurement(data.events):
     failures.append("disengagement")
-  if data.measured and failures and not traffic_requirement_not_met:
+  if data.measured and failures and not traffic_requirement_not_met and not traffic_proximity_not_met:
     return "valid", "fail", failures
 
   invalid: list[str] = []
@@ -185,6 +188,8 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     invalid.append("measurement_not_started")
   if traffic_requirement_not_met:
     invalid.append("traffic_actor_coverage")
+  if traffic_proximity_not_met:
+    invalid.append("traffic_proximity_coverage")
   expected = scenario.data["run"]["measurement_camera_frames"] * scenario.data["logging"]["telemetry_hz"] / scenario.data["logging"]["camera_hz_nominal"]
   if len(measured) / expected < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
     invalid.append("telemetry_coverage")

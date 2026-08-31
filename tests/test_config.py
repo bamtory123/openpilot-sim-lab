@@ -48,6 +48,14 @@ def test_traffic_mode_is_limited_to_trigger_or_respawn(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_traffic_proximity_requirement_must_be_positive(tmp_path):
+  path = tmp_path / "traffic.yaml"
+  path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("allow_frame_drop: false", "allow_frame_drop: false\n  max_traffic_ego_nearest_distance_m: 30"))
+  assert load_scenario(path).data["validity"]["max_traffic_ego_nearest_distance_m"] == 30
+  path.write_text(path.read_text().replace("max_traffic_ego_nearest_distance_m: 30", "max_traffic_ego_nearest_distance_m: 0"))
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_unsupported_camera_fov_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_fov_deg: 55"))
