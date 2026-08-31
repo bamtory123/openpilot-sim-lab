@@ -20,7 +20,7 @@ A separate end-to-end openpilot-manager/bridge smoke also completed a 23.94-seco
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
 - A watchdog, unexpected bridge exit, or Python-level runner exception is recorded as `invalid/not_evaluated`.
-- Every manifest records its UTC creation time and the WSL boot ID. Use `created_at_utc` to choose the Windows event-collector time window. If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. It writes an explicit `invalid/not_evaluated: host_interrupted` summary, records the pre-run and recovery boot IDs plus whether they changed, and refuses to overwrite an existing result.
+- Every manifest records its UTC creation time and the WSL boot ID. Use `created_at_utc` to choose the Windows event-collector time window. If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. It writes an explicit `invalid/not_evaluated: host_interrupted` summary, carries that recorded creation time forward with the pre-run and recovery boot IDs, and refuses to overwrite an existing result.
 - Do not treat a missing summary as a failed driving result or silently omit it from a report.
 - Generated reports list valid-failure reasons and invalid-infrastructure reasons in separate columns, so `host_interrupted` cannot be mistaken for a collision or lane-control outcome.
 - New reports also summarize available manifest host provenance (GPU, driver, distinct WSL boot count, and GPU start-temperature range). Older artifacts without these fields remain readable and are shown as not recorded.

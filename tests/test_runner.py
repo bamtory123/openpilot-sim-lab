@@ -91,7 +91,7 @@ def test_runner_exception_is_invalid_even_after_a_collision():
 
 
 def test_host_interrupted_run_is_recovered_without_overwriting_results(monkeypatch, tmp_path):
-  (tmp_path / "manifest.json").write_text('{"run_id": "interrupted", "wsl_boot_id": "before"}')
+  (tmp_path / "manifest.json").write_text('{"run_id": "interrupted", "created_at_utc": "2026-08-31T09:00:00+00:00", "wsl_boot_id": "before"}')
   (tmp_path / "scenario.yaml").write_text("scenario_id: interrupted\nfault:\n  target_delay_ms: 50\n")
   monkeypatch.setattr("simlab.runner.wsl_boot_id", lambda: "after")
 
@@ -99,6 +99,7 @@ def test_host_interrupted_run_is_recovered_without_overwriting_results(monkeypat
 
   recovered = __import__("json").loads(summary.read_text())
   assert recovered["reasons"] == ["host_interrupted"] and recovered["host_recovery"]["wsl_boot_changed"] is True
+  assert recovered["host_recovery"]["recorded_created_at_utc"] == "2026-08-31T09:00:00+00:00"
   with __import__("pytest").raises(RuntimeError, match="existing summary"):
     recover_incomplete_run(tmp_path)
 

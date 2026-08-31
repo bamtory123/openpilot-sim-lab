@@ -345,6 +345,7 @@ def recover_incomplete_run(run_dir: Path) -> Path:
                        "target_delay_ms": scenario["fault"]["target_delay_ms"], "validity": "invalid",
                        "outcome": "not_evaluated", "reasons": ["host_interrupted"],
                        "termination_reason": "host_interrupted", "metrics": {}, "host_recovery": {
+                         "recorded_created_at_utc": manifest.get("created_at_utc"),
                          "recorded_wsl_boot_id": recorded_boot_id, "observed_wsl_boot_id": observed_boot_id,
                          "wsl_boot_changed": bool(recorded_boot_id and observed_boot_id and recorded_boot_id != observed_boot_id)}})
   return summary
