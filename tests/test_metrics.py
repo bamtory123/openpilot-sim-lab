@@ -38,3 +38,10 @@ def test_model_inference_health_metrics():
   assert result["model_frame_age_max"] == 1.0 and result["model_frame_drop_perc_max"] == 2.0
   assert math.isclose(result["model_execution_time_p95_s"], 0.029)
   assert result["model_path_horizon_median_m"] == 5.0
+
+
+def test_traffic_vehicle_count_metrics():
+  result = calculate_metrics([{"traffic_vehicle_count": 2}, {"traffic_vehicle_count": 4}], [])
+
+  assert result["traffic_vehicle_count_mean"] == 3.0
+  assert result["traffic_vehicle_count_max"] == 4.0
