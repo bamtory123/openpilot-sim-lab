@@ -38,6 +38,19 @@ def test_report_discovers_nested_host_probe_runs(tmp_path):
   assert "| 0 | 1 | 0 | 0 | - | - | n/a | 0.12 |" in report.read_text()
 
 
+def test_report_excludes_warmup_results(tmp_path):
+  warmup = tmp_path / "warmup" / "run"; warmup.mkdir(parents=True)
+  (warmup / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "valid", "outcome": "pass",
+                                                      "reasons": [], "metrics": {"lateral_rmse_m": 9.0}}))
+  run = tmp_path / "run"; run.mkdir()
+  (run / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "valid", "outcome": "pass",
+                                                   "reasons": [], "metrics": {"lateral_rmse_m": 0.2}}))
+
+  report = generate_report(tmp_path, tmp_path / "report.md")
+
+  assert "| 0 | 1 | 0 | 0 | - | - | n/a | 0.2 |" in report.read_text()
+
+
 def test_report_groups_valid_failure_reasons(tmp_path):
   run = tmp_path / "run"; run.mkdir()
   (run / "summary.json").write_text(json.dumps({"target_delay_ms": 50, "validity": "valid", "outcome": "fail",

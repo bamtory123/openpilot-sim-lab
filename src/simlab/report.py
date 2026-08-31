@@ -19,6 +19,8 @@ def generate_report(results_root: Path, output: Path) -> Path:
   summaries = []
   manifests = []
   for path in sorted(results_root.rglob("summary.json")):
+    if "warmup" in path.relative_to(results_root).parts:
+      continue
     summaries.append(json.loads(path.read_text(encoding="utf-8")))
     manifest = path.with_name("manifest.json")
     if manifest.is_file():
