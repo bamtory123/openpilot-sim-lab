@@ -42,8 +42,8 @@ def test_model_inference_health_metrics():
 
 def test_traffic_vehicle_count_metrics():
   result = calculate_metrics([
-    {"traffic_vehicle_count": 2, "traffic_active_vehicle_count": 1, "traffic_nearest_distance_m": 8.0},
-    {"traffic_vehicle_count": 4, "traffic_active_vehicle_count": 3, "traffic_nearest_distance_m": 4.0},
+    {"traffic_vehicle_count": 2, "traffic_active_vehicle_count": 1, "traffic_nearest_distance_m": 8.0, "traffic_nearest_closing_speed_mps": 1.0, "traffic_nearest_ttc_s": 8.0},
+    {"traffic_vehicle_count": 4, "traffic_active_vehicle_count": 3, "traffic_nearest_distance_m": 4.0, "traffic_nearest_closing_speed_mps": 2.0, "traffic_nearest_ttc_s": 2.0},
   ], [])
 
   assert result["traffic_vehicle_count_mean"] == 3.0
@@ -51,3 +51,5 @@ def test_traffic_vehicle_count_metrics():
   assert result["traffic_active_vehicle_count_mean"] == 2.0
   assert result["traffic_ego_nearest_distance_min_m"] == 4.0
   assert result["traffic_ego_nearest_distance_p05_m"] == 4.2
+  assert result["traffic_nearest_closing_speed_max_mps"] == 2.0
+  assert result["traffic_nearest_ttc_min_s"] == 2.0
