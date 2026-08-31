@@ -53,3 +53,15 @@ def test_report_summarizes_adjacent_host_manifests(tmp_path):
 
   text = report.read_text()
   assert "## Host provenance" in text and "Distinct WSL boot IDs: 1" in text and "52–52 °C" in text
+
+
+def test_report_summarizes_measurement_coverage(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  (run / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "valid", "outcome": "pass",
+                                                   "metrics": {"lateral_rmse_m": 0.2, "telemetry_coverage_ratio": 1.0,
+                                                               "road_camera_coverage_ratio": 0.99}}))
+
+  report = generate_report(tmp_path, tmp_path / "report.md")
+
+  text = report.read_text()
+  assert "## Measurement coverage" in text and "| telemetry coverage | 1.000 |" in text and "| road-camera coverage | 0.990 |" in text

@@ -51,6 +51,12 @@ def generate_report(results_root: Path, output: Path) -> Path:
                   f"| model valid coverage | {sorted(metric['model_valid_coverage_ratio'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |",
                   f"| model path horizon (m) | {sorted(metric['model_path_horizon_median_m'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |",
                   f"| model terminal speed (m/s) | {sorted(metric['model_path_terminal_speed_median_mps'] for metric in diagnostics)[len(diagnostics)//2]:.3f} |"])
+  coverage = [run["metrics"] for runs in grouped.values() for run in runs
+              if run["metrics"].get("telemetry_coverage_ratio") is not None and run["metrics"].get("road_camera_coverage_ratio") is not None]
+  if coverage:
+    lines.extend(["", "## Measurement coverage", "", "| Metric | Median across recorded runs |", "|---|---:|",
+                  f"| telemetry coverage | {sorted(metric['telemetry_coverage_ratio'] for metric in coverage)[len(coverage)//2]:.3f} |",
+                  f"| road-camera coverage | {sorted(metric['road_camera_coverage_ratio'] for metric in coverage)[len(coverage)//2]:.3f} |"])
   if manifests:
     values = lambda key: sorted({str(manifest[key]) for manifest in manifests if manifest.get(key) is not None})
     temperatures = sorted(int(manifest["gpu_runtime_snapshot"]["temperature_c"]) for manifest in manifests
