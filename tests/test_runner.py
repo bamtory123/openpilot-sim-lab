@@ -19,13 +19,24 @@ def test_stops_the_manager_process_group():
   process.wait.assert_called_once_with(timeout=10)
 
 
-def test_lane_departure_is_a_valid_failure_before_full_coverage():
+def test_coverage_shortfall_is_invalid_even_after_lane_departure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   data = RunData(
     measured=True,
     telemetry=[{"measurement": True, "lane_departure": True}],
     termination={"out_of_lane": True},
   )
+
+  validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
+
+  assert (validity, outcome, reasons) == ("invalid", "not_evaluated", ["telemetry_coverage"])
+
+
+def test_lane_departure_is_a_valid_failure_with_full_coverage():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  telemetry = [{"measurement": True} for _ in range(6000)]
+  telemetry[-1]["lane_departure"] = True
+  data = RunData(measured=True, telemetry=telemetry, termination={"out_of_lane": True})
 
   validity, outcome, reasons = _classify(data, scenario, "simulator_termination")
 
@@ -77,7 +88,9 @@ def test_timestamp_error_is_invalid_without_a_measured_failure():
 
 def test_lateral_kpi_threshold_is_a_valid_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
-  data = RunData(measured=True, telemetry=[{"measurement": True, "lateral_error_m": 1.26}])
+  telemetry = [{"measurement": True} for _ in range(6000)]
+  telemetry[-1]["lateral_error_m"] = 1.26
+  data = RunData(measured=True, telemetry=telemetry)
 
   validity, outcome, reasons = _classify(data, scenario, None)
 
@@ -86,8 +99,9 @@ def test_lateral_kpi_threshold_is_a_valid_failure():
 
 def test_disengagement_after_measurement_starts_is_a_valid_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  telemetry = [{"measurement": True} for _ in range(6000)]
   data = RunData(measured=True, events=[{"type": "run_state", "state": "MEASURE"},
-                                        {"type": "openpilot_state", "engaged": False}])
+                                        {"type": "openpilot_state", "engaged": False}], telemetry=telemetry)
 
   validity, outcome, reasons = _classify(data, scenario, None)
 
