@@ -1,0 +1,14 @@
+diff --git a/metadrive/envs/metadrive_env.py b/metadrive/envs/metadrive_env.py
+index 56446e4b..83caae26 100644
+--- a/metadrive/envs/metadrive_env.py
++++ b/metadrive/envs/metadrive_env.py
+@@ -40,6 +40,9 @@ METADRIVE_DEFAULT_CONFIG = dict(
+     random_traffic=False,  # Traffic is randomized at default.
+     # this will update the vehicle_config and set to traffic
+     traffic_vehicle_config=dict(
++        # BaseVehicle requires this key, but the traffic override previously
++        # omitted it and failed when traffic_density was non-zero.
++        render_vehicle=False,
+         show_navi_mark=False,
+         show_dest_mark=False,
+         enable_reverse=False,

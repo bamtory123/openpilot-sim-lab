@@ -62,6 +62,11 @@ This is v0.2 experimental evidence only. Do not combine it with the v0.1 default
 This is a single 0 ms fixed-seed lane-following probe, not an actor-interaction or avoidance test. It requires the locally recorded MetaDrive 0.4.2.3 traffic-config correction described in [openpilot-patch](openpilot-patch.md); its dirty dependency state is retained in the manifest.
 
 ```bash
+cd /home/hyunsung/src/metadrive
+git apply /home/hyunsung/src/openpilot-sim-lab/patches/metadrive-0.4.2.3-traffic-render-vehicle.patch
+```
+
+```bash
 $OPENPILOT_PYTHON -m simlab.runner --allow-dirty run \
   --scenario configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_traffic03_heldout_v1.yaml \
   --outputs outputs/serpentine-low-traffic-probe

@@ -20,7 +20,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 
 The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. No CARLA adapter or specialist model code is part of the v0.1 branch.
 
-The workstation's MetaDrive 0.4.2.3 source also has one local dependency correction: its default `traffic_vehicle_config` now declares `render_vehicle: false`. `BaseVehicle` requires that key when a nonzero traffic density creates an actor, while the stock traffic-only override omitted it. This dependency change is deliberately kept outside this repository and is recorded as dirty in each affected run manifest; it must not be silently substituted for a clean pinned dependency.
+The workstation's MetaDrive 0.4.2.3 source also has one local dependency correction: its default `traffic_vehicle_config` now declares `render_vehicle: false`. `BaseVehicle` requires that key when a nonzero traffic density creates an actor, while the stock traffic-only override omitted it. Apply the tracked [MetaDrive patch](../patches/metadrive-0.4.2.3-traffic-render-vehicle.patch) from the dependency checkout, then retain its dirty state in the run manifest; it must not be silently substituted for a clean pinned dependency.
 
 ## Diagnostic boundary
 
