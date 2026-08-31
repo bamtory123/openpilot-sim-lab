@@ -86,6 +86,11 @@ def test_static_obstacle_proxy_smoke_scenario_is_valid():
   assert scenario.data["environment"]["lead_vehicle"]["visual_proxy"] == "box"
 
 
+def test_static_obstacle_proxy_matrix_has_a_held_out_seed():
+  scenario = load_scenario(ROOT / "configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_obstacle_box20_matrix_v1.yaml")
+  assert scenario.data["dataset"]["validation_seeds"] == [20260902]
+
+
 def test_unsupported_camera_fov_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_fov_deg: 55"))

@@ -1,0 +1,49 @@
+schema_version: 1
+scenario_id: md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_static_obstacle_box20_matrix_v1
+
+environment:
+  map_id: openpilot_serpentine_v1
+  map_track_size_m: 60
+  seed: 20260831
+  reference_lane_index: 0
+  map_curve_direction: 1
+  lead_vehicle:
+    gap_m: 20
+    visual_proxy: box
+
+specialist_replay:
+  artifact_path: models/v0.6-temporal-gamma-tight-dagger-ridge.npz
+  target_speed_mps: 2.0
+
+run:
+  wait_ready_timeout_s: 60
+  wait_engage_timeout_s: 30
+  fault_settle_s: 5
+  measurement_camera_frames: 1200
+  wall_watchdog_s: 220
+
+fault:
+  type: camera_transport_delay
+  target_delay_ms: 0
+  queue_capacity_frames: 8
+  overflow_policy: invalid_run
+
+validity:
+  min_active_time_s: 55
+  min_telemetry_coverage_ratio: 0.99
+  min_traffic_vehicle_count: 1
+  max_traffic_ego_nearest_distance_m: 25
+  allow_frame_drop: false
+
+logging:
+  telemetry_hz: 100
+  camera_hz_nominal: 20
+
+diagnostics:
+  dataset_collection: true
+  camera_capture_frames: [200, 400, 800, 1200, 1600, 2400, 3680, 4480, 5280, 6080]
+
+dataset:
+  seeds: [20260831, 20260901, 20260902]
+  validation_seeds: [20260902]
+  map_curve_directions: [1]
