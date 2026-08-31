@@ -124,6 +124,8 @@ The traffic scenario now declares `min_traffic_vehicle_count: 1` as a validity c
 
 Active-actor proximity telemetry then showed why this must not be treated as an interaction test: the 0 ms probe had at most one active actor, 0.656 mean active actors, and a 239.57 m minimum ego-to-active-actor distance. The actor-presence contract is working, but this route/spawn layout provides no meaningful encounter, following, yielding, braking, or avoidance exposure. Any traffic-interaction evaluation requires a separately versioned spawn/route design and KPI contract.
 
+The separate respawn-traffic probe provides the first controlled proximity exposure: fixed `traffic_density: 0.03`, `traffic_mode: respawn`, and `max_traffic_ego_nearest_distance_m: 30` produced `valid/pass` with two active actors throughout and a 28.00 m closest distance. This confirms only that the versioned route reaches the declared proximity boundary; it still contains no actor-following, braking, yielding, collision-avoidance, or traffic-policy KPI.
+
 ## Next
 
 1. Treat a new route topology as a versioned post-v0.1 bridge/config extension: add its deterministic asset, spawn/pose validation, manifest identity, and tests before using it for held-out evidence. The current v0.1 contract deliberately supports only `openpilot_default_loop_v1` with size/direction variants.
