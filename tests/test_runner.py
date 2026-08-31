@@ -61,6 +61,16 @@ def test_disengagement_after_measurement_starts_is_a_valid_failure():
   assert (validity, outcome, reasons) == ("valid", "fail", ["disengagement"])
 
 
+def test_required_traffic_actor_absence_is_invalid():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  scenario.data["validity"]["min_traffic_vehicle_count"] = 1
+  data = RunData(measured=True, telemetry=[{"measurement": True, "traffic_vehicle_count": 0}])
+
+  validity, outcome, reasons = _classify(data, scenario, None)
+
+  assert (validity, outcome) == ("invalid", "not_evaluated") and "traffic_actor_coverage" in reasons
+
+
 def test_csv_writes_none_as_an_empty_field(tmp_path):
   path = tmp_path / "telemetry.csv"
   _write_csv(path, [{"path_y_20m": None, "speed_mps": 4.0}])

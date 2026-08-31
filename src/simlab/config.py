@@ -69,6 +69,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("v0.1 rate contract is 100 Hz telemetry / 20 Hz camera")
   if not isinstance(validity.get("allow_frame_drop"), bool):
     raise ScenarioError("allow_frame_drop must be boolean")
+  if "min_traffic_vehicle_count" in validity and (not isinstance(validity["min_traffic_vehicle_count"], int) or validity["min_traffic_vehicle_count"] < 0):
+    raise ScenarioError("min_traffic_vehicle_count must be a non-negative integer")
   diagnostics = data.get("diagnostics")
   if diagnostics is not None:
     frames = diagnostics.get("camera_capture_frames") if isinstance(diagnostics, dict) else None

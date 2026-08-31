@@ -165,6 +165,8 @@ def _disengaged_during_measurement(events: list[dict]) -> bool:
 def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tuple[str, str, list[str]]:
   measured = [row for row in data.telemetry if row.get("measurement")]
   thresholds = _outcome_thresholds()
+  required_traffic = scenario.data["validity"].get("min_traffic_vehicle_count")
+  traffic_requirement_not_met = required_traffic is not None and (not measured or max((int(row.get("traffic_vehicle_count", 0)) for row in measured), default=0) < required_traffic)
   failures = []
   if not thresholds["allow_lane_departure"] and (any(row.get("lane_departure") for row in measured) or (data.termination or {}).get("out_of_lane")):
     failures.append("lane_departure")
@@ -175,12 +177,14 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     failures.append("lateral_error_threshold")
   if not thresholds["allow_disengagement_during_measurement"] and _disengaged_during_measurement(data.events):
     failures.append("disengagement")
-  if data.measured and failures:
+  if data.measured and failures and not traffic_requirement_not_met:
     return "valid", "fail", failures
 
   invalid: list[str] = []
   if not data.measured:
     invalid.append("measurement_not_started")
+  if traffic_requirement_not_met:
+    invalid.append("traffic_actor_coverage")
   expected = scenario.data["run"]["measurement_camera_frames"] * scenario.data["logging"]["telemetry_hz"] / scenario.data["logging"]["camera_hz_nominal"]
   if len(measured) / expected < scenario.data["validity"]["min_telemetry_coverage_ratio"]:
     invalid.append("telemetry_coverage")
