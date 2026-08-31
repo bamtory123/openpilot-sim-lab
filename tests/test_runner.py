@@ -32,6 +32,16 @@ def test_lane_departure_is_a_valid_failure_before_full_coverage():
   assert (validity, outcome, reasons) == ("valid", "fail", ["lane_departure"])
 
 
+def test_watchdog_is_invalid_even_after_a_collision():
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  data = RunData(measured=True, telemetry=[{"measurement": True, "collision": True}], termination={"collision": True})
+
+  validity, outcome, reasons = _classify(data, scenario, "watchdog")
+
+  assert (validity, outcome) == ("invalid", "not_evaluated")
+  assert "wall_watchdog" in reasons
+
+
 def test_timestamp_error_is_invalid_without_a_measured_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   data = RunData(measured=True, camera=[{"camera": "road", "source_frame_id": 0, "capture_mono_ns": 2,

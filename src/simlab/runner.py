@@ -189,7 +189,7 @@ def _classify(data: RunData, scenario: Scenario, stop_reason: str | None) -> tup
     failures.append("lateral_error_threshold")
   if not thresholds["allow_disengagement_during_measurement"] and _disengaged_during_measurement(data.events):
     failures.append("disengagement")
-  if data.measured and failures and not traffic_requirement_not_met and not traffic_proximity_not_met:
+  if data.measured and failures and not traffic_requirement_not_met and not traffic_proximity_not_met and stop_reason != "watchdog":
     return "valid", "fail", failures
 
   invalid: list[str] = []
