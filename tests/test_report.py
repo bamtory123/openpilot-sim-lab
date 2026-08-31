@@ -21,7 +21,7 @@ def test_report_writes_markdown_and_svg(tmp_path):
   invalid = tmp_path / "run-2"; invalid.mkdir()
   (invalid / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "invalid", "outcome": "not_evaluated", "metrics": {}}))
   report = generate_report(tmp_path, tmp_path / "report.md")
-  assert "| 0 | 1 | 0 | 1 | - | - | 0.12 |" in report.read_text() and report.with_suffix(".svg").is_file()
+  assert "| 0 | 1 | 0 | 1 | - | - | n/a | 0.12 |" in report.read_text() and report.with_suffix(".svg").is_file()
 
 
 def test_report_groups_valid_failure_reasons(tmp_path):
@@ -40,7 +40,7 @@ def test_report_groups_invalid_reasons_separately(tmp_path):
 
   report = generate_report(tmp_path, tmp_path / "report.md")
 
-  assert "| 0 | 0 | 0 | 1 | - | host_interrupted:1 | n/a |" in report.read_text()
+  assert "| 0 | 0 | 0 | 1 | - | host_interrupted:1 | n/a | n/a |" in report.read_text()
 
 
 def test_report_summarizes_adjacent_host_manifests(tmp_path):
