@@ -28,6 +28,8 @@ Later on 2026-09-02 KST, a new boot ID and an unclean prior journal were observe
 
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.
 
+A post-restart configuration snapshot found no user `.wslconfig`, about 14 GiB WSL memory available, an unused 4 GiB swap, RTX 4080 driver 616.56, and 812 MiB GPU memory in use at inspection. This makes a fixed user memory cap unlikely, but does not rule out transient resource pressure or identify the restart cause.
+
 With the expanded collector in place, a later 200-frame host probe completed `valid/pass` in 43.9 seconds: 9.94 seconds active, 0.995 telemetry coverage, 1.0 road-camera coverage, zero drop/departure/collision, exit code 0, and unchanged boot ID. Its exact post-start System/VmSwitch collection window contained zero selected events. This is bounded host-path evidence only, not long-duration stability clearance.
 
 ## Harness behavior
