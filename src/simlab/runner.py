@@ -27,6 +27,7 @@ from .specialist import train_specialist, train_temporal_specialist
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUTS = ROOT / "outputs"
 THRESHOLDS_PATH = ROOT / "configs/thresholds.yaml"
+COMPATIBILITY_PATH = ROOT / "configs/compatibility.yaml"
 
 
 @dataclass
@@ -134,6 +135,18 @@ def _openpilot_root() -> Path:
   return root
 
 
+def _compatibility_check(openpilot_root: Path) -> None:
+  contract = yaml.safe_load(COMPATIBILITY_PATH.read_text(encoding="utf-8"))
+  if str(sys.version_info.major) != str(contract["runtime"]["python"]).split(".", 1)[0]:
+    raise RuntimeError("Python major version does not match configs/compatibility.yaml")
+  for key in ("base_commit", "instrumentation_commit"):
+    commit = contract["openpilot"][key]
+    result = subprocess.run(["git", "merge-base", "--is-ancestor", commit, "HEAD"], cwd=openpilot_root,
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+    if result.returncode != 0:
+      raise RuntimeError(f"openpilot is not compatible with configured {key}: {commit}")
+
+
 def _has_renderable_vehicle_assets() -> bool:
   import metadrive
   return (Path(metadrive.__file__).resolve().parent / "assets/models/ferra/right_tire_front.gltf").is_file()
@@ -144,6 +157,7 @@ def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> No
     raise RuntimeError("refusing dirty working tree; commit first or pass --allow-dirty")
   if scenario.data["environment"]["map_id"] not in ("openpilot_default_loop_v1", "openpilot_serpentine_v1"):
     raise ScenarioError("unsupported map")
+  _compatibility_check(openpilot_root)
   specialist_replay = scenario.data.get("specialist_replay")
   if specialist_replay is not None and not (ROOT / specialist_replay["artifact_path"]).is_file():
     raise RuntimeError("specialist replay artifact is missing")

@@ -161,6 +161,7 @@ def test_visible_lead_preflight_requires_vehicle_assets(monkeypatch, tmp_path):
   scenario.data["diagnostics"] = {"camera_capture_frames": [100], "require_visible_lead": True}
   monkeypatch.setattr("simlab.runner.git_metadata", lambda _: {"dirty": False})
   monkeypatch.setattr("simlab.runner.metadrive_source_metadata", lambda: {"dirty": False})
+  monkeypatch.setattr("simlab.runner._compatibility_check", lambda _: None)
   monkeypatch.setattr("simlab.runner._has_renderable_vehicle_assets", lambda: False)
   monkeypatch.setitem(sys.modules, "metadrive", SimpleNamespace(__file__="/tmp/metadrive/__init__.py"))
 
