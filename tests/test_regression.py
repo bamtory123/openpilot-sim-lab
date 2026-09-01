@@ -22,6 +22,7 @@ def test_regression_review_reports_relative_metrics(tmp_path):
   result = review_regression(tmp_path / "base", tmp_path / "candidate", scenario_id="scenario", delay_ms=0)
 
   assert result["verdict"] == "review_required"
+  assert result["metric_deltas_scope"] == "evaluated"
   assert result["metric_deltas"]["lateral_rmse_m"]["delta"] == pytest.approx(0.2)
 
 
@@ -32,6 +33,7 @@ def test_regression_review_hard_fails_invalid_or_new_collision(tmp_path):
   result = review_regression(tmp_path / "base", tmp_path / "candidate", scenario_id="scenario", delay_ms=0)
 
   assert result["verdict"] == "hard_gate_fail"
+  assert result["metric_deltas_scope"] == "diagnostic_only"
   assert len(result["phase_1_hard_gate_failures"]) == 2
 
 

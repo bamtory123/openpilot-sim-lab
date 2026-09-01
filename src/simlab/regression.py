@@ -54,4 +54,5 @@ def review_regression(baseline_root: Path, candidate_root: Path, *, scenario_id:
           "baseline_runs": len(baseline), "candidate_runs": len(candidate), "phase_1_hard_gate_failures": hard_gate_failures,
           "baseline_scenario_hash": next(iter(baseline_hashes), None), "candidate_scenario_hashes": sorted(item for item in candidate_hashes if item),
           "phase_2_review_required": review_required, "phase_3_performance_gate": "disabled_pending_approved_thresholds",
+          "metric_deltas_scope": "diagnostic_only" if hard_gate_failures else "evaluated",
           "metric_deltas": deltas, "verdict": "hard_gate_fail" if hard_gate_failures else ("review_required" if review_required else "no_change")}
