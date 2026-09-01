@@ -41,6 +41,8 @@ Before any long CUDA-backed matrix, follow the bounded checks and Windows-event 
 
 For unit tests of the orchestration package, use `uv run pytest -q` from this repository. The MetaDrive runtime itself is intentionally supplied by the instrumented openpilot virtual environment above.
 
+For the one-command bounded reproducibility package, follow [reproducibility](docs/reproducibility.md). It produces a self-checking output directory without starting the long formal matrix.
+
 ## Output contract
 
 Each run contains `manifest.json`, the resolved `scenario.yaml`, 100 Hz `telemetry.csv`, 20 Hz `camera.csv`, `events.jsonl`, `summary.json`, and process logs. `validity` describes whether the infrastructure/data is usable; `outcome` describes closed-loop performance. Lane departure and disengagement are valid failures, not invalid data.

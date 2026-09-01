@@ -1,5 +1,18 @@
 # Reproducing the formal MetaDrive matrix
 
+## Bounded reproducibility package (recommended today)
+
+This package is the fast, host-safe reproduction path. It runs the repository tests, dirty-aware preflight, one versioned 200-frame host probe, report generation, and an artifact verifier. It is **not** a formal driving-performance matrix.
+
+```bash
+cd /home/hyunsung/src/openpilot-sim-lab
+export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
+export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"
+scripts/run_reproducibility_package.sh outputs/reproducibility-package
+```
+
+Success requires `verification.json` with `status: pass`, one `summary.json` marked `valid/pass`, a frozen scenario snapshot/hash, 200 published camera frames, and zero drops. Preserve the complete output directory. A failure remains evidence; do not rerun in place or replace its artifacts.
+
 These commands run the fixed model-driven baseline, not a simulator-only controller diagnostic.
 
 ```bash
