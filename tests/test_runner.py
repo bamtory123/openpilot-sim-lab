@@ -135,6 +135,21 @@ def test_host_probe_recovery_rejects_a_tampered_snapshot(tmp_path):
     recover_incomplete_attempt(tmp_path)
 
 
+def test_host_probe_recovery_uses_an_absolute_snapshot_path(monkeypatch, tmp_path):
+  from simlab.config import load_scenario
+  from simlab.runner import recover_incomplete_attempt
+
+  snapshot = tmp_path / "snapshot.yaml"
+  snapshot.write_text(Path("configs/scenarios/md_default_loop_lane0_host_confirmation_v1.yaml").read_text())
+  (tmp_path / "attempt.json").write_text(__import__("json").dumps({
+    "scenario_snapshot": str(snapshot.resolve()), "scenario_hash": load_scenario(snapshot).hash}))
+  monkeypatch.chdir(tmp_path.parent)
+
+  summary = recover_incomplete_attempt(tmp_path)
+
+  assert __import__("json").loads(summary.read_text())["scenario_hash"] == load_scenario(snapshot).hash
+
+
 def test_timestamp_error_is_invalid_without_a_measured_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   data = RunData(measured=True, camera=[{"camera": "road", "source_frame_id": 0, "capture_mono_ns": 2,

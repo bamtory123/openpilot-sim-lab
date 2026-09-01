@@ -22,8 +22,8 @@ path, scenario, snapshot, boot_id = map(str, sys.argv[1:])
 Path(path).write_text(json.dumps({
   "schema_version": 1,
   "created_at_utc": datetime.now(timezone.utc).isoformat(),
-  "scenario_path": scenario,
-  "scenario_snapshot": snapshot,
+  "scenario_path": str(Path(scenario).resolve()),
+  "scenario_snapshot": str(Path(snapshot).resolve()),
   "scenario_hash": load_scenario(Path(snapshot)).hash,
   "recorded_wsl_boot_id": boot_id,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
