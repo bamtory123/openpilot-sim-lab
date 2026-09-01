@@ -22,6 +22,8 @@ baseline_evidence:
   replacement_policy: explicit_new_baseline_approval_required
 current_environment_confirmation:
   purpose: compatibility_check_only
+  scenario: configs/scenarios/md_default_loop_lane0_host_confirmation_v1.yaml
+  scope: engagement_camera_transport_and_artifact_integrity_only
   required_consecutive_runs: 2
   required_result: non_invalid
   required_observations: [engagement, camera_transport, required_artifact_bundle]

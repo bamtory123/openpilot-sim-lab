@@ -18,7 +18,7 @@ The local evidence root is `outputs/v0.1-current-host-confirmation-20260901`. It
 
 ## Open item
 
-The current contract requires a non-`invalid` host confirmation while also saying the known SUT lane departure does not block confirmation. On this formal scenario, the departure necessarily creates a coverage invalid. The policy needs a separate, explicitly scoped infrastructure-confirmation verdict before the two-run confirmation can be completed. It must not alter the frozen baseline or relabel the SUT outcome.
+The attempted formal scenario showed that a non-`invalid` host confirmation cannot share its 55-second performance-coverage contract with the known early SUT departure. The resolved policy is the separate versioned 10-second/200-frame `md_default_loop_lane0_host_confirmation_v1` probe. It retains the SUT, map, seed and 0 ms transport path but limits its verdict to engagement, transport and artifact integrity. It does not alter the frozen baseline or relabel the SUT outcome.
 
 ## Remaining release evidence
 
