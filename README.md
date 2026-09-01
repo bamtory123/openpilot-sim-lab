@@ -54,6 +54,7 @@ This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and
 See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/results](docs/progress.md), and [CARLA smoke-test status](docs/carla-smoke.md).
 The validation plan and requirement/test traceability are [PLAN](PLAN.md), [requirements](docs/requirements.md), [test plan](docs/test-plan.md), and [traceability](docs/traceability.md).
 The current framework qualification is [not qualified yet](docs/qualification-report.md); its governing choices are in the [decision log](docs/decisions.md).
+For the concise portfolio framing, see [portfolio summary](docs/portfolio-summary.md).
 The separate MetaDrive-only RGB replay experiment is documented in [simulator-specialist](docs/simulator-specialist.md).
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
 The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).
