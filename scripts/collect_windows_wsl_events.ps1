@@ -20,7 +20,10 @@ $systemEvents = @(Get-WinEvent -FilterHashtable @{ LogName = 'System'; StartTime
   })
 
 $vmSwitchEvents = @(Get-WinEvent -FilterHashtable @{ LogName = 'Microsoft-Windows-Hyper-V-VmSwitch-Operational'; StartTime = $Since; EndTime = $Until } -ErrorAction SilentlyContinue |
-  Where-Object { $_.Message -match 'WSL|NVIDIA|display driver|GPU' })
+  Where-Object {
+    $_.Message -match 'WSL|NVIDIA|display driver|GPU' -and
+    -not ($_.Id -eq 285 -and $_.Message -match 'OID_GEN_STATISTICS')
+  })
 
 $events = @($systemEvents + $vmSwitchEvents | Sort-Object TimeCreated | Select-Object TimeCreated,
   @{ Name = 'LogName'; Expression = { $_.LogName } }, ProviderName, Id, LevelDisplayName, Message)
