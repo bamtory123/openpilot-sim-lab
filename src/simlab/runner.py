@@ -21,6 +21,7 @@ from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json, wsl_boot_id
 from .metrics import calculate_metrics, camera_timestamps_valid
 from .report import generate_report
+from .regression import review_regression
 from .specialist import train_specialist, train_temporal_specialist
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -369,7 +370,7 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "audit", "baseline-audit", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "audit", "baseline-audit", "regression-review", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
@@ -378,6 +379,8 @@ def main() -> None:
   parser.add_argument("--run-dir", type=Path)
   parser.add_argument("--baseline-contract", type=Path, default=ROOT / "baselines/md_default_loop_lane0_v1/acceptance.yaml")
   parser.add_argument("--audit-output", type=Path)
+  parser.add_argument("--baseline-root", type=Path)
+  parser.add_argument("--candidate-root", type=Path)
   parser.add_argument("--gamma-augment", action="store_true")
   args = parser.parse_args()
   if args.command == "report":
@@ -392,6 +395,12 @@ def main() -> None:
     if args.audit_output is not None:
       args.audit_output.write_text(rendered + "\n", encoding="utf-8")
     print(rendered)
+    return
+  if args.command == "regression-review":
+    if args.baseline_root is None or args.candidate_root is None:
+      parser.error("regression-review requires --baseline-root and --candidate-root")
+    result = review_regression(args.baseline_root, args.candidate_root, scenario_id=args.scenario.stem, delay_ms=0)
+    print(json.dumps(result, indent=2, sort_keys=True))
     return
   if args.command == "train-specialist":
     if args.dataset_root is None or args.artifact is None:
