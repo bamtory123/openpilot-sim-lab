@@ -22,6 +22,8 @@ The same fixed 1,200-frame specialist contract then completed twice through the 
 
 On 2026-09-02 KST, a separately retained 200-frame host-confirmation probe completed in 44 seconds with a 9.99-second measured interval, 1.0 telemetry/road-camera coverage, zero drop/departure/collision, runner exit code 0, and unchanged WSL boot ID. The bounded Windows collector recorded zero selected WSL/GPU System events after the probe start. This is a short host/engagement/transport confirmation only; it does not clear the long CUDA-backed bridge boundary or alter a driving qualification.
 
+The immediately following bounded host-stack check completed a 5-second CUDA soak, two offscreen renderer steps, and preflight with that same boot ID. It confirms only the short CUDA/renderer/configuration path; the long CUDA-backed bridge boundary remains open.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
