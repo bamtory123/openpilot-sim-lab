@@ -36,7 +36,7 @@ The governing baseline, regression, and qualification choices are retained in th
 | M4 requirements/test traceability | 구현됨 | CI traceability checks, 이 문서 세트 |
 | M5 baseline/regression gate | 구현됨 | baseline audit, regression-review hard/provenance gates |
 | M6 formal v0.1 experiment | 완료 | v0.1 formal matrix artifact |
-| M7 qualification release package | 보류 | package complete; candidate Phase 1 hard-gate fail |
+| M7 qualification release package | closed: not qualified | package complete; candidate Phase 1 hard-gate fail |
 
 ## Definition of Done와 roadmap
 

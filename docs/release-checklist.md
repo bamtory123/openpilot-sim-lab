@@ -13,7 +13,7 @@ This checklist controls framework qualification only. It does not convert the pr
 | Qualification report and limitations | complete | CI-checked `docs/qualification-report.md`, `docs/limitations.md` |
 | GitHub release tag and selected sample attachment | pending | do not create while qualification is `not_qualified_yet` |
 
-The current release state is `not_qualified_yet`. The completed candidate comparison is a Phase 1 hard-gate failure, so it cannot advance qualification. A release may be considered only after every pending item is resolved and the qualification report explicitly records `pass_with_limitations` for the framework, while retaining the SUT outcome separately.
+The current release state is `not_qualified_yet`. The completed candidate comparison is a Phase 1 hard-gate failure, so it cannot advance qualification. This is the final v0.1 pretrained-driving disposition; no new release or tag is created from it. A future version may be considered only with a separately approved baseline/candidate policy.
 
 ## Historical tag archive
 

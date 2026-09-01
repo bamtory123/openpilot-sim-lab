@@ -4,6 +4,8 @@
 
 `not_qualified_yet`
 
+This is the final v0.1 pretrained-driving disposition. The completed SIL framework evidence remains usable and documented, but no v0.1 driving-regression qualification or release-pass claim is made.
+
 The historical baseline and the required current-host compatibility confirmation are approved. The release remains unqualified because the independent candidate comparison is a Phase 1 hard-gate failure. This is a framework-release status, separate from the SUT driving outcome.
 
 ## Historical baseline

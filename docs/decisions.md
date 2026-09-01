@@ -19,3 +19,7 @@ Current-host compatibility is a separately versioned nominal-10-second/200-frame
 ## D-005: current qualification disposition
 
 The current same-provenance candidate set is a Phase 1 hard-gate failure because every run becomes invalid after the known early departure prevents formal coverage. The v0.1 release remains `not_qualified_yet`. Future work must not weaken or relabel this evidence without an explicit policy decision.
+
+## D-006: v0.1 closeout policy
+
+The v0.1 pretrained OpenPilot driving qualification is closed as `not_qualified_yet`. The project retains its completed SIL framework evidence—instrumentation, non-blocking fault path, provenance, validity/outcome separation, baseline audit, regression gate, and scoped host confirmation—but makes no pretrained driving-regression or release-pass claim. Any driving baseline change is a separately approved future version.
