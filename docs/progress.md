@@ -2,6 +2,7 @@
 
 ## Completed
 
+- On the new boot session, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without another boot-ID change. This excludes neither the combined bridge workload nor a delayed host cause; it is only a short post-restart component check.
 - A later WSL boot boundary was observed at 2026-09-02 07:41 KST: the boot ID changed and the new journal reported an unclean prior shutdown. The selected Windows WSL/GPU collector window (07:40–07:41:27 KST) contained zero events. No probe was active in the recorded window, so this remains an un-attributed host interruption observation and does not reclassify completed results.
 - Reports now surface an unrecovered host `attempt.json` as an evidence-gap warning instead of silently omitting it. The warning is intentionally outside the result table until recovery writes an explicit invalid summary.
 - Host-probe recovery now covers the pre-manifest interruption case: a durable `attempt.json` without a nested run result can be recovered as `invalid/not_evaluated: host_interrupted`. Completed probe attempts are skipped, so recovery cannot add a false invalid result beside an existing nested summary.
