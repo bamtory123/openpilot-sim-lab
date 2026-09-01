@@ -2,6 +2,7 @@
 
 ## Completed
 
+- A 30-point host-reliability batch added frozen-snapshot hash verification to pre-manifest recovery, then rechecked preflight, CUDA arithmetic, offscreen rendering, recovery no-op, and report generation. All completed on the current boot. The bounded Windows collector returned only Hyper-V VmSwitch Information/Verbose lifecycle records, with no selected display/TDR/NVIDIA error; this is not treated as causal evidence.
 - The frozen-scenario host-probe wrapper was exercised end to end: its attempt retained the immutable scenario snapshot and hash, then completed with exit 0 and unchanged boot ID. This validates provenance preservation for both normal completion and future pre-manifest recovery.
 - With the expanded collector, a new 200-frame host probe completed `valid/pass` after the restart: 9.94 s active time, 0.995 telemetry coverage, 1.0 road-camera coverage, zero drop/departure/collision, zero exit, and unchanged boot ID. The exact post-start System/VmSwitch collection window had zero selected events. This is bounded host-path evidence only.
 - On the new boot session, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without another boot-ID change. This excludes neither the combined bridge workload nor a delayed host cause; it is only a short post-restart component check.
