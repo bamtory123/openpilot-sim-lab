@@ -1,5 +1,7 @@
 import json
+from pathlib import Path
 
+import yaml
 from simlab.baseline import audit_historical_baseline
 
 
@@ -41,3 +43,12 @@ def test_historical_baseline_audit_reports_an_evidence_gap(tmp_path):
   assert result["status"] == "evidence_gap"
   assert "one:missing_or_empty:events.jsonl" in result["findings"]
   assert "two:check_failed:target_delay_ms" in result["findings"]
+
+
+def test_selected_baseline_contract_is_approved_and_has_an_audit_artifact():
+  root = Path(__file__).resolve().parents[1]
+  contract = yaml.safe_load((root / "baselines/md_default_loop_lane0_v1/acceptance.yaml").read_text())
+
+  assert contract["status"] == "approved"
+  assert contract["baseline_evidence"]["integrity_audit"] == "approved"
+  assert (root / contract["baseline_evidence"]["audit_artifact"]).is_file()
