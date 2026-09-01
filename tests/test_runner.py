@@ -104,6 +104,23 @@ def test_host_interrupted_run_is_recovered_without_overwriting_results(monkeypat
     recover_incomplete_run(tmp_path)
 
 
+def test_host_probe_attempt_is_recovered_when_no_run_manifest_exists(monkeypatch, tmp_path):
+  from simlab.runner import recover_incomplete_attempt
+
+  scenario = tmp_path / "scenario.yaml"
+  scenario.write_text("scenario_id: attempt\nfault:\n  target_delay_ms: 0\n")
+  (tmp_path / "attempt.json").write_text(__import__("json").dumps({"created_at_utc": "2026-09-01T00:00:00+00:00",
+    "recorded_wsl_boot_id": "before", "scenario_path": str(scenario)}))
+  monkeypatch.setattr("simlab.runner.wsl_boot_id", lambda: "after")
+
+  summary = recover_incomplete_attempt(tmp_path)
+
+  recovered = __import__("json").loads(summary.read_text())
+  assert recovered["run_id"] == tmp_path.name
+  assert recovered["reasons"] == ["host_interrupted"]
+  assert recovered["host_recovery"]["wsl_boot_changed"] is True
+
+
 def test_timestamp_error_is_invalid_without_a_measured_failure():
   scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
   data = RunData(measured=True, camera=[{"camera": "road", "source_frame_id": 0, "capture_mono_ns": 2,

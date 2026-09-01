@@ -367,6 +367,27 @@ def recover_incomplete_run(run_dir: Path) -> Path:
   return summary
 
 
+def recover_incomplete_attempt(attempt_dir: Path) -> Path:
+  """Write an invalid result when a host probe stopped before a run manifest existed."""
+  summary = attempt_dir / "summary.json"
+  if summary.exists():
+    raise RuntimeError("refusing to overwrite an existing summary")
+  attempt = json.loads((attempt_dir / "attempt.json").read_text(encoding="utf-8"))
+  scenario_path = Path(attempt["scenario_path"])
+  if not scenario_path.is_absolute():
+    scenario_path = ROOT / scenario_path
+  scenario = yaml.safe_load(scenario_path.read_text(encoding="utf-8"))
+  recorded_boot_id, observed_boot_id = attempt.get("recorded_wsl_boot_id"), wsl_boot_id()
+  write_json(summary, {"schema_version": 1, "run_id": attempt_dir.name, "scenario_id": scenario["scenario_id"],
+                       "target_delay_ms": scenario["fault"]["target_delay_ms"], "validity": "invalid",
+                       "outcome": "not_evaluated", "reasons": ["host_interrupted"],
+                       "termination_reason": "host_interrupted", "metrics": {}, "host_recovery": {
+                         "recorded_created_at_utc": attempt.get("created_at_utc"),
+                         "recorded_wsl_boot_id": recorded_boot_id, "observed_wsl_boot_id": observed_boot_id,
+                         "wsl_boot_changed": bool(recorded_boot_id and observed_boot_id and recorded_boot_id != observed_boot_id)}})
+  return summary
+
+
 def run_batch(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> list[Path]:
   blocks = ((0, 100, 50, 150), (150, 50, 100, 0), (50, 0, 150, 100))
   run_once(scenario_with_delay(scenario, 0), output_root=output_root / "warmup", allow_dirty=allow_dirty)
@@ -384,13 +405,14 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "audit", "baseline-audit", "regression-review", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "recover-attempt", "audit", "baseline-audit", "regression-review", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
   parser.add_argument("--dataset-root", type=Path)
   parser.add_argument("--artifact", type=Path)
   parser.add_argument("--run-dir", type=Path)
+  parser.add_argument("--attempt-dir", type=Path)
   parser.add_argument("--baseline-contract", type=Path, default=ROOT / "baselines/md_default_loop_lane0_v1/acceptance.yaml")
   parser.add_argument("--audit-output", type=Path)
   parser.add_argument("--baseline-root", type=Path)
@@ -421,6 +443,11 @@ def main() -> None:
     if args.review_output is not None:
       args.review_output.write_text(rendered + "\n", encoding="utf-8")
     print(rendered)
+    return
+  if args.command == "recover-attempt":
+    if args.attempt_dir is None:
+      parser.error("recover-attempt requires --attempt-dir")
+    print(recover_incomplete_attempt(args.attempt_dir))
     return
   if args.command == "train-specialist":
     if args.dataset_root is None or args.artifact is None:

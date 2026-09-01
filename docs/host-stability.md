@@ -28,7 +28,7 @@ The immediately following bounded host-stack check completed a 5-second CUDA soa
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
 - A watchdog, unexpected bridge exit, or Python-level runner exception is recorded as `invalid/not_evaluated`.
-- Every manifest records its UTC creation time and the WSL boot ID. Use `created_at_utc` to choose the Windows event-collector time window. If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. It writes an explicit `invalid/not_evaluated: host_interrupted` summary, carries that recorded creation time forward with the pre-run and recovery boot IDs, and refuses to overwrite an existing result.
+- Every manifest records its UTC creation time and the WSL boot ID. Use `created_at_utc` to choose the Windows event-collector time window. If a host restart prevents the runner from writing `summary.json`, run `simlab.runner recover --run-dir <run-dir>` after WSL recovers. If the restart occurred before the runner wrote a manifest, recover the probe's durable `attempt.json` with `simlab.runner recover-attempt --attempt-dir <attempt-dir>`. Both write an explicit `invalid/not_evaluated: host_interrupted` summary, preserve the recorded UTC/boot ID, and refuse to overwrite an existing result.
 - Do not treat a missing summary as a failed driving result or silently omit it from a report.
 - Generated reports list valid-failure reasons and invalid-infrastructure reasons in separate columns, so `host_interrupted` cannot be mistaken for a collision or lane-control outcome.
 - New reports also summarize available manifest host provenance (GPU, driver, distinct WSL boot count, and GPU start-temperature range). Older artifacts without these fields remain readable and are shown as not recorded.
@@ -44,6 +44,8 @@ For an offscreen MetaDrive renderer-only check, run `PYTHONPATH="$OPENPILOT_ROOT
 For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check. It compares WSL boot IDs before and after a normally completed sequence.
 
 For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It writes `attempt.json` before launching the runner, so a WSL restart before the runner creates its own manifest still leaves a UTC timestamp, scenario path, and pre-run boot ID. On normal return it also records exit code, completion time, and the post-run boot-ID comparison. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
+
+`scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
 
 `simlab.runner report --outputs <output-root>` recursively finds run summaries below a host-probe output root, so the same report includes successful probe results and any recovered nested run artifact. The outer `attempt.json` is infrastructure provenance, not a driving result, and is not counted as a run.
 
