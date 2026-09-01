@@ -26,6 +26,8 @@ The immediately following bounded host-stack check completed a 5-second CUDA soa
 
 Later on 2026-09-02 KST, a new boot ID and an unclean prior journal were observed at 07:41. The initial System-log-only collector window from 07:40 through 07:41:27 KST contained zero events, but the Hyper-V VmSwitch Operational log had a 07:40:15 WSL firewall VNIC warning. The collector now includes that Operational log. No probe attempt was active in the recorded window, so this remains an un-attributed host interruption observation; it neither identifies a CUDA/driver cause nor reclassifies the completed bounded results.
 
+The same VmSwitch warning occurred 257 times in the preceding 24 hours, including normal periods. Treat it as background diagnostic noise rather than restart-causal evidence unless a future investigation finds a stronger event sequence.
+
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.
 
 A post-restart configuration snapshot found no user `.wslconfig`, about 14 GiB WSL memory available, an unused 4 GiB swap, RTX 4080 driver 616.56, and 812 MiB GPU memory in use at inspection. This makes a fixed user memory cap unlikely, but does not rule out transient resource pressure or identify the restart cause.
