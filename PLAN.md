@@ -21,6 +21,8 @@ OpenPilot을 System Under Test(SUT)로, MetaDrive를 Software-in-the-Loop(SIL) �
 
 요구사항은 ENV/DATA/TIM/FUNC/REG/REL로 분류한다. Test Case와 artifact 관계는 [requirements](docs/requirements.md), [test plan](docs/test-plan.md), [traceability](docs/traceability.md)에 정의한다.
 
+The governing baseline, regression, and qualification choices are retained in the [decision log](docs/decisions.md).
+
 개별 run은 `valid/pass`, `valid/fail`, `invalid/not_evaluated`로 판정한다. infrastructure/data 오류는 invalid이며, SUT lane departure는 coverage가 충족될 때만 valid fail이다. 프레임워크 release qualification은 SUT outcome과 별도다.
 
 ## v0.1 milestones
