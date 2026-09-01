@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The frozen-scenario host-probe wrapper was exercised end to end: its attempt retained the immutable scenario snapshot and hash, then completed with exit 0 and unchanged boot ID. This validates provenance preservation for both normal completion and future pre-manifest recovery.
 - With the expanded collector, a new 200-frame host probe completed `valid/pass` after the restart: 9.94 s active time, 0.995 telemetry coverage, 1.0 road-camera coverage, zero drop/departure/collision, zero exit, and unchanged boot ID. The exact post-start System/VmSwitch collection window had zero selected events. This is bounded host-path evidence only.
 - On the new boot session, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without another boot-ID change. This excludes neither the combined bridge workload nor a delayed host cause; it is only a short post-restart component check.
 - The post-restart host snapshot found no user `.wslconfig`, about 14 GiB WSL memory available, unused 4 GiB swap, and RTX 4080 driver 616.56 with 812 MiB GPU memory in use. A fixed user memory cap is therefore unlikely, but the restart cause remains unassigned.
