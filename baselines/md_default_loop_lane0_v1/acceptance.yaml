@@ -5,7 +5,18 @@ status: selected_pending_provenance
 baseline_definition: pretrained_openpilot_0ms_formal_three_runs
 baseline_evidence:
   source: frozen_historical_formal_artifact
-  integrity_audit: pending
+  integrity_audit: approved
+  audit_artifact: baselines/md_default_loop_lane0_v1/historical-audit.json
+  historical_artifact_root: outputs/v0.2-formal-delay-matrix-20260828
+  formal_run_ids:
+    - md_default_loop_lane0_v1-20260828T101438Z-4dd55448
+    - md_default_loop_lane0_v1-20260828T102453Z-400e4258
+    - md_default_loop_lane0_v1-20260828T102749Z-47bc6492
+  expected:
+    scenario_id: md_default_loop_lane0_v1
+    target_delay_ms: 0
+    validity: valid
+    outcome: fail
   required_artifacts: [manifest.json, scenario.yaml, camera.csv, telemetry.csv, events.jsonl, summary.json]
   missing_required_artifact_verdict: evidence_gap
   replacement_policy: explicit_new_baseline_approval_required

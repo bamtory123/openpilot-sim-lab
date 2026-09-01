@@ -1,0 +1,137 @@
+{
+  "artifact_root": "/home/hyunsung/src/openpilot-sim-lab/outputs/v0.2-formal-delay-matrix-20260828",
+  "baseline_id": "md-default-loop-v1-approved",
+  "contract": "/home/hyunsung/src/openpilot-sim-lab/baselines/md_default_loop_lane0_v1/acceptance.yaml",
+  "findings": [],
+  "provenance": {
+    "driver": "610.47",
+    "gpu": "NVIDIA GeForce RTX 4080",
+    "metadrive_version": "0.4.2.3",
+    "openpilot_commit": "a93db218600e9055ad1dd6cb79f04f50bc683979",
+    "python_version": "3.12.13 (main, Aug  7 2026, 02:25:39) [Clang 22.1.3 ]",
+    "scenario_hash": "7475a86c9af8e8b14a4bbc43ab3957e410f4087fa27e8ebd3cf6afb0879b1670",
+    "sim_lab_commit": "e07b9c754cc9d025dc4685119dbeae761fa21aef",
+    "wsl_kernel": "6.18.33.2-microsoft-standard-WSL2"
+  },
+  "runs": [
+    {
+      "artifacts": {
+        "camera.csv": {
+          "bytes": 57535,
+          "sha256": "e06eabeb11488cb9f90d7002f9d0fccbc715c125d6d8dc03f49b758f5763d710"
+        },
+        "events.jsonl": {
+          "bytes": 131883,
+          "sha256": "833719f2872ab86e629145bc8699a89433106f0fe1ad5d36fd64d0918bbd855a"
+        },
+        "manifest.json": {
+          "bytes": 1294,
+          "sha256": "fb5b1a1de5e0039b9f96502152836418a7b46ad5d065e531d6239c9cf194271a"
+        },
+        "scenario.yaml": {
+          "bytes": 552,
+          "sha256": "ea19627b555c0ce07e297beabb138d8bc1eebd35d48975cd25cbab2de5cee236"
+        },
+        "summary.json": {
+          "bytes": 921,
+          "sha256": "1f313f65f9b5ca4f8a5dad496056fe69b8494a3bd63415af348aa33c26f905e7"
+        },
+        "telemetry.csv": {
+          "bytes": 1678797,
+          "sha256": "33fa4eb56f233ff0ff8ed4fc8af5f25f9bb08322f377cb0c46490e78f27db289"
+        }
+      },
+      "checks": {
+        "clean_openpilot": true,
+        "clean_sim_lab": true,
+        "manifest_run_id": true,
+        "outcome": true,
+        "scenario_id": true,
+        "summary_run_id": true,
+        "target_delay_ms": true,
+        "validity": true
+      },
+      "run_id": "md_default_loop_lane0_v1-20260828T101438Z-4dd55448"
+    },
+    {
+      "artifacts": {
+        "camera.csv": {
+          "bytes": 59475,
+          "sha256": "4637ad62297408fbc1d32347df9618ee7927ad3853d8129b676a61c4de76ba78"
+        },
+        "events.jsonl": {
+          "bytes": 129307,
+          "sha256": "c7fed8e9ebee77acb46344a9d979e6aeb3d945bcb7e20cdce62c9c614a7ce8dc"
+        },
+        "manifest.json": {
+          "bytes": 1294,
+          "sha256": "09ee071e8c77456f1fd6205c5444da61f767628b0ae96b3e65ba5b45bf4d79f5"
+        },
+        "scenario.yaml": {
+          "bytes": 552,
+          "sha256": "ea19627b555c0ce07e297beabb138d8bc1eebd35d48975cd25cbab2de5cee236"
+        },
+        "summary.json": {
+          "bytes": 920,
+          "sha256": "b44b27f6f7178c18428e0cc49989c89bf73faef65ba5d0aece949944c1053e21"
+        },
+        "telemetry.csv": {
+          "bytes": 1678288,
+          "sha256": "c1d855319c6f06bd4599a2ee0776ff95415d96feb2bec512d9bba43f72f40038"
+        }
+      },
+      "checks": {
+        "clean_openpilot": true,
+        "clean_sim_lab": true,
+        "manifest_run_id": true,
+        "outcome": true,
+        "scenario_id": true,
+        "summary_run_id": true,
+        "target_delay_ms": true,
+        "validity": true
+      },
+      "run_id": "md_default_loop_lane0_v1-20260828T102453Z-400e4258"
+    },
+    {
+      "artifacts": {
+        "camera.csv": {
+          "bytes": 59294,
+          "sha256": "2ea416f03f831ef7e449bb22a7dfb204f796a29974445e034d70395ac2e07f7b"
+        },
+        "events.jsonl": {
+          "bytes": 130836,
+          "sha256": "17261984953f4cc99165068dcd1443e7f8ead96c5b14e4a238f36cb8340bca98"
+        },
+        "manifest.json": {
+          "bytes": 1294,
+          "sha256": "98677969ac9d4999dfa2fab3e5b9b0800516989fbede3e890fb1be63976cf877"
+        },
+        "scenario.yaml": {
+          "bytes": 552,
+          "sha256": "ea19627b555c0ce07e297beabb138d8bc1eebd35d48975cd25cbab2de5cee236"
+        },
+        "summary.json": {
+          "bytes": 921,
+          "sha256": "4e5037580e75d030b4a288348a220d1d8c85db9b1e160a95d0e75be930828540"
+        },
+        "telemetry.csv": {
+          "bytes": 1671621,
+          "sha256": "9f8271856d0f3a002b9c7d37cbc21a53ff2af88c2122344f576e5c91cf73a196"
+        }
+      },
+      "checks": {
+        "clean_openpilot": true,
+        "clean_sim_lab": true,
+        "manifest_run_id": true,
+        "outcome": true,
+        "scenario_id": true,
+        "summary_run_id": true,
+        "target_delay_ms": true,
+        "validity": true
+      },
+      "run_id": "md_default_loop_lane0_v1-20260828T102749Z-47bc6492"
+    }
+  ],
+  "schema_version": 1,
+  "status": "approved"
+}

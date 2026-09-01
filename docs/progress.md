@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Historical 0 ms baseline integrity audit: all three selected formal artifacts are complete, have matching provenance, and have SHA-256 digests recorded in `baselines/md_default_loop_lane0_v1/historical-audit.json`.
 - MetaDrive reference-lane ground truth, scenario manifest, lifecycle events, and non-blocking camera-delay telemetry.
 - Formal `md_default_loop_lane0_v1` delay matrix: warm-up excluded, then 0/50/100/150 ms in three interleaved repetitions each.
 - World-frame geometry diagnostics and simulator-only controller experiments, kept separate from the formal model-driven result.

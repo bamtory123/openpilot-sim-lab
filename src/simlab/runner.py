@@ -16,6 +16,7 @@ from multiprocessing import Queue
 import yaml
 
 from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed, scenario_with_map_curve_direction
+from .baseline import audit_historical_baseline
 from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json, wsl_boot_id
 from .metrics import calculate_metrics, camera_timestamps_valid
@@ -368,13 +369,15 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
 
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "audit", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "audit", "baseline-audit", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
   parser.add_argument("--dataset-root", type=Path)
   parser.add_argument("--artifact", type=Path)
   parser.add_argument("--run-dir", type=Path)
+  parser.add_argument("--baseline-contract", type=Path, default=ROOT / "baselines/md_default_loop_lane0_v1/acceptance.yaml")
+  parser.add_argument("--audit-output", type=Path)
   parser.add_argument("--gamma-augment", action="store_true")
   args = parser.parse_args()
   if args.command == "report":
@@ -382,6 +385,13 @@ def main() -> None:
     return
   if args.command == "audit":
     print(json.dumps(audit_dataset(args.outputs), indent=2, sort_keys=True))
+    return
+  if args.command == "baseline-audit":
+    result = audit_historical_baseline(args.baseline_contract, ROOT)
+    rendered = json.dumps(result, indent=2, sort_keys=True)
+    if args.audit_output is not None:
+      args.audit_output.write_text(rendered + "\n", encoding="utf-8")
+    print(rendered)
     return
   if args.command == "train-specialist":
     if args.dataset_root is None or args.artifact is None:
