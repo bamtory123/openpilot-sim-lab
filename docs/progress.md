@@ -11,6 +11,7 @@
 - Two further foreground 1,200-frame specialist host probes completed with 59.99 s active time, 1.0 telemetry/camera coverage, zero drop, valid timestamps, no departure/collision, zero wrapper exit, and unchanged WSL boot IDs. They are host-stability evidence for their fixed specialist contract only; they do not modify the pretrained v0.1 baseline or its qualification hard-gate.
 - The Windows collector recorded zero selected WSL/GPU System events in the exact UTC window covering those two probes. This is bounded-window correlation evidence only, not proof that no host or driver cause exists outside the collector's provider/message filter.
 - An immediate post-probe bounded check also completed its CUDA soak, offscreen renderer steps, and preflight without a boot-ID change.
+- A later WSL boot-ID change was observed between separate post-probe actions, without a bounded attempt window or correlated Windows collector output. It is retained as an un-attributed host interruption observation and does not invalidate the completed probes.
 - MetaDrive reference-lane ground truth, scenario manifest, lifecycle events, and non-blocking camera-delay telemetry.
 - Formal `md_default_loop_lane0_v1` delay matrix: warm-up excluded, then 0/50/100/150 ms in three interleaved repetitions each.
 - World-frame geometry diagnostics and simulator-only controller experiments, kept separate from the formal model-driven result.
