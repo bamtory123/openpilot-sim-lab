@@ -12,6 +12,7 @@
 - The Windows collector recorded zero selected WSL/GPU System events in the exact UTC window covering those two probes. This is bounded-window correlation evidence only, not proof that no host or driver cause exists outside the collector's provider/message filter.
 - An immediate post-probe bounded check also completed its CUDA soak, offscreen renderer steps, and preflight without a boot-ID change.
 - A later WSL boot-ID change was observed between separate post-probe actions, without a bounded attempt window or correlated Windows collector output. It is retained as an un-attributed host interruption observation and does not invalidate the completed probes.
+- The new boot session subsequently passed the bounded CUDA, renderer, and preflight check with its boot ID unchanged during the check.
 - MetaDrive reference-lane ground truth, scenario manifest, lifecycle events, and non-blocking camera-delay telemetry.
 - Formal `md_default_loop_lane0_v1` delay matrix: warm-up excluded, then 0/50/100/150 ms in three interleaved repetitions each.
 - World-frame geometry diagnostics and simulator-only controller experiments, kept separate from the formal model-driven result.
