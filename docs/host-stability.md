@@ -28,6 +28,8 @@ Later on 2026-09-02 KST, a new boot ID and an unclean prior journal were observe
 
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.
 
+With the expanded collector in place, a later 200-frame host probe completed `valid/pass` in 43.9 seconds: 9.94 seconds active, 0.995 telemetry coverage, 1.0 road-camera coverage, zero drop/departure/collision, exit code 0, and unchanged boot ID. Its exact post-start System/VmSwitch collection window contained zero selected events. This is bounded host-path evidence only, not long-duration stability clearance.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.

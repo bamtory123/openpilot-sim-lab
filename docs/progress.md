@@ -2,6 +2,7 @@
 
 ## Completed
 
+- With the expanded collector, a new 200-frame host probe completed `valid/pass` after the restart: 9.94 s active time, 0.995 telemetry coverage, 1.0 road-camera coverage, zero drop/departure/collision, zero exit, and unchanged boot ID. The exact post-start System/VmSwitch collection window had zero selected events. This is bounded host-path evidence only.
 - On the new boot session, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without another boot-ID change. This excludes neither the combined bridge workload nor a delayed host cause; it is only a short post-restart component check.
 - A later WSL boot boundary was observed at 2026-09-02 07:41 KST: the boot ID changed and the new journal reported an unclean prior shutdown. The initial System-log-only collector was empty, while an expanded Hyper-V VmSwitch Operational collection found one 07:40:15 WSL firewall VNIC statistics warning. It is time-correlated but not causal evidence. No probe was active in the recorded window, so this remains an un-attributed host interruption observation and does not reclassify completed results.
 - Reports now surface an unrecovered host `attempt.json` as an evidence-gap warning instead of silently omitting it. The warning is intentionally outside the result table until recovery writes an explicit invalid summary.
