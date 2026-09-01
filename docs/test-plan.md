@@ -3,7 +3,7 @@
 | Test Case | Purpose | Requirements | Current evidence |
 |---|---|---|---|
 | TC-PREFLIGHT-001 | Check provenance, dirty policy and runtime availability. | ENV-001 | `simlab.runner preflight` |
-| TC-COMP-001 | Audit frozen baseline completeness, then run two consecutive current-host confirmations without changing the baseline. | ENV-002 | planned |
+| TC-COMP-001 | Audit frozen baseline completeness, then run two consecutive current-host confirmation probes without changing the baseline. | ENV-002 | 2026-09-01: 2 × `valid/pass`; local artifact root recorded in baseline contract |
 | TC-DATA-001 | Check coverage, timestamp and frame integrity. | DATA-001, DATA-002 | unit tests and run summaries |
 | TC-DELAY-000/050/100/150 | Measure target and actual delay per formal condition. | TIM-001 | formal matrix camera artifacts |
 | TC-QUEUE-OVERFLOW-001 | Classify queue/drop failure as invalid. | TIM-002 | delay queue tests |

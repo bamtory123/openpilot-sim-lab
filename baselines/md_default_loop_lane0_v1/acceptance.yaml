@@ -30,9 +30,12 @@ current_environment_confirmation:
   infrastructure_invalid_verdict: compatibility_not_confirmed
   known_sut_lane_departure_blocks_confirmation: false
   replaces_historical_baseline: false
-  status: not_confirmed
-  latest_evidence_root: outputs/v0.1-current-host-confirmation-20260901
-  latest_observation: known_sut_lane_departure_caused_formal_coverage_invalid
+  status: confirmed
+  evidence_root: outputs/v0.1-host-confirmation-probe-20260901
+  confirmed_run_ids:
+    - md_default_loop_lane0_host_confirmation_v1-20260901T142447Z-257091f7
+    - md_default_loop_lane0_host_confirmation_v1-20260901T142600Z-e5d6bd08
+  preserved_invalid_attempt: md_default_loop_lane0_host_confirmation_v1-20260901T142301Z-8f15aea9
 gates:
   telemetry_coverage_min: 0.99
   unexpected_frame_drop_max: 0

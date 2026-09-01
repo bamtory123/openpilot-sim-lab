@@ -3,7 +3,7 @@
 ## Completed
 
 - Historical 0 ms baseline integrity audit: all three selected formal artifacts are complete, have matching provenance, and have SHA-256 digests recorded in `baselines/md_default_loop_lane0_v1/historical-audit.json`.
-- Current-host confirmation attempted twice on 2026-09-01: both wrappers completed without a WSL boot-ID change, valid camera timestamps, or dropped frames, but the known pretrained-SUT departure at 24.44 s made the formal coverage verdict `invalid/not_evaluated`. Compatibility remains `not_confirmed`; this is a contract-scope issue, not a host-crash finding.
+- Current-host confirmation completed on 2026-09-01: after preserving two formal-scenario invalids caused by known early SUT departure, the separately versioned nominal-10-second/200-frame host probe completed two consecutive `valid/pass` runs. Both had 1.0 coverage, 200 published frames, zero drops, valid timestamps, zero wrapper exit, and unchanged WSL boot IDs. This confirms only the scoped host/engagement/transport/artifact path, not driving performance.
 - MetaDrive reference-lane ground truth, scenario manifest, lifecycle events, and non-blocking camera-delay telemetry.
 - Formal `md_default_loop_lane0_v1` delay matrix: warm-up excluded, then 0/50/100/150 ms in three interleaved repetitions each.
 - World-frame geometry diagnostics and simulator-only controller experiments, kept separate from the formal model-driven result.
