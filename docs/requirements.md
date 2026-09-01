@@ -3,7 +3,7 @@
 | ID | Requirement | Status |
 |---|---|---|
 | REQ-ENV-001 | Formal run records full SUT/sim-lab commit, dirty state, runtime and command. | implemented |
-| REQ-ENV-002 | A frozen historical baseline is integrity-audited separately from a current-host compatibility check; any required-artifact gap remains an evidence gap and the latter cannot replace the former. | planned |
+| REQ-ENV-002 | A frozen historical baseline is integrity-audited separately from two consecutive current-host confirmation runs; any required-artifact gap remains an evidence gap and confirmation cannot replace the baseline. | planned |
 | REQ-DATA-001 | Measurement telemetry and road-camera coverage meet scenario minimum. | implemented |
 | REQ-DATA-002 | Timestamp regression, frame ordering and unexpected drops are detected. | implemented |
 | REQ-TIM-001 | Target and actual camera delay are recorded through one non-blocking queue path. | implemented |

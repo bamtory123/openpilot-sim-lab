@@ -11,7 +11,11 @@ baseline_evidence:
   replacement_policy: explicit_new_baseline_approval_required
 current_environment_confirmation:
   purpose: compatibility_check_only
-  minimum_formal_runs: 1
+  required_consecutive_runs: 2
+  required_result: non_invalid
+  required_observations: [engagement, camera_transport, required_artifact_bundle]
+  infrastructure_invalid_verdict: compatibility_not_confirmed
+  known_sut_lane_departure_blocks_confirmation: false
   replaces_historical_baseline: false
   status: planned
 gates:
