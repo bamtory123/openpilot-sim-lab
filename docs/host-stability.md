@@ -24,6 +24,8 @@ On 2026-09-02 KST, a separately retained 200-frame host-confirmation probe compl
 
 The immediately following bounded host-stack check completed a 5-second CUDA soak, two offscreen renderer steps, and preflight with that same boot ID. It confirms only the short CUDA/renderer/configuration path; the long CUDA-backed bridge boundary remains open.
 
+Later on 2026-09-02 KST, a new boot ID and an unclean prior journal were observed at 07:41. The selected Windows WSL/GPU collector window from 07:40 through 07:41:27 KST contained zero events. No probe attempt was active in that recorded window, so this is retained as an un-attributed host interruption observation; it neither identifies a CUDA/driver cause nor reclassifies the completed bounded results.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
