@@ -12,6 +12,6 @@
 | REQ-REG-001 | Approved baseline KPI deltas, new collision and new disengagement are evaluated independently of known baseline lane departure. | implemented |
 | REQ-REG-002 | Hard regression gates are automatic; baseline-relative performance changes are review-required until project-defined thresholds are approved. | implemented |
 | REQ-REL-001 | Requirement–test–scenario–artifact traceability is retained. | implemented |
-| REQ-REL-002 | Qualification report and limitations are packaged for release. | in progress |
+| REQ-REL-002 | Qualification report and limitations are packaged for release. | implemented |
 
 All numerical acceptance limits are project-defined only; no OEM or production-vehicle threshold is implied.

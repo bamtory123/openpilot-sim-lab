@@ -12,4 +12,4 @@
 | REQ-REG-001 | TC-REG-001 | same scenario/delay | regression-review JSON: KPI delta and new collision/disengagement | implemented |
 | REQ-REG-002 | TC-REG-001 | same scenario/delay | regression-review hard/provenance gate and review-required policy | implemented |
 | REQ-REL-001 | TC-RELEASE-001 | release candidate | CI requirement/test/traceability consistency check | implemented |
-| REQ-REL-002 | TC-RELEASE-001 | release candidate | `docs/qualification-report.md` draft | in progress |
+| REQ-REL-002 | TC-RELEASE-001 | release candidate | CI qualification-package boundary check | implemented |

@@ -10,7 +10,7 @@ This checklist controls framework qualification only. It does not convert the pr
 | Regression-review hard/provenance gates | complete | `simlab regression-review`, unit tests |
 | Independent same-provenance candidate comparison | complete: hard-gate fail | 3 × current 0 ms candidate runs, all invalid for coverage after known departure |
 | Requirements-to-artifact release trace | in progress | `docs/traceability.md` |
-| Qualification report and limitations | in progress | `docs/qualification-report.md`, `docs/limitations.md` |
+| Qualification report and limitations | complete | CI-checked `docs/qualification-report.md`, `docs/limitations.md` |
 | GitHub release tag and selected sample attachment | pending | do not create while qualification is `not_qualified_yet` |
 
 The current release state is `not_qualified_yet`. The completed candidate comparison is a Phase 1 hard-gate failure, so it cannot advance qualification. A release may be considered only after every pending item is resolved and the qualification report explicitly records `pass_with_limitations` for the framework, while retaining the SUT outcome separately.
