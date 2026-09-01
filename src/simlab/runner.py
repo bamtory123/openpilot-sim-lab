@@ -373,15 +373,15 @@ def recover_incomplete_attempt(attempt_dir: Path) -> Path:
   if summary.exists():
     raise RuntimeError("refusing to overwrite an existing summary")
   attempt = json.loads((attempt_dir / "attempt.json").read_text(encoding="utf-8"))
-  scenario_path = Path(attempt["scenario_path"])
-  if not scenario_path.is_absolute():
-    scenario_path = ROOT / scenario_path
+  scenario_path = Path(attempt.get("scenario_snapshot", attempt_dir / "scenario.yaml"))
+  if not scenario_path.is_file():
+    raise RuntimeError("attempt scenario snapshot is missing")
   scenario = yaml.safe_load(scenario_path.read_text(encoding="utf-8"))
   recorded_boot_id, observed_boot_id = attempt.get("recorded_wsl_boot_id"), wsl_boot_id()
   write_json(summary, {"schema_version": 1, "run_id": attempt_dir.name, "scenario_id": scenario["scenario_id"],
                        "target_delay_ms": scenario["fault"]["target_delay_ms"], "validity": "invalid",
                        "outcome": "not_evaluated", "reasons": ["host_interrupted"],
-                       "termination_reason": "host_interrupted", "metrics": {}, "host_recovery": {
+                       "termination_reason": "host_interrupted", "scenario_hash": attempt.get("scenario_hash"), "metrics": {}, "host_recovery": {
                          "recorded_created_at_utc": attempt.get("created_at_utc"),
                          "recorded_wsl_boot_id": recorded_boot_id, "observed_wsl_boot_id": observed_boot_id,
                          "wsl_boot_changed": bool(recorded_boot_id and observed_boot_id and recorded_boot_id != observed_boot_id)}})

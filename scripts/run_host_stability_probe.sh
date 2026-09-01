@@ -8,19 +8,23 @@ scenario="${1:?Pass a scenario path}"
 output_root="${2:?Pass an output root}"
 attempt_dir="$output_root/host-probe-$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$attempt_dir"
+cp "$scenario" "$attempt_dir/scenario.yaml"
 boot_before="$(cat /proc/sys/kernel/random/boot_id)"
 
-"$OPENPILOT_PYTHON" - "$attempt_dir/attempt.json" "$scenario" "$boot_before" <<'PY'
+PYTHONPATH=src "$OPENPILOT_PYTHON" - "$attempt_dir/attempt.json" "$scenario" "$attempt_dir/scenario.yaml" "$boot_before" <<'PY'
 from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
+from simlab.config import load_scenario
 
-path, scenario, boot_id = map(str, sys.argv[1:])
+path, scenario, snapshot, boot_id = map(str, sys.argv[1:])
 Path(path).write_text(json.dumps({
   "schema_version": 1,
   "created_at_utc": datetime.now(timezone.utc).isoformat(),
   "scenario_path": scenario,
+  "scenario_snapshot": snapshot,
+  "scenario_hash": load_scenario(Path(snapshot)).hash,
   "recorded_wsl_boot_id": boot_id,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

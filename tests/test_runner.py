@@ -110,7 +110,7 @@ def test_host_probe_attempt_is_recovered_when_no_run_manifest_exists(monkeypatch
   scenario = tmp_path / "scenario.yaml"
   scenario.write_text("scenario_id: attempt\nfault:\n  target_delay_ms: 0\n")
   (tmp_path / "attempt.json").write_text(__import__("json").dumps({"created_at_utc": "2026-09-01T00:00:00+00:00",
-    "recorded_wsl_boot_id": "before", "scenario_path": str(scenario)}))
+    "recorded_wsl_boot_id": "before", "scenario_path": "missing-after-restart.yaml", "scenario_hash": "frozen"}))
   monkeypatch.setattr("simlab.runner.wsl_boot_id", lambda: "after")
 
   summary = recover_incomplete_attempt(tmp_path)
@@ -118,6 +118,7 @@ def test_host_probe_attempt_is_recovered_when_no_run_manifest_exists(monkeypatch
   recovered = __import__("json").loads(summary.read_text())
   assert recovered["run_id"] == tmp_path.name
   assert recovered["reasons"] == ["host_interrupted"]
+  assert recovered["scenario_hash"] == "frozen"
   assert recovered["host_recovery"]["wsl_boot_changed"] is True
   with __import__("pytest").raises(RuntimeError, match="existing summary"):
     recover_incomplete_attempt(tmp_path)
