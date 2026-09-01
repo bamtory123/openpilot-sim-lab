@@ -1,12 +1,14 @@
 schema_version: 1
 baseline_id: md-default-loop-v1-approved
 threshold_source: project_defined
-status: provisional
+status: selected_pending_provenance
+baseline_definition: pretrained_openpilot_0ms_formal_three_runs
 gates:
   telemetry_coverage_min: 0.99
   unexpected_frame_drop_max: 0
   queue_overflow_max: 0
-  lane_departure_allowed_in_baseline: false
+  lane_departure_allowed_in_baseline: true
+  known_sut_functional_outcome: valid_fail_lane_departure
   lateral_rmse_increase_pct_max: null
   max_lateral_error_m_max: null
   steering_rate_rms_increase_pct_max: null
