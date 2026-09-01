@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Baseline audit now has an explicit mixed-provenance regression test. Regression reviews label KPI deltas from a Phase 1 hard-gate failure as `diagnostic_only`, preventing invalid candidate data from being read as a performance comparison. The completed requirements-to-artifact trace is consistently marked complete in the release package.
 - Historical 0 ms baseline integrity audit: all three selected formal artifacts are complete, have matching provenance, and have SHA-256 digests recorded in `baselines/md_default_loop_lane0_v1/historical-audit.json`.
 - Current-host confirmation completed on 2026-09-01: after preserving two formal-scenario invalids caused by known early SUT departure, the separately versioned nominal-10-second/200-frame host probe completed two consecutive `valid/pass` runs. Both had 1.0 coverage, 200 published frames, zero drops, valid timestamps, zero wrapper exit, and unchanged WSL boot IDs. This confirms only the scoped host/engagement/transport/artifact path, not driving performance.
 - Baseline-relative regression review now hard-gates invalid runs, new collision/disengagement, and scenario-provenance mismatch; it otherwise emits KPI deltas as review-required until an approved performance threshold exists. Its formal-matrix self-consistency smoke is zero-delta only, not an independent candidate comparison.
