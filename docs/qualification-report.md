@@ -22,7 +22,8 @@ The separate versioned nominal-10-second/200-frame `md_default_loop_lane0_host_c
 
 ## Remaining release evidence
 
-- Collect an independent, same-provenance candidate formal matrix and retain its regression-review JSON. The review tool is implemented and its historical self-consistency smoke reports zero deltas; it is not an independent candidate comparison.
+- The independent same-provenance 0 ms candidate comparison is complete but Phase 1 hard-gate failed: all three candidate runs were `invalid/not_evaluated` for coverage after known lane departure. Its scenario hash matches the frozen baseline; the local candidate root is `outputs/v0.1-current-host-confirmation-20260901`. This is an honest non-qualification result, not an infrastructure-crash conclusion.
+- Define and approve the next baseline/candidate policy only if a future release needs a driving-performance comparison under the current active-time contract. Do not relabel the three invalid candidates as a passing or review-only result.
 - Complete requirement-to-artifact traceability and the release package checklist.
 
 See [limitations](limitations.md) for the SIL, domain-gap, synthetic-CAN, and real-vehicle boundaries.
