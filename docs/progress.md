@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Reports now surface an unrecovered host `attempt.json` as an evidence-gap warning instead of silently omitting it. The warning is intentionally outside the result table until recovery writes an explicit invalid summary.
 - Host-probe recovery now covers the pre-manifest interruption case: a durable `attempt.json` without a nested run result can be recovered as `invalid/not_evaluated: host_interrupted`. Completed probe attempts are skipped, so recovery cannot add a false invalid result beside an existing nested summary.
 - A third, separately retained host-confirmation probe completed on 2026-09-02 KST (2026-09-01T22:27Z): 9.99 s/200 frames, 1.0 telemetry and road-camera coverage, zero drop/departure/collision, zero runner exit, and unchanged WSL boot ID. The Windows collector found zero selected WSL/GPU System events in its bounded window. This is host/engagement/transport evidence only, not a pretrained-driving result or a long-duration stability clearance.
 - The following bounded host-stack check completed a 5-second CUDA soak, two offscreen renderer steps, and preflight with the same WSL boot ID. It confirms that short CUDA, renderer, and configuration checks remain healthy; it does not clear the long CUDA-backed bridge stability boundary.

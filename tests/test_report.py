@@ -38,6 +38,16 @@ def test_report_discovers_nested_host_probe_runs(tmp_path):
   assert "| 0 | 1 | 0 | 0 | - | - | n/a | 0.12 |" in report.read_text()
 
 
+def test_report_surfaces_unrecovered_host_probe_attempts(tmp_path):
+  attempt = tmp_path / "host-probe"; attempt.mkdir()
+  (attempt / "attempt.json").write_text("{}")
+
+  report = generate_report(tmp_path, tmp_path / "report.md")
+
+  assert "## Incomplete host probe attempts" in report.read_text()
+  assert "`host-probe` has no runner summary" in report.read_text()
+
+
 def test_report_excludes_warmup_results(tmp_path):
   warmup = tmp_path / "warmup" / "run"; warmup.mkdir(parents=True)
   (warmup / "summary.json").write_text(json.dumps({"target_delay_ms": 0, "validity": "valid", "outcome": "pass",

@@ -49,6 +49,8 @@ For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stab
 
 `simlab.runner report --outputs <output-root>` recursively finds run summaries below a host-probe output root, so the same report includes successful probe results and any recovered nested run artifact. The outer `attempt.json` is infrastructure provenance, not a driving result, and is not counted as a run.
 
+If an `attempt.json` has neither its own recovered summary nor a nested runner summary, the report lists it under **Incomplete host probe attempts**. This is an evidence-gap warning, not a driving verdict; recover it before using the result root.
+
 For a long-run investigation, collect Windows-side evidence immediately after the run (or after WSL recovers) and retain it beside the run artifact:
 
 ```powershell

@@ -18,6 +18,11 @@ def _svg(points: list[tuple[int, float]], title: str, unit: str) -> str:
 def generate_report(results_root: Path, output: Path) -> Path:
   summaries = []
   manifests = []
+  incomplete_attempts = []
+  for path in sorted(results_root.rglob("attempt.json")):
+    attempt_dir = path.parent
+    if not (attempt_dir / "summary.json").is_file() and not any((attempt_dir / "runs").rglob("summary.json")):
+      incomplete_attempts.append(attempt_dir.relative_to(results_root))
   for path in sorted(results_root.rglob("summary.json")):
     if "warmup" in path.relative_to(results_root).parts:
       continue
@@ -29,6 +34,9 @@ def generate_report(results_root: Path, output: Path) -> Path:
   for summary in summaries:
     grouped[summary["target_delay_ms"]].append(summary)
   lines = ["# MetaDrive Repeatability Study", "", "This report compares deterministic camera transport-delay conditions on one fixed two-lane loop map. It is not a statistical validation or real-vehicle result.", "", "| Delay (ms) | Valid runs | Valid failures | Invalid runs | Valid-failure reasons | Invalid reasons | Median active time (s) | Median lateral RMSE (m) |", "|---:|---:|---:|---:|---|---|---:|---:|"]
+  if incomplete_attempts:
+    lines.extend(["", "## Incomplete host probe attempts", ""])
+    lines.extend(f"- `{path}` has no runner summary; recover it before using this result root." for path in incomplete_attempts)
   graph_points = []
   for delay in sorted(grouped):
     runs = grouped[delay]
