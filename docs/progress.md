@@ -7,6 +7,7 @@
 - Baseline-relative regression review now hard-gates invalid runs, new collision/disengagement, and scenario-provenance mismatch; it otherwise emits KPI deltas as review-required until an approved performance threshold exists. Its formal-matrix self-consistency smoke is zero-delta only, not an independent candidate comparison.
 - A same-scenario-hash 0 ms current candidate set then completed three runs. All were `invalid/not_evaluated` because the known lane departure occurred at 24.44–24.64 s before the 55-second/1,200-frame formal coverage contract. Regression review correctly returned Phase 1 `hard_gate_fail`; it did not treat the candidate as a performance pass or a review-only delta.
 - A post-candidate bounded host recheck completed a 5-second CUDA soak, two offscreen renderer steps, and preflight with an unchanged WSL boot ID. A boot-ID change was observed between separate command windows but not within this bounded check, so it is retained as an un-attributed host observation rather than driver or simulator causality.
+- Preflight now verifies configured OpenPilot commit ancestry and Python major-version compatibility before launch. The current checkout passed this contract.
 - MetaDrive reference-lane ground truth, scenario manifest, lifecycle events, and non-blocking camera-delay telemetry.
 - Formal `md_default_loop_lane0_v1` delay matrix: warm-up excluded, then 0/50/100/150 ms in three interleaved repetitions each.
 - World-frame geometry diagnostics and simulator-only controller experiments, kept separate from the formal model-driven result.
