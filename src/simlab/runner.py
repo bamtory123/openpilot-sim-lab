@@ -376,9 +376,12 @@ def recover_incomplete_attempt(attempt_dir: Path) -> Path:
   scenario_path = Path(attempt.get("scenario_snapshot", attempt_dir / "scenario.yaml"))
   if not scenario_path.is_file():
     raise RuntimeError("attempt scenario snapshot is missing")
-  scenario = yaml.safe_load(scenario_path.read_text(encoding="utf-8"))
+  frozen_scenario = load_scenario(scenario_path)
+  if attempt.get("scenario_hash") != frozen_scenario.hash:
+    raise RuntimeError("attempt scenario hash does not match snapshot")
+  scenario = frozen_scenario.data
   recorded_boot_id, observed_boot_id = attempt.get("recorded_wsl_boot_id"), wsl_boot_id()
-  write_json(summary, {"schema_version": 1, "run_id": attempt_dir.name, "scenario_id": scenario["scenario_id"],
+  write_json(summary, {"schema_version": 1, "run_id": attempt_dir.name, "scenario_id": frozen_scenario.scenario_id,
                        "target_delay_ms": scenario["fault"]["target_delay_ms"], "validity": "invalid",
                        "outcome": "not_evaluated", "reasons": ["host_interrupted"],
                        "termination_reason": "host_interrupted", "scenario_hash": attempt.get("scenario_hash"), "metrics": {}, "host_recovery": {

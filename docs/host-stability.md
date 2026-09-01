@@ -55,7 +55,7 @@ For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/
 
 For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It copies the resolved scenario, records its hash and writes `attempt.json` before launching the runner, so a WSL restart before the runner creates its own manifest still leaves immutable scenario/provenance evidence. On normal return it also records exit code, completion time, and the post-run boot-ID comparison. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
 
-`scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
+`scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It verifies the attempt's recorded scenario hash against the frozen snapshot, and skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
 
 `simlab.runner report --outputs <output-root>` recursively finds run summaries below a host-probe output root, so the same report includes successful probe results and any recovered nested run artifact. The outer `attempt.json` is infrastructure provenance, not a driving result, and is not counted as a run.
 

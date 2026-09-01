@@ -108,9 +108,10 @@ def test_host_probe_attempt_is_recovered_when_no_run_manifest_exists(monkeypatch
   from simlab.runner import recover_incomplete_attempt
 
   scenario = tmp_path / "scenario.yaml"
-  scenario.write_text("scenario_id: attempt\nfault:\n  target_delay_ms: 0\n")
+  scenario.write_text(Path("configs/scenarios/md_default_loop_lane0_host_confirmation_v1.yaml").read_text())
+  scenario_hash = __import__("simlab.config", fromlist=["load_scenario"]).load_scenario(scenario).hash
   (tmp_path / "attempt.json").write_text(__import__("json").dumps({"created_at_utc": "2026-09-01T00:00:00+00:00",
-    "recorded_wsl_boot_id": "before", "scenario_path": "missing-after-restart.yaml", "scenario_hash": "frozen"}))
+    "recorded_wsl_boot_id": "before", "scenario_path": "missing-after-restart.yaml", "scenario_hash": scenario_hash}))
   monkeypatch.setattr("simlab.runner.wsl_boot_id", lambda: "after")
 
   summary = recover_incomplete_attempt(tmp_path)
@@ -118,9 +119,19 @@ def test_host_probe_attempt_is_recovered_when_no_run_manifest_exists(monkeypatch
   recovered = __import__("json").loads(summary.read_text())
   assert recovered["run_id"] == tmp_path.name
   assert recovered["reasons"] == ["host_interrupted"]
-  assert recovered["scenario_hash"] == "frozen"
+  assert recovered["scenario_hash"] == scenario_hash
   assert recovered["host_recovery"]["wsl_boot_changed"] is True
   with __import__("pytest").raises(RuntimeError, match="existing summary"):
+    recover_incomplete_attempt(tmp_path)
+
+
+def test_host_probe_recovery_rejects_a_tampered_snapshot(tmp_path):
+  from simlab.runner import recover_incomplete_attempt
+
+  (tmp_path / "scenario.yaml").write_text(Path("configs/scenarios/md_default_loop_lane0_host_confirmation_v1.yaml").read_text())
+  (tmp_path / "attempt.json").write_text('{"scenario_hash":"not-the-snapshot"}')
+
+  with __import__("pytest").raises(RuntimeError, match="hash does not match"):
     recover_incomplete_attempt(tmp_path)
 
 
