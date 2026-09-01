@@ -13,12 +13,17 @@ $providers = @(
   'LxssManager'
 )
 
-$events = @(Get-WinEvent -FilterHashtable @{ LogName = 'System'; StartTime = $Since; EndTime = $Until } -ErrorAction SilentlyContinue |
+$systemEvents = @(Get-WinEvent -FilterHashtable @{ LogName = 'System'; StartTime = $Since; EndTime = $Until } -ErrorAction SilentlyContinue |
   Where-Object {
     $providers -contains $_.ProviderName -or
     $_.Message -match 'WSL|NVIDIA|display driver|GPU'
-  } |
-  Select-Object TimeCreated, ProviderName, Id, LevelDisplayName, Message)
+  })
+
+$vmSwitchEvents = @(Get-WinEvent -FilterHashtable @{ LogName = 'Microsoft-Windows-Hyper-V-VmSwitch-Operational'; StartTime = $Since; EndTime = $Until } -ErrorAction SilentlyContinue |
+  Where-Object { $_.Message -match 'WSL|NVIDIA|display driver|GPU' })
+
+$events = @($systemEvents + $vmSwitchEvents | Sort-Object TimeCreated | Select-Object TimeCreated,
+  @{ Name = 'LogName'; Expression = { $_.LogName } }, ProviderName, Id, LevelDisplayName, Message)
 
 $payload = [ordered]@{
   schema_version = 1

@@ -24,7 +24,7 @@ On 2026-09-02 KST, a separately retained 200-frame host-confirmation probe compl
 
 The immediately following bounded host-stack check completed a 5-second CUDA soak, two offscreen renderer steps, and preflight with that same boot ID. It confirms only the short CUDA/renderer/configuration path; the long CUDA-backed bridge boundary remains open.
 
-Later on 2026-09-02 KST, a new boot ID and an unclean prior journal were observed at 07:41. The selected Windows WSL/GPU collector window from 07:40 through 07:41:27 KST contained zero events. No probe attempt was active in that recorded window, so this is retained as an un-attributed host interruption observation; it neither identifies a CUDA/driver cause nor reclassifies the completed bounded results.
+Later on 2026-09-02 KST, a new boot ID and an unclean prior journal were observed at 07:41. The initial System-log-only collector window from 07:40 through 07:41:27 KST contained zero events, but the Hyper-V VmSwitch Operational log had a 07:40:15 WSL firewall VNIC warning. The collector now includes that Operational log. No probe attempt was active in the recorded window, so this remains an un-attributed host interruption observation; it neither identifies a CUDA/driver cause nor reclassifies the completed bounded results.
 
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.
 

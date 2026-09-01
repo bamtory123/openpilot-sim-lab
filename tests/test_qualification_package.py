@@ -16,3 +16,9 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   assert "`not_qualified_yet`" in checklist
   assert "| Requirements-to-artifact release trace | complete |" in checklist
   assert "qualification draft in progress" not in test_plan
+
+
+def test_windows_collector_covers_wsl_vmswitch_operational_log():
+  collector = (ROOT / "scripts/collect_windows_wsl_events.ps1").read_text(encoding="utf-8")
+
+  assert "Microsoft-Windows-Hyper-V-VmSwitch-Operational" in collector
