@@ -38,7 +38,7 @@ OpenPilot을 System Under Test(SUT)로, MetaDrive를 Software-in-the-Loop(SIL) �
 
 ## Definition of Done와 roadmap
 
-v0.1은 formal 12-run evidence, provenance, data-integrity verdict, requirements-to-artifact traceability, provisional baseline/regression contract, qualification report와 known limitations을 갖추는 것을 목표로 한다. 실제 GitHub Release 자동화는 구현 전까지 계획으로만 둔다. v0.2 이후에는 GPU runtime regression, CARLA/OpenX adapter, CAN/HIL interface design을 별도 확장으로 다룬다.
+v0.1은 formal 12-run evidence, provenance, data-integrity verdict, requirements-to-artifact traceability, provisional baseline/regression contract, qualification report와 known limitations을 갖추는 것을 목표로 한다. 그 전 release qualification은 `not_qualified_yet`이며, P0 artifact가 완성된 뒤에만 framework verdict `pass_with_limitations`을 허용한다. 실제 GitHub Release 자동화는 구현 전까지 계획으로만 둔다. v0.2 이후에는 GPU runtime regression, CARLA/OpenX adapter, CAN/HIL interface design을 별도 확장으로 다룬다.
 
 ## 한계
 
