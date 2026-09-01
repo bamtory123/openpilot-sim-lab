@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The final bounded reproducibility package completed at `outputs/reproducibility-package-20260902-final`: `verification.json` is `pass`, its manifest pins clean sim-lab commit `0528d86`, and it retains scenario hash, runtime provenance, report, and a valid/pass 200-frame probe. This is the reproducibility package, not a formal driving-performance matrix.
 - The bounded reproducibility package is implemented: one launcher runs unit tests, dirty-aware preflight, a frozen-scenario 200-frame probe, report generation, and artifact verification. A first end-to-end execution produced `verification.json: pass`; final evidence is rerun after the launcher commit so its manifest pins a clean sim-lab commit.
 - Host-probe attempts now retain absolute scenario source/snapshot paths. Recovery was verified from a different current directory, so a post-restart operator's working directory cannot change frozen-scenario recovery semantics.
 - A 30-point host-reliability batch added frozen-snapshot hash verification to pre-manifest recovery, then rechecked preflight, CUDA arithmetic, offscreen rendering, recovery no-op, and report generation. All completed on the current boot. The bounded Windows collector returned only Hyper-V VmSwitch Information/Verbose lifecycle records, with no selected display/TDR/NVIDIA error; this is not treated as causal evidence.
