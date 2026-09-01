@@ -1,0 +1,12 @@
+schema_version: 1
+baseline_id: md-default-loop-v1-approved
+threshold_source: project_defined
+status: provisional
+gates:
+  telemetry_coverage_min: 0.99
+  unexpected_frame_drop_max: 0
+  queue_overflow_max: 0
+  lane_departure_allowed_in_baseline: false
+  lateral_rmse_increase_pct_max: null
+  max_lateral_error_m_max: null
+  steering_rate_rms_increase_pct_max: null

@@ -1,6 +1,6 @@
-# OpenPilot ADAS SIL Validation Lab
+# SDV ADAS SIL Regression Validation Lab
 
-Reproducible **MetaDrive closed-loop repeatability study** for openpilot. The v0.1 question is: *after normal engagement, how does a fixed camera transport delay change one fixed reference-lane tracking scenario?*
+OpenPilot is the System Under Test (SUT), MetaDrive is the SIL environment, and this repository is the validation orchestration, telemetry, fault-injection, verdict and report framework. The v0.1 question is: *after normal engagement, how does a fixed camera transport delay change one fixed reference-lane tracking scenario?*
 
 ## What this repository adds
 
@@ -52,6 +52,7 @@ If Windows/WSL restarts during a run and leaves a directory without `summary.jso
 This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and actuator behaviour differ from an ECU and a real vehicle. CARLA is documented as a Windows–WSL smoke-test effort and is not a v0.1 release gate.
 
 See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/results](docs/progress.md), and [CARLA smoke-test status](docs/carla-smoke.md).
+The validation plan and requirement/test traceability are [PLAN](PLAN.md), [requirements](docs/requirements.md), [test plan](docs/test-plan.md), and [traceability](docs/traceability.md).
 The separate MetaDrive-only RGB replay experiment is documented in [simulator-specialist](docs/simulator-specialist.md).
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
 The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).
