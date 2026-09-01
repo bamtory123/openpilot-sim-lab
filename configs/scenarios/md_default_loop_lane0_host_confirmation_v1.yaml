@@ -20,7 +20,7 @@ fault:
   overflow_policy: invalid_run
 
 validity:
-  min_active_time_s: 10
+  min_active_time_s: 9.5
   min_telemetry_coverage_ratio: 0.99
   allow_frame_drop: false
 

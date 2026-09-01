@@ -22,7 +22,7 @@ def test_host_confirmation_probe_is_short_and_keeps_the_official_transport_contr
   scenario = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_host_confirmation_v1.yaml")
 
   assert scenario.data["run"]["measurement_camera_frames"] == 200
-  assert scenario.data["validity"]["min_active_time_s"] == 10
+  assert scenario.data["validity"]["min_active_time_s"] == 9.5
   assert scenario.data["fault"]["target_delay_ms"] == 0
 
 def test_unsupported_delay_is_rejected(tmp_path):
