@@ -27,14 +27,14 @@ OpenPilot을 System Under Test(SUT)로, MetaDrive를 Software-in-the-Loop(SIL) �
 
 | Milestone | 상태 | 증적 |
 |---|---|---|
-| M0 형상/문서 | 진행 중 | compatibility, manifest, 이 계획 |
+| M0 형상/문서 | 구현됨 | compatibility, manifest, 이 계획 |
 | M1 ground truth | 구현됨 | telemetry/reference-lane instrumentation |
 | M2 non-blocking delay | 구현됨 | queue tests, camera.csv |
 | M3 lifecycle/verdict | 구현됨 | runner, invalid recovery |
-| M4 requirements/test traceability | 진행 중 | 이 문서 세트 |
-| M5 baseline/regression gate | 계획됨 | provisional baseline contract |
+| M4 requirements/test traceability | 구현됨 | CI traceability checks, 이 문서 세트 |
+| M5 baseline/regression gate | 구현됨 | baseline audit, regression-review hard/provenance gates |
 | M6 formal v0.1 experiment | 완료 | v0.1 formal matrix artifact |
-| M7 qualification release package | 진행 중 | release checklist, samples |
+| M7 qualification release package | 보류 | package complete; candidate Phase 1 hard-gate fail |
 
 ## Definition of Done와 roadmap
 

@@ -178,7 +178,7 @@ At 4.0 m/s, the same artifact reached 3.981 m/s mean speed but terminated after 
 
 ## Next
 
-1. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
-2. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
-3. Maintain the sample results, reproducibility commands, limitations, and CI evidence for the portfolio release.
-4. Keep any traffic experiment opt-in and versioned, with actor-count telemetry and separate interaction KPIs before making an avoidance-related claim.
+1. Keep v0.1 release qualification at `not_qualified_yet`: the same-provenance candidate set is a Phase 1 hard-gate failure under the current active-time contract.
+2. Before a future comparison, explicitly approve a replacement baseline/candidate policy; do not weaken or relabel the current invalid evidence.
+3. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.
+4. Keep the pretrained baseline frozen; do not tune simulator-only controllers as an openpilot claim.
