@@ -45,6 +45,18 @@ def test_historical_baseline_audit_reports_an_evidence_gap(tmp_path):
   assert "two:check_failed:target_delay_ms" in result["findings"]
 
 
+def test_historical_baseline_audit_rejects_mixed_provenance(tmp_path):
+  _write_run(tmp_path, "one", scenario_hash="first")
+  _write_run(tmp_path, "two", scenario_hash="second")
+  contract = tmp_path / "contract.yaml"
+  _contract(contract)
+
+  result = audit_historical_baseline(contract, tmp_path)
+
+  assert result["status"] == "evidence_gap"
+  assert "provenance_mismatch_between_runs" in result["findings"]
+
+
 def test_selected_baseline_contract_is_approved_and_has_an_audit_artifact():
   root = Path(__file__).resolve().parents[1]
   contract = yaml.safe_load((root / "baselines/md_default_loop_lane0_v1/acceptance.yaml").read_text())
