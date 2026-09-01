@@ -12,7 +12,7 @@ For the selected pretrained baseline, the observed lane departure is a known SUT
 
 Regression uses three phases. Phase 1 is an immediate hard gate for data integrity (coverage, unexpected drop, overflow, timestamp/order) and newly observed collision or disengagement. Phase 2 reports baseline-relative lateral/steering changes and earlier departure as `review_required`; three baseline replicates are not treated as sufficient statistical authority for an automatic performance fail. Phase 3 is enabled only after a documented project-defined threshold, rationale, baseline ID and approval date are recorded.
 
-Until baseline provenance, traceability, regression-review artifact and qualification report are present, the release state is `not_qualified_yet`. Only then may the framework receive `pass_with_limitations`; its SUT outcome remains separately reported as the known baseline functional failure.
+Until baseline provenance, traceability, regression-review artifact and qualification report are present, the release state is `not_qualified_yet`. Those artifacts and a passing Phase 1 regression gate are necessary before the framework may receive `pass_with_limitations`; its SUT outcome remains separately reported as the known baseline functional failure.
 
 The current state and evidence gaps are recorded in the [draft qualification report](qualification-report.md).
 
