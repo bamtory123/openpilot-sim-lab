@@ -20,6 +20,8 @@ On 2026-08-31, a background 1,200-frame specialist probe left only an empty laun
 
 The same fixed 1,200-frame specialist contract then completed twice through the foreground pre-launch wrapper. Each had 59.99 s active time, 1,200 published road frames, zero drops, 1.0 telemetry/road-camera coverage, unchanged WSL boot ID, and no selected WSL/GPU event in its exact UTC window. Actual delay median/P95/max were 25.06/33.38/44.09 ms and 23.58/31.93/46.62 ms on the common 0 ms scheduler path. These are two successful end-to-end stability probes, not long-run clearance or new formal performance replicates.
 
+On 2026-09-02 KST, a separately retained 200-frame host-confirmation probe completed in 44 seconds with a 9.99-second measured interval, 1.0 telemetry/road-camera coverage, zero drop/departure/collision, runner exit code 0, and unchanged WSL boot ID. The bounded Windows collector recorded zero selected WSL/GPU System events after the probe start. This is a short host/engagement/transport confirmation only; it does not clear the long CUDA-backed bridge boundary or alter a driving qualification.
+
 ## Harness behavior
 
 - A completed run retains its normal `valid/pass` or `valid/fail` outcome.
