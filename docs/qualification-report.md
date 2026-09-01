@@ -22,7 +22,7 @@ The separate versioned nominal-10-second/200-frame `md_default_loop_lane0_host_c
 
 ## Remaining release evidence
 
-- The independent same-provenance 0 ms candidate comparison is complete but Phase 1 hard-gate failed: all three candidate runs were `invalid/not_evaluated` for coverage after known lane departure. Its scenario hash matches the frozen baseline; the local candidate root is `outputs/v0.1-current-host-confirmation-20260901`. This is an honest non-qualification result, not an infrastructure-crash conclusion.
+- The independent same-provenance 0 ms candidate comparison is complete but Phase 1 hard-gate failed: all three candidate runs were `invalid/not_evaluated` for coverage after known lane departure. Its scenario hash matches the frozen baseline; the local candidate root is `outputs/v0.1-current-host-confirmation-20260901` and its immutable review artifact is `outputs/v0.1-current-host-confirmation-20260901/regression-review.json`. This is an honest non-qualification result, not an infrastructure-crash conclusion.
 - Define and approve the next baseline/candidate policy only if a future release needs a driving-performance comparison under the current active-time contract. Do not relabel the three invalid candidates as a passing or review-only result.
 - Complete requirement-to-artifact traceability and the release package checklist.
 
