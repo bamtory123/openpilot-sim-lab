@@ -22,7 +22,7 @@ The separate versioned nominal-10-second/200-frame `md_default_loop_lane0_host_c
 
 ## Remaining release evidence
 
-- Generate the baseline-relative regression-review artifact.
+- Collect an independent, same-provenance candidate formal matrix and retain its regression-review JSON. The review tool is implemented and its historical self-consistency smoke reports zero deltas; it is not an independent candidate comparison.
 - Complete requirement-to-artifact traceability and the release package checklist.
 
 See [limitations](limitations.md) for the SIL, domain-gap, synthetic-CAN, and real-vehicle boundaries.
