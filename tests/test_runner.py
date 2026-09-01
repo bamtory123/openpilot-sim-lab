@@ -119,6 +119,8 @@ def test_host_probe_attempt_is_recovered_when_no_run_manifest_exists(monkeypatch
   assert recovered["run_id"] == tmp_path.name
   assert recovered["reasons"] == ["host_interrupted"]
   assert recovered["host_recovery"]["wsl_boot_changed"] is True
+  with __import__("pytest").raises(RuntimeError, match="existing summary"):
+    recover_incomplete_attempt(tmp_path)
 
 
 def test_timestamp_error_is_invalid_without_a_measured_failure():
