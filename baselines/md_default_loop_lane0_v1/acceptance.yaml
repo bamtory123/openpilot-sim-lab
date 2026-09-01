@@ -3,6 +3,15 @@ baseline_id: md-default-loop-v1-approved
 threshold_source: project_defined
 status: selected_pending_provenance
 baseline_definition: pretrained_openpilot_0ms_formal_three_runs
+baseline_evidence:
+  source: frozen_historical_formal_artifact
+  integrity_audit: pending
+  required_artifacts: [manifest.json, scenario.yaml, camera.csv, telemetry.csv, events.jsonl, summary.json]
+current_environment_confirmation:
+  purpose: compatibility_check_only
+  minimum_formal_runs: 1
+  replaces_historical_baseline: false
+  status: planned
 gates:
   telemetry_coverage_min: 0.99
   unexpected_frame_drop_max: 0

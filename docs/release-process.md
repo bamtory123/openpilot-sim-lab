@@ -14,4 +14,6 @@ Regression uses three phases. Phase 1 is an immediate hard gate for data integri
 
 Until baseline provenance, traceability, regression-review artifact and qualification report are present, the release state is `not_qualified_yet`. Only then may the framework receive `pass_with_limitations`; its SUT outcome remains separately reported as the known baseline functional failure.
 
+The v0.1 comparison reference is the frozen historical 0 ms, three-run baseline. Audit its required per-run artifacts and provenance before approval; do not reconstruct missing evidence. Execute a separate current-host compatibility check after the audit, record its manifest and outcome, and do not let it replace or redefine the historical baseline.
+
 Baseline/regression automation is planned. The provisional contract is [acceptance.yaml](../baselines/md_default_loop_lane0_v1/acceptance.yaml); null performance gates are intentional until an approved baseline exists.
