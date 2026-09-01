@@ -400,7 +400,9 @@ def main() -> None:
   if args.command == "regression-review":
     if args.baseline_root is None or args.candidate_root is None:
       parser.error("regression-review requires --baseline-root and --candidate-root")
-    result = review_regression(args.baseline_root, args.candidate_root, scenario_id=args.scenario.stem, delay_ms=0)
+    scenario = load_scenario(args.scenario)
+    result = review_regression(args.baseline_root, args.candidate_root, scenario_id=scenario.scenario_id,
+                               delay_ms=scenario.data["fault"]["target_delay_ms"])
     rendered = json.dumps(result, indent=2, sort_keys=True)
     if args.review_output is not None:
       args.review_output.write_text(rendered + "\n", encoding="utf-8")
