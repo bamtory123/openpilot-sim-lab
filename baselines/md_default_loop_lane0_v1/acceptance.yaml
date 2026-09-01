@@ -1,7 +1,7 @@
 schema_version: 1
 baseline_id: md-default-loop-v1-approved
 threshold_source: project_defined
-status: selected_pending_provenance
+status: approved
 baseline_definition: pretrained_openpilot_0ms_formal_three_runs
 baseline_evidence:
   source: frozen_historical_formal_artifact

@@ -4,7 +4,7 @@
 
 `not_qualified_yet`
 
-The historical baseline audit and the required current-host compatibility confirmation are approved. The release remains unqualified until regression-review and remaining release-traceability artifacts are complete. This is a framework-release status, separate from the SUT driving outcome.
+The historical baseline and the required current-host compatibility confirmation are approved. The release remains unqualified because the independent candidate comparison is a Phase 1 hard-gate failure. This is a framework-release status, separate from the SUT driving outcome.
 
 ## Historical baseline
 
