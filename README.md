@@ -45,7 +45,7 @@ For unit tests of the orchestration package, use `uv run pytest -q` from this re
 
 Each run contains `manifest.json`, the resolved `scenario.yaml`, 100 Hz `telemetry.csv`, 20 Hz `camera.csv`, `events.jsonl`, `summary.json`, and process logs. `validity` describes whether the infrastructure/data is usable; `outcome` describes closed-loop performance. Lane departure and disengagement are valid failures, not invalid data.
 
-If Windows/WSL restarts during a run and leaves a directory without `summary.json`, run `scripts/recover_interrupted_runs.sh outputs`. It writes only missing summaries as `invalid/not_evaluated: host_interrupted` and never overwrites an existing result.
+If Windows/WSL restarts during a run, run `scripts/recover_interrupted_runs.sh outputs`. It recovers both manifest-backed run directories and pre-manifest host-probe attempts as `invalid/not_evaluated: host_interrupted`, never overwriting an existing result. Reports flag an unrecovered host attempt as an evidence gap rather than silently omitting it.
 
 ## Limitations
 
