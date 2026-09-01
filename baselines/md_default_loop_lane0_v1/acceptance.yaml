@@ -7,6 +7,8 @@ baseline_evidence:
   source: frozen_historical_formal_artifact
   integrity_audit: pending
   required_artifacts: [manifest.json, scenario.yaml, camera.csv, telemetry.csv, events.jsonl, summary.json]
+  missing_required_artifact_verdict: evidence_gap
+  replacement_policy: explicit_new_baseline_approval_required
 current_environment_confirmation:
   purpose: compatibility_check_only
   minimum_formal_runs: 1
