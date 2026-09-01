@@ -9,7 +9,7 @@ This checklist controls framework qualification only. It does not convert the pr
 | Formal 12-run 0/50/100/150 ms matrix is preserved | complete | local `outputs/v0.2-formal-delay-matrix-20260828` |
 | Regression-review hard/provenance gates | complete | `simlab regression-review`, unit tests |
 | Independent same-provenance candidate comparison | complete: hard-gate fail | 3 × current 0 ms candidate runs, all invalid for coverage after known departure |
-| Requirements-to-artifact release trace | in progress | `docs/traceability.md` |
+| Requirements-to-artifact release trace | complete | `docs/traceability.md`, CI consistency check |
 | Qualification report and limitations | complete | CI-checked `docs/qualification-report.md`, `docs/limitations.md` |
 | GitHub release tag and selected sample attachment | pending | do not create while qualification is `not_qualified_yet` |
 

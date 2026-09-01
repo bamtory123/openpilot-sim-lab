@@ -13,3 +13,4 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   assert "limitations](limitations.md)" in report
   assert "Phase 1 hard-gate failed" in report
   assert "`not_qualified_yet`" in checklist
+  assert "| Requirements-to-artifact release trace | complete |" in checklist
