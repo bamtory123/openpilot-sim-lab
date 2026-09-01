@@ -10,4 +10,6 @@
 
 For the selected pretrained baseline, the observed lane departure is a known SUT functional failure, not a framework qualification failure. Regression comparison must instead detect KPI worsening (lateral error and applied steering rate), a newly observed collision or disengagement, and any data-integrity violation. A lane-departure-only baseline must never be relabeled as a passing SUT result.
 
+Regression uses three phases. Phase 1 is an immediate hard gate for data integrity (coverage, unexpected drop, overflow, timestamp/order) and newly observed collision or disengagement. Phase 2 reports baseline-relative lateral/steering changes and earlier departure as `review_required`; three baseline replicates are not treated as sufficient statistical authority for an automatic performance fail. Phase 3 is enabled only after a documented project-defined threshold, rationale, baseline ID and approval date are recorded.
+
 Baseline/regression automation is planned. The provisional contract is [acceptance.yaml](../baselines/md_default_loop_lane0_v1/acceptance.yaml); null performance gates are intentional until an approved baseline exists.

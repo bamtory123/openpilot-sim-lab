@@ -12,3 +12,7 @@ gates:
   lateral_rmse_increase_pct_max: null
   max_lateral_error_m_max: null
   steering_rate_rms_increase_pct_max: null
+regression_policy:
+  phase_1: hard_data_and_new_functional_event_gate
+  phase_2: baseline_relative_review_required
+  phase_3: approved_project_defined_performance_gate

@@ -9,7 +9,7 @@
 | REQ-TIM-002 | Queue overflow or unexpected frame drop is invalid. | implemented |
 | REQ-FUNC-001 | Reference-lane departure, collision, disengagement and termination are recorded. | implemented |
 | REQ-REG-001 | Approved baseline KPI deltas, new collision and new disengagement are evaluated independently of known baseline lane departure. | planned |
-| REQ-REG-002 | Regression gate verdict is generated automatically. | planned |
+| REQ-REG-002 | Hard regression gates are automatic; baseline-relative performance changes are review-required until project-defined thresholds are approved. | planned |
 | REQ-REL-001 | Requirement–test–scenario–artifact traceability is retained. | in progress |
 | REQ-REL-002 | Qualification report and limitations are packaged for release. | in progress |
 
