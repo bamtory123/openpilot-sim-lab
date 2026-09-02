@@ -29,3 +29,9 @@ def test_local_documentation_links_exist():
     for target in re.findall(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text(encoding="utf-8")):
       if "://" not in target and not target.startswith("mailto:"):
         assert (document.parent / target).resolve().exists(), f"{document}: {target}"
+
+
+def test_readme_uses_uv_for_openpilot_runtime_editable_install():
+  readme = (ROOT / "README.md").read_text(encoding="utf-8")
+  assert 'uv pip install --python "$OPENPILOT_PYTHON" --no-deps -e .' in readme
+  assert "$OPENPILOT_PYTHON -m pip install --no-deps -e ." not in readme

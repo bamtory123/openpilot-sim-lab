@@ -27,7 +27,7 @@ The default scenario is model-driven. Its current 0 ms baseline is a valid lane-
 cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
 export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python3"
-$OPENPILOT_PYTHON -m pip install --no-deps -e .
+uv pip install --python "$OPENPILOT_PYTHON" --no-deps -e .
 scripts/check_environment.sh
 $OPENPILOT_PYTHON -m simlab.runner batch --outputs outputs
 $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs
