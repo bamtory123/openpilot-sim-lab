@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The public v0.1 bundle now has a read-only local SHA-256 verifier. It rejects missing, changed, or path-unsafe retained sources and any accidentally exposed raw telemetry/camera/frame/process artifact.
 - The public-safe v0.1 evidence bundle is now linked from the portfolio summary, release checklist, and evaluation boundary. A unit test keeps that reviewer path from drifting while preserving the `not_qualified_yet` pretrained-driving disposition.
 - Public v0.1 evidence selection is generated in `examples/v0.1-portfolio-evidence`: a representative formal failure, approved baseline audit summary, hard-gate regression review, and two scoped host-confirmation summaries. Raw telemetry, camera data, frames, and process logs are excluded.
 - The complete bootstrap install path was exercised after fixing both runtime gaps: `uv sync --group standalone`, editable MetaDrive and sim-lab installation into the OpenPilot runtime, sim-lab tests, preflight, and bounded probe all completed. `outputs/reproducibility-package-20260902-bootstrapped-runtime-final/verification.json` is `pass` with unchanged boot ID.

@@ -14,3 +14,9 @@ Regenerate `evidence.json` only from the retained local source artifacts:
 ```bash
 python scripts/build_v01_public_evidence.py
 ```
+
+Verify the retained local source hashes without rewriting the bundle:
+
+```bash
+uv run python scripts/verify_v01_public_evidence.py
+```
