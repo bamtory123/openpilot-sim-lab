@@ -21,14 +21,14 @@ cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
 
 # Collect and rebuild image/teacher joins when needed.
-$OPENPILOT_ROOT/.venv/bin/python -m simlab.runner collect \
+$OPENPILOT_ROOT/.venv/bin/python -m simlab.runner collect --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_dataset_collection_v1.yaml \
   --outputs outputs/specialist-dataset
 uv run simlab rebuild-specialist-manifests --outputs outputs/specialist-dataset
 
 # Train a local artifact, then evaluate it through the normal harness.
 uv run simlab train-specialist --dataset-root outputs --artifact models/specialist.npz
-$OPENPILOT_ROOT/.venv/bin/python -m simlab.runner run \
+$OPENPILOT_ROOT/.venv/bin/python -m simlab.runner run --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_specialist_replay_dagger_v2_diagnostic_v1.yaml \
   --outputs outputs/specialist-evaluation
 ```
@@ -144,7 +144,7 @@ Reproduce this matrix only after generating the local artifact named by the scen
 ```bash
 cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
-$OPENPILOT_ROOT/.venv/bin/python -m simlab.runner batch \
+$OPENPILOT_ROOT/.venv/bin/python -m simlab.runner batch --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_temporal_dagger_speed2_heldout_v1.yaml \
   --outputs outputs/specialist-speed2-delay-matrix
 $OPENPILOT_ROOT/.venv/bin/python -m simlab.runner report \

@@ -7,7 +7,7 @@ Run one fixed collection:
 ```bash
 cd /home/hyunsung/src/openpilot-sim-lab
 OPENPILOT_ROOT=/home/hyunsung/src/openpilot \
-  /home/hyunsung/src/openpilot/.venv/bin/python3 -m simlab.runner run \
+  /home/hyunsung/src/openpilot/.venv/bin/python -m simlab.runner run --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_dataset_collection_v1.yaml \
   --outputs outputs/dataset-collection
 ```

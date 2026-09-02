@@ -29,11 +29,11 @@ export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
 export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"
 uv pip install --python "$OPENPILOT_PYTHON" --no-deps -e .
 scripts/check_environment.sh
-$OPENPILOT_PYTHON -m simlab.runner batch --outputs outputs
+$OPENPILOT_PYTHON -m simlab.runner batch --allow-dirty --outputs outputs
 $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs
 ```
 
-The runner rejects dirty repositories by default. Use `--allow-dirty` only during development; dirty state is recorded in `manifest.json`.
+The runner rejects dirty repositories by default. This workstation's intended MetaDrive traffic/render patch leaves that dependency dirty, so the quick-start command uses explicit `--allow-dirty`; dirty state is recorded in `manifest.json`. Omit the flag only after using a clean dependency checkout.
 
 The environment script also runs the short CUDA sanity check. In this workstation's intended dirty MetaDrive source state, use `SIMLAB_ALLOW_DIRTY=1 scripts/check_environment.sh`.
 

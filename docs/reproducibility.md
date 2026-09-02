@@ -34,9 +34,9 @@ cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
 export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"
 
-$OPENPILOT_PYTHON -m simlab.runner preflight \
+$OPENPILOT_PYTHON -m simlab.runner preflight --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_v1.yaml
-$OPENPILOT_PYTHON -m simlab.runner batch \
+$OPENPILOT_PYTHON -m simlab.runner batch --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_v1.yaml \
   --outputs outputs/formal-delay-matrix
 $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/formal-delay-matrix
@@ -65,9 +65,9 @@ The current baseline is expected to produce repeatable lane-departure failures. 
 This separate procedure requires the local generated `models/v0.6-temporal-gamma-tight-dagger-ridge.npz` artifact; it does not modify the pretrained openpilot path or the formal model-driven matrix.
 
 ```bash
-$OPENPILOT_PYTHON -m simlab.runner preflight \
+$OPENPILOT_PYTHON -m simlab.runner preflight --allow-dirty \
   --scenario configs/scenarios/md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml
-$OPENPILOT_PYTHON -m simlab.runner batch \
+$OPENPILOT_PYTHON -m simlab.runner batch --allow-dirty \
   --scenario configs/scenarios/md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml \
   --outputs outputs/tight-specialist-delay-matrix
 $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/tight-specialist-delay-matrix
@@ -80,9 +80,9 @@ Apply the same acceptance checks above. The checked-in sample documents a fixed 
 `openpilot_serpentine_v1` is a versioned alternating-turn MetaDrive profile. It requires the same local tight-DAgger artifact and does not alter the v0.1 formal scenario.
 
 ```bash
-$OPENPILOT_PYTHON -m simlab.runner preflight \
+$OPENPILOT_PYTHON -m simlab.runner preflight --allow-dirty \
   --scenario configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml
-$OPENPILOT_PYTHON -m simlab.runner batch \
+$OPENPILOT_PYTHON -m simlab.runner batch --allow-dirty \
   --scenario configs/scenarios/md_serpentine_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1.yaml \
   --outputs outputs/serpentine-specialist-delay-matrix
 $OPENPILOT_PYTHON -m simlab.runner report --outputs outputs/serpentine-specialist-delay-matrix
@@ -112,7 +112,7 @@ The tracked traffic scenario sets `validity.min_traffic_vehicle_count: 1`. If no
 ## Camera alignment diagnostic
 
 ```bash
-$OPENPILOT_PYTHON -m simlab.runner run \
+$OPENPILOT_PYTHON -m simlab.runner run --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_frame_alignment_diagnostic_v1.yaml \
   --outputs outputs/frame-alignment-diagnostic
 ```
