@@ -1,0 +1,24 @@
+{
+  "artifact_schema_version": 2,
+  "observation": {
+    "actors_destroyed": true,
+    "camera": {
+      "frame": 195102,
+      "height": 180,
+      "width": 320
+    },
+    "client_version": "0.9.16",
+    "server_version": "0.9.16",
+    "vehicle_control": {
+      "brake": 1.0,
+      "steer": 0.0,
+      "throttle": 0.0
+    },
+    "vehicle_speed_mps": 1.470000147819519,
+    "world_settings_restored": true
+  },
+  "schema_version": 1,
+  "scope": "carla_client_smoke_public_sample_only",
+  "server_stopped": true,
+  "source_sha256": "0d768498fba4743feec0036a79a3c8afbcef07807b84d3f02c190147f1d6fdae"
+}

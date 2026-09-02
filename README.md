@@ -54,6 +54,7 @@ If Windows/WSL restarts during a run, run `scripts/recover_interrupted_runs.sh o
 This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and actuator behaviour differ from an ECU and a real vehicle. CARLA is documented as a Windows–WSL smoke-test effort and is not a v0.1 release gate.
 
 See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/results](docs/progress.md), and [CARLA smoke-test status](docs/carla-smoke.md).
+The separate [CARLA client-smoke public sample](examples/v0.2-carla-client-smoke/README.md) is v0.2 connectivity/camera/control-cleanup evidence only, not an OpenPilot closed-loop result.
 The validation plan and requirement/test traceability are [PLAN](PLAN.md), [requirements](docs/requirements.md), [test plan](docs/test-plan.md), and [traceability](docs/traceability.md).
 The current framework qualification is [not qualified yet](docs/qualification-report.md); its governing choices are in the [decision log](docs/decisions.md).
 For the concise portfolio framing, see [portfolio summary](docs/portfolio-summary.md).

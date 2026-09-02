@@ -56,6 +56,8 @@ Summarize the retained local artifacts without starting CARLA or making a closed
 uv run python scripts/summarize_carla_smoke_artifacts.py outputs/carla-smoke
 ```
 
+A public-safe extract of the latest retained schema-2 observation is in [the CARLA client-smoke sample](../examples/v0.2-carla-client-smoke/README.md). It excludes local paths, raw camera data, and logs.
+
 | Check | Status | Evidence / constraint |
 |---|---|---|
 | Windows server start | Manual verification required | Shader compilation and GPU driver state can affect startup |

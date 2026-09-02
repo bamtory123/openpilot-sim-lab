@@ -217,3 +217,29 @@ def test_carla_smoke_artifact_summary_preserves_malformed_result_as_failed(tmp_p
   assert summary["artifact_count"] == 1 and summary["verified_count"] == 0
   assert summary["latest"]["run_id"] == "broken"
   assert summary["latest"]["verification"] == "fail"
+
+
+def test_carla_public_evidence_excludes_local_paths_and_logs(tmp_path):
+  run = tmp_path / "run"
+  run.mkdir()
+  result = {
+    "schema_version": 2, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",
+    "carla_exe": "C:/private/CarlaUE4.exe", "host": "172.28.112.1", "port": 2000,
+    "connect_exit_code": 0, "client_exit_code": 0, "server_stopped": True, "failure": None,
+    "client_observation": {"client_version": "0.9.16", "server_version": "0.9.16",
+                           "camera": {"width": 320, "height": 180},
+                           "vehicle_control": {"throttle": 0, "steer": 0, "brake": 1},
+                           "vehicle_speed_mps": 1.47, "actors_destroyed": True,
+                           "world_settings_restored": True},
+    "logs": {"server_stdout": "server.stdout.log", "server_stderr": "server.stderr.log",
+             "connect": "connect.log", "client": "client.log"},
+  }
+  result_path = run / "result.json"
+  result_path.write_text(json.dumps(result), encoding="utf-8")
+  for name in result["logs"].values():
+    (run / name).touch()
+  output_dir = tmp_path / "public"
+  subprocess.run([sys.executable, str(ROOT / "scripts/build_carla_smoke_public_evidence.py"), str(result_path),
+                  "--output-dir", str(output_dir)], check=True)
+  public = (output_dir / "evidence.json").read_text(encoding="utf-8")
+  assert "private" not in public and "server.stdout.log" not in public and "172.28.112.1" not in public
