@@ -22,6 +22,15 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   assert "`not_qualified_yet`" in snapshot
   assert "not a new GitHub release, tag" in snapshot
   assert "../examples/v0.1-portfolio-evidence/README.md" in snapshot
+  assert "verify_portfolio_snapshot.sh" in snapshot
+
+
+def test_portfolio_snapshot_verifier_enforces_non_release_boundary():
+  verifier = (ROOT / "scripts/verify_portfolio_snapshot.sh").read_text(encoding="utf-8")
+
+  assert "git status --porcelain" in verifier
+  assert "git tag --contains HEAD" in verifier
+  assert "verify_v01_public_evidence.py" in verifier
 
 
 def test_windows_collector_covers_wsl_vmswitch_operational_log():
