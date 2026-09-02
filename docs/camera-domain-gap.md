@@ -34,7 +34,7 @@ A later three-frame set used the same 40-degree, 2648.57 px camera contract:
 
 The frame set reinforces that the near-zero model response persists after the reference segment enters the curve. It does not identify the cause within rendering, camera pose, calibration, or model generalization.
 
-An explicit zero-pose diagnostic (`camera_position_m: [0, 0, 1.22]`, `camera_hpr_deg: [0, 0, 0]`) completed with the same valid lane-departure/KPI failure contract and zero transport drops. Symmetric ±2 degree pitch diagnostics are therefore isolated next experiments; they are excluded from the formal matrix.
+An explicit zero-pose diagnostic (`camera_position_m: [0, 0, 1.22]`, `camera_hpr_deg: [0, 0, 0]`) completed with the same valid lane-departure/KPI failure contract and zero transport drops. Symmetric ±2 degree pitch diagnostics were then isolated outside the formal matrix.
 
 The pitch sweep showed sensitivity but no solution: at 0°, −2°, and +2°, curve-segment model-target absolute means were 0.00000495, 0.00006109, and 0.00001110 1/m respectively, versus +0.008658 1/m reference curvature. Lateral RMSE was 0.633, 0.665, and 0.616 m; all runs remained valid lane/KPI failures. A single −4° exploratory point is retained only to determine whether the negative-pitch response is monotonic.
 
@@ -48,7 +48,7 @@ The calibration-telemetry retry recorded `calibrated` on all 2,895 measurement s
 
 Runtime camera-contract telemetry also confirmed all 2,875 measurement samples used modeld key `pc/unknown` with 1928×1208, 2648 px narrow-road intrinsics. This verifies the actual modeld selection, not merely the intended simulator configuration. Resolution, focal-length, calibration state, queue freshness, and model frame contract are now ruled out as primary causes of the short path output.
 
-The next controlled probe is an opt-in gamma 0.8 camera transform. It alters only pixel luminance before NV12 conversion; map, pose, intrinsics, delay, and controls remain fixed. It is a domain-gap sensitivity diagnostic, never a formal-baseline replacement.
+An opt-in gamma 0.8 camera transform then altered only pixel luminance before NV12 conversion while map, pose, intrinsics, delay, and controls remained fixed. It was a domain-gap sensitivity diagnostic, never a formal-baseline replacement.
 
 ## Repeatable alignment fixture
 
@@ -107,7 +107,7 @@ The frame-alignment fixture was repeated after adding read-only `modelV2` lane-l
 
 The lane-line probabilities are low in both segments and do not rise when the simulator enters the known curve. The corresponding near-field lane positions remain populated, so an empty Cap'n Proto field is not being misread as a low score. Together with the short 4–5 m path and near-zero curvature, this is strong simulator-domain evidence that the pretrained model does not assign meaningful lane confidence to the current MetaDrive rendering. It is not evidence about real-road lane perception.
 
-The next controlled work is therefore rendering-domain isolation: preserve camera pose, intrinsics, map, timing, and controls, while changing one lane-appearance variable at a time. Each experiment must reuse the alignment fixture and compare lane probabilities, path horizon, and curvature before any control change is considered.
+The completed rendering-domain isolation sequence preserved camera pose, intrinsics, map, timing, and controls while changing one lane-appearance variable at a time. Each experiment reused the alignment fixture and compared lane probabilities, path horizon, and curvature before any control change; the resulting controls are recorded below.
 
 ## Geometry and overlay controls
 

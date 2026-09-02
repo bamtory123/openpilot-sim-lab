@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Camera-domain, dataset, and simulator-specialist documents now describe their completed pitch/gamma/appearance/geometry sequence in past tense. A stale-next scan leaves only the genuine v0.1 release-policy item and the defect-template section; it no longer suggests repeating already completed diagnostics.
 - CI now inspects the committed CARLA public sample directly: it rejects private host/path/log tokens and requires the v0.1 non-gate plus non-closed-loop boundary text. This protects the public artifact independently of the local-source generator fixture.
 - The public-safe CARLA client-smoke sample now has a retained-source verifier: it revalidates the local schema-2 artifact, recomputes the SHA-bound JSON and generated Markdown, and rejects drift. Fixture coverage verifies both a clean sample and a modified summary; this remains a local-source integrity check, not a v0.1 release gate.
 - A generated public-safe CARLA client-smoke sample now retains only the latest schema-2 observation and the source SHA-256: matched CARLA 0.9.16 client/server, 320×180 RGB, neutral-throttle/brake command, reported speed, actor cleanup, world restoration, and server stop. It excludes local paths, host address, logs, and raw camera data; it is explicitly v0.2 client-smoke evidence rather than OpenPilot closed loop or v0.1 qualification.

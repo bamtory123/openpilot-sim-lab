@@ -48,17 +48,17 @@ All comparisons use the fixed 0 ms loop scenario and the existing validity/KPI c
 
 The v2 validation steering RMSE is 0.00715 normalized steer. Closed-loop v2 is still a lane-departure and lateral-error failure, despite its modest RMSE improvement. That failure is retained as the result: no specialist path is promoted as a driving success.
 
-## Next evidence needed
+## Initial evidence sequence
 
 The initial expert-only curve artifact reached a held-out lane departure after 219 camera frames (lateral RMSE 1.182 m). Adding fixed-route straight and curve expert samples improved this to 404 frames and 1.029 m, but remained `valid/fail`. A subsequent DAgger collection added 64 learner-visited straight-state samples to the 108 mixed expert samples. Its held-out replay reached 594 frames with 0.995 m lateral RMSE and 0.0301 rad heading RMSE, but also remained `valid/fail` because of lane departure.
 
-These are controlled improvements, not a driving success or a real-road claim. The next evidence should be temporally contextual camera input and more varied held-out route/appearance conditions; increasing model capacity or changing a controller before that evidence would only risk fitting this fixed synthetic loop. Any future specialist result must retain the same manifest, camera, validity, and outcome contracts used here.
+These are controlled improvements, not a driving success or a real-road claim. The subsequent evidence added temporally contextual camera input and held-out route/appearance conditions; it did not increase model capacity or change a controller. Any future specialist result must retain the same manifest, camera, validity, and outcome contracts used here.
 
 ## Temporal follow-up
 
 The temporal experiment uses the current RGB image and its 0.2-second image difference only. Runtime history advances only when a new 20 Hz camera frame arrives; it does not use route, teacher, vehicle-state, or ground-truth inputs. The fixed temporal expert set contains 120/120 train/held-out samples and 116 curved samples. A first temporal replay failed after 196 frames (1.085 m lateral RMSE). Adding 62/62 learner-visited temporal DAgger samples improved the same held-out run to 883 frames and 0.491 m. A further 122/122 curve-state DAgger collection produced 809 frames and 0.505 m, so it is not adopted as an improvement.
 
-Every temporal result remains `valid/fail` for lane departure and lateral error. The evidence supports time-aligned data and the first DAgger correction, but does not support claiming reliable curve driving. The next useful experiment is held-out appearance/route variation, not another fixed-loop tuning round.
+Every temporal result remains `valid/fail` for lane departure and lateral error. The evidence supports time-aligned data and the first DAgger correction, but does not support claiming reliable curve driving. The subsequent held-out appearance and route-geometry experiments are recorded below; they are not another fixed-loop tuning round.
 
 ## Held-out appearance check
 

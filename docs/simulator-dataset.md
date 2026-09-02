@@ -26,7 +26,7 @@ $OPENPILOT_PYTHON -m simlab.runner collect \
 
 The verified split matrix contains 36 train and 18 validation samples; curved segments are split 10 and 5 respectively. These counts are provenance checks, not training-sufficiency claims.
 
-The dataset audit reports only `0 … +0.008658 1/m` reference curvature for the initial matrix. It has no negative-curvature coverage, so it must not be used to train a general path model. The directional smoke run verified direction `1` produces `−0.008032 … 0 1/m` reference curvature with 370 negative-curve telemetry samples. The next collection matrix can therefore include both turn signs.
+The dataset audit reports only `0 … +0.008658 1/m` reference curvature for the initial matrix. It has no negative-curvature coverage, so it must not be used to train a general path model. The directional smoke run verified direction `1` produces `−0.008032 … 0 1/m` reference curvature with 370 negative-curve telemetry samples. Later specialist collections include both turn signs, but that expansion remains a fixed-simulator data contract rather than general path coverage.
 
 ## Static-lead diagnostic subset
 
