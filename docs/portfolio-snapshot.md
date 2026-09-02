@@ -17,7 +17,7 @@ This document is the submission entry point for the current repository commit. I
 ## Reviewer path
 
 1. Read the [portfolio summary](portfolio-summary.md) and [qualification report](qualification-report.md). The v0.1 pretrained-driving disposition is final: `not_qualified_yet`.
-2. Inspect the [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md). Its source hashes bind the small public extract to retained local evidence without publishing raw frames, telemetry, or process logs.
+2. Start with the [public v0.1 evidence summary](../examples/v0.1-portfolio-evidence/SUMMARY.md), then inspect the [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md). Its source hashes bind the small public extract to retained local evidence without publishing raw frames, telemetry, or process logs.
 3. Reproduce the bounded host/transport path with the [reproducibility package](reproducibility.md). Its `valid/pass` result is compatibility evidence, not a driving-performance result.
 4. Review [evaluation boundaries](evaluation-boundary.md), [host stability](host-stability.md), and the [release checklist](release-checklist.md) before interpreting any simulator-specialist or host result.
 

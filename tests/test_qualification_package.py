@@ -22,6 +22,7 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   assert "`not_qualified_yet`" in snapshot
   assert "not a new GitHub release, tag" in snapshot
   assert "../examples/v0.1-portfolio-evidence/README.md" in snapshot
+  assert "../examples/v0.1-portfolio-evidence/SUMMARY.md" in snapshot
   assert "verify_portfolio_snapshot.sh" in snapshot
 
 
