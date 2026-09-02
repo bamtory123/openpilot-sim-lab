@@ -60,6 +60,7 @@ For the concise portfolio framing, see [portfolio summary](docs/portfolio-summar
 The separate MetaDrive-only RGB replay experiment is documented in [simulator-specialist](docs/simulator-specialist.md).
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
 The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).
+The v0.1 public-safe selection of formal, baseline-audit, regression, and host evidence is in [examples/v0.1-portfolio-evidence](examples/v0.1-portfolio-evidence/README.md).
 The constrained simulator-specialist delay sample is in [examples/v0.5-specialist-speed2-delay-matrix](examples/v0.5-specialist-speed2-delay-matrix/README.md).
 The gamma-0.8 specialist delay sample is in [examples/v0.6-specialist-gamma08-delay-matrix](examples/v0.6-specialist-gamma08-delay-matrix/README.md).
 The fixed 3.0 m/s specialist delay sample is in [examples/v0.6-specialist-speed3-delay-matrix](examples/v0.6-specialist-speed3-delay-matrix/README.md); it remains limited to its declared speed contract.

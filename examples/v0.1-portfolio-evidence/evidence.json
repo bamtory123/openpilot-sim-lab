@@ -1,0 +1,192 @@
+{
+  "baseline_audit": {
+    "baseline_id": "md-default-loop-v1-approved",
+    "run_ids": [
+      "md_default_loop_lane0_v1-20260828T101438Z-4dd55448",
+      "md_default_loop_lane0_v1-20260828T102453Z-400e4258",
+      "md_default_loop_lane0_v1-20260828T102749Z-47bc6492"
+    ],
+    "scenario_hash": "7475a86c9af8e8b14a4bbc43ab3957e410f4087fa27e8ebd3cf6afb0879b1670",
+    "source": "baselines/md_default_loop_lane0_v1/historical-audit.json",
+    "status": "approved"
+  },
+  "excludes": [
+    "telemetry.csv",
+    "camera.csv",
+    "raw_frames",
+    "process_logs"
+  ],
+  "formal_matrix": {
+    "aggregate": {
+      "0": 0.663898,
+      "100": 0.663629,
+      "150": 0.675149,
+      "50": 0.665897
+    },
+    "representative_summary": {
+      "metrics": {
+        "actual_delay_max_ms": 35.579641,
+        "actual_delay_median_ms": 24.589343,
+        "actual_delay_p95_ms": 30.5300038,
+        "applied_steering_rate_rms_deg_s": 0.008898129224191169,
+        "camera_frames_dropped": 0,
+        "camera_frames_published": 579,
+        "collision_occurred": false,
+        "heading_rmse_rad": 0.065253350029733,
+        "lane_departure_occurred": true,
+        "lateral_abs_max_m": 2.2651312949291764,
+        "lateral_abs_p95_m": 1.1126756957794546,
+        "lateral_rmse_m": 0.6665627711112823,
+        "speed_mean_mps": 4.563999915158806,
+        "speed_std_mps": 0.032414510296837125,
+        "telemetry_samples": 2900
+      },
+      "outcome": "fail",
+      "reasons": [
+        "lane_departure"
+      ],
+      "run_id": "md_default_loop_lane0_v1-20260828T101438Z-4dd55448",
+      "scenario_id": "md_default_loop_lane0_v1",
+      "schema_version": 1,
+      "target_delay_ms": 0,
+      "termination_reason": "simulator_termination",
+      "validity": "valid"
+    },
+    "source": "outputs/v0.2-formal-delay-matrix-20260828"
+  },
+  "host_confirmation": {
+    "confirmed_summaries": [
+      {
+        "metrics": {
+          "active_time_s": 9.99,
+          "actual_delay_max_ms": 34.948057,
+          "actual_delay_median_ms": 24.107462499999997,
+          "actual_delay_p95_ms": 31.596204799999995,
+          "applied_steering_rate_rms_deg_s": 0.010890411537670036,
+          "camera_frames_dropped": 0,
+          "camera_frames_published": 200,
+          "camera_timestamps_valid": true,
+          "collision_occurred": false,
+          "heading_rmse_rad": 0.007679626300153829,
+          "lane_departure_occurred": false,
+          "lateral_abs_max_m": 0.3217334747314453,
+          "lateral_abs_p95_m": 0.2925997257232665,
+          "lateral_rmse_m": 0.14976045547012928,
+          "model_execution_time_p95_s": 0.010147463204339143,
+          "model_frame_age_max": 0.0,
+          "model_frame_drop_perc_max": 0.0,
+          "model_path_horizon_median_m": 3.5826616287231445,
+          "model_path_terminal_speed_median_mps": 2.066660523414612,
+          "model_valid_coverage_ratio": 1.0,
+          "road_camera_coverage_ratio": 1.0,
+          "speed_mean_mps": 4.563639624447059,
+          "speed_std_mps": 0.041532006392936346,
+          "telemetry_coverage_ratio": 1.0,
+          "telemetry_samples": 1000,
+          "traffic_active_vehicle_count_max": 0.0,
+          "traffic_active_vehicle_count_mean": 0.0,
+          "traffic_ego_nearest_distance_min_m": null,
+          "traffic_ego_nearest_distance_p05_m": null,
+          "traffic_nearest_closing_speed_max_mps": null,
+          "traffic_nearest_ttc_min_s": null,
+          "traffic_vehicle_count_max": 0.0,
+          "traffic_vehicle_count_mean": 0.0
+        },
+        "outcome": "pass",
+        "reasons": [],
+        "run_id": "md_default_loop_lane0_host_confirmation_v1-20260901T142447Z-257091f7",
+        "scenario_id": "md_default_loop_lane0_host_confirmation_v1",
+        "schema_version": 1,
+        "target_delay_ms": 0,
+        "termination_reason": null,
+        "validity": "valid"
+      },
+      {
+        "metrics": {
+          "active_time_s": 9.99,
+          "actual_delay_max_ms": 33.481267,
+          "actual_delay_median_ms": 23.163760500000002,
+          "actual_delay_p95_ms": 30.1039602,
+          "applied_steering_rate_rms_deg_s": 0.013560507524511965,
+          "camera_frames_dropped": 0,
+          "camera_frames_published": 200,
+          "camera_timestamps_valid": true,
+          "collision_occurred": false,
+          "heading_rmse_rad": 0.007863730886844502,
+          "lane_departure_occurred": false,
+          "lateral_abs_max_m": 0.32711362838745117,
+          "lateral_abs_p95_m": 0.2973773479461669,
+          "lateral_rmse_m": 0.15150018343697336,
+          "model_execution_time_p95_s": 0.009961206698790186,
+          "model_frame_age_max": 0.0,
+          "model_frame_drop_perc_max": 0.0,
+          "model_path_horizon_median_m": 3.3078259229660034,
+          "model_path_terminal_speed_median_mps": 1.928183376789093,
+          "model_valid_coverage_ratio": 1.0,
+          "road_camera_coverage_ratio": 1.0,
+          "speed_mean_mps": 4.632318138969505,
+          "speed_std_mps": 0.15657557867273258,
+          "telemetry_coverage_ratio": 1.0,
+          "telemetry_samples": 1000,
+          "traffic_active_vehicle_count_max": 0.0,
+          "traffic_active_vehicle_count_mean": 0.0,
+          "traffic_ego_nearest_distance_min_m": null,
+          "traffic_ego_nearest_distance_p05_m": null,
+          "traffic_nearest_closing_speed_max_mps": null,
+          "traffic_nearest_ttc_min_s": null,
+          "traffic_vehicle_count_max": 0.0,
+          "traffic_vehicle_count_mean": 0.0
+        },
+        "outcome": "pass",
+        "reasons": [],
+        "run_id": "md_default_loop_lane0_host_confirmation_v1-20260901T142600Z-e5d6bd08",
+        "scenario_id": "md_default_loop_lane0_host_confirmation_v1",
+        "schema_version": 1,
+        "target_delay_ms": 0,
+        "termination_reason": null,
+        "validity": "valid"
+      }
+    ],
+    "scope": "compatibility_only_not_driving_performance",
+    "source": "outputs/v0.1-host-confirmation-probe-20260901"
+  },
+  "regression_review": {
+    "metric_deltas": {
+      "actual_delay_median_ms": {
+        "baseline_median": 23.78399,
+        "candidate_median": 24.596454,
+        "delta": 0.8124640000000021
+      },
+      "applied_steering_rate_rms_deg_s": {
+        "baseline_median": 0.009197285915965832,
+        "candidate_median": 0.015492600426680709,
+        "delta": 0.006295314510714876
+      },
+      "lateral_abs_p95_m": {
+        "baseline_median": 1.09667725236514,
+        "candidate_median": 1.7336979973540423,
+        "delta": 0.6370207449889023
+      },
+      "lateral_rmse_m": {
+        "baseline_median": 0.6638984877380599,
+        "candidate_median": 0.848845525941882,
+        "delta": 0.18494703820382208
+      },
+      "speed_mean_mps": {
+        "baseline_median": 4.571829615385222,
+        "candidate_median": 4.56641170561071,
+        "delta": -0.005417909774512175
+      }
+    },
+    "phase_1_hard_gate_failures": [
+      "md_default_loop_lane0_v1-20260901T131933Z-3429c287:invalid",
+      "md_default_loop_lane0_v1-20260901T143521Z-6dfa2b8b:invalid",
+      "md_default_loop_lane0_v1-20260901T132114Z-1dc7d796:invalid"
+    ],
+    "scope": "diagnostic_only_after_phase_1_failure",
+    "source": "outputs/v0.1-current-host-confirmation-20260901/regression-review.json",
+    "verdict": "hard_gate_fail"
+  },
+  "schema_version": 1,
+  "scope": "public_small_evidence_bundle"
+}
