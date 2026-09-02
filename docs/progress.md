@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The complete bootstrap install path was exercised after fixing both runtime gaps: `uv sync --group standalone`, editable MetaDrive and sim-lab installation into the OpenPilot runtime, sim-lab tests, preflight, and bounded probe all completed. `outputs/reproducibility-package-20260902-bootstrapped-runtime-final/verification.json` is `pass` with unchanged boot ID.
 - The new-PC/WSL flow was exercised as `bootstrap_new_wsl.sh --check` followed by the one-command package. It verified fixed OpenPilot/MetaDrive commits and runtime import, then produced `outputs/reproducibility-package-20260902-new-wsl-flow/verification.json` with `status: pass` and unchanged WSL boot ID.
 - The final bounded reproducibility package completed at `outputs/reproducibility-package-20260902-final`: `verification.json` is `pass`, its manifest pins clean sim-lab commit `0528d86`, and it retains scenario hash, runtime provenance, report, and a valid/pass 200-frame probe. This is the reproducibility package, not a formal driving-performance matrix.
 - The bounded reproducibility package is implemented: one launcher runs unit tests, dirty-aware preflight, a frozen-scenario 200-frame probe, report generation, and artifact verification. A first end-to-end execution produced `verification.json: pass`; final evidence is rerun after the launcher commit so its manifest pins a clean sim-lab commit.
