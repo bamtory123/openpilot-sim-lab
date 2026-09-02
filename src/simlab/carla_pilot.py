@@ -21,8 +21,6 @@ def classify_pilot(*, lifecycle: list[str], telemetry: list[dict[str, Any]], cam
   invalid: list[str] = []
   if "WAIT_SIM_READY" not in lifecycle or "WAIT_OPENPILOT_READY" not in lifecycle or "MEASURE" not in lifecycle:
     invalid.append("startup_or_measurement_incomplete")
-  if expected_camera_frames <= 0 or sum(not row.get("dropped", False) for row in camera) < expected_camera_frames * 0.95:
-    invalid.append("camera_coverage")
   if not telemetry:
     invalid.append("telemetry_coverage")
   if invalid:
@@ -37,4 +35,6 @@ def classify_pilot(*, lifecycle: list[str], telemetry: list[dict[str, Any]], cam
     unstable.append("disengagement")
   if unstable:
     return PilotVerdict("integrated-but-not-stable", tuple(unstable))
+  if expected_camera_frames <= 0 or sum(not row.get("dropped", False) for row in camera) < expected_camera_frames * 0.95:
+    return PilotVerdict("invalid", ("camera_coverage",))
   return PilotVerdict("bounded-pass", ())

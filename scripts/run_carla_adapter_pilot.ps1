@@ -44,7 +44,9 @@ for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
   } catch {
     $failure = $_.Exception.Message
   } finally {
-    Stop-Process -Id $server.Id -ErrorAction SilentlyContinue
+    # CarlaUE4.exe launches the rendering process as a child.  Killing only
+    # the launcher leaves GPU-consuming CarlaUE4-Win64-Shipping children alive.
+    & taskkill.exe /PID $server.Id /T /F *> $null
     Start-Sleep -Seconds 2
     [ordered]@{
       schema_version = 1

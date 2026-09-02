@@ -14,6 +14,13 @@ def test_pilot_reports_integrated_but_unstable():
   assert verdict.reasons == ("collision",)
 
 
+def test_safety_termination_is_not_hidden_by_short_coverage():
+  lifecycle = ["WAIT_SIM_READY", "WAIT_OPENPILOT_READY", "MEASURE"]
+  verdict = classify_pilot(lifecycle=lifecycle, telemetry=[{"measurement": True, "engaged": True}],
+                           camera=[{}] * 2, termination={"lane_departure": True}, expected_camera_frames=1200)
+  assert verdict.status == "integrated-but-not-stable"
+
+
 def test_pilot_reports_bounded_pass():
   lifecycle = ["WAIT_SIM_READY", "WAIT_OPENPILOT_READY", "MEASURE"]
   verdict = classify_pilot(lifecycle=lifecycle, telemetry=[{"measurement": True, "engaged": True}],

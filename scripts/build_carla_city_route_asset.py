@@ -14,6 +14,8 @@ def yaw_delta(before: float, after: float) -> float:
 
 def trace_route(carla, game_map, start, steps: int = 220) -> tuple[list, list[str]]:
   route, turns = [start], []
+  accumulated_yaw = 0.0
+  previous_turn = None
   for _ in range(steps):
     choices = route[-1].next(2.0)
     if not choices:
@@ -25,6 +27,17 @@ def trace_route(carla, game_map, start, steps: int = 220) -> tuple[list, list[st
     if len(choices) > 1:
       selected = deltas[selected_index]
       turns.append("left" if selected < -5 else "right" if selected > 5 else "straight")
+    else:
+      # Town04 often models a city bend as successive one-choice waypoints.
+      # Record a geometric turn once the accumulated heading change is clear,
+      # rather than misclassifying that route as all-straight.
+      accumulated_yaw += deltas[selected_index]
+      if abs(accumulated_yaw) >= 20.0:
+        geometric_turn = "left" if accumulated_yaw < 0 else "right"
+        if geometric_turn != previous_turn:
+          turns.append(geometric_turn)
+          previous_turn = geometric_turn
+        accumulated_yaw = 0.0
     route.append(choice)
   return route, turns
 
