@@ -44,5 +44,6 @@ fi
 git -C "$metadrive_root" fetch origin
 git -C "$metadrive_root" checkout "$metadrive_commit"
 uv pip install --python "$openpilot_root/.venv/bin/python" -e "$metadrive_root"
+uv pip install --python "$openpilot_root/.venv/bin/python" -e .
 uv sync --group dev
 check

@@ -25,7 +25,7 @@ export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"
 scripts/run_reproducibility_package.sh outputs/reproducibility-package
 ```
 
-The bootstrap fixes OpenPilot at `d7ee3435737d7e0bd88f14ffedd45999b6d2e957` and MetaDrive at `2716f55a9c7b928ce957a497a15c2c19840c08bc`, creates the OpenPilot environment, installs MetaDrive editable into it, and syncs sim-lab test dependencies. Run `scripts/bootstrap_new_wsl.sh --check` before the package to verify those exact commits and the runtime import without changing state.
+The bootstrap fixes OpenPilot at `d7ee3435737d7e0bd88f14ffedd45999b6d2e957` and MetaDrive at `2716f55a9c7b928ce957a497a15c2c19840c08bc`, creates the OpenPilot environment, installs MetaDrive and sim-lab editable into that runtime, and syncs sim-lab test dependencies. Run `scripts/bootstrap_new_wsl.sh --check` before the package to verify those exact commits and the runtime import without changing state.
 
 These commands run the fixed model-driven baseline, not a simulator-only controller diagnostic.
 
