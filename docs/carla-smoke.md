@@ -44,7 +44,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File \\wsl.localhost\Ubuntu-2
 
 The wrapper discovers the current WSL default-route gateway; pass `-HostIp <gateway>` to override discovery. Its result remains CARLA-client smoke evidence only.
 
-Verify a retained wrapper result without starting CARLA:
+Verify a retained wrapper result without starting CARLA. The current wrapper writes schema 2, which also summarizes the client/server versions, camera dimensions, control, speed, and cleanup observation. The verifier remains compatible with earlier schema-1 retained results:
 
 ```bash
 uv run python scripts/verify_carla_smoke_artifact.py outputs/carla-smoke/<run-id>/result.json

@@ -165,3 +165,19 @@ def test_carla_smoke_artifact_verifier_rejects_missing_log(tmp_path):
   failed = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_smoke_artifact.py"), str(result_path)],
                           capture_output=True, text=True)
   assert failed.returncode != 0 and "client log" in failed.stderr
+
+
+def test_carla_smoke_artifact_verifier_requires_schema_2_observation(tmp_path):
+  result = {
+    "schema_version": 2, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",
+    "connect_exit_code": 0, "client_exit_code": 0, "server_stopped": True, "failure": None,
+    "logs": {"server_stdout": "server.stdout.log", "server_stderr": "server.stderr.log",
+             "connect": "connect.log", "client": "client.log"},
+  }
+  result_path = tmp_path / "result.json"
+  result_path.write_text(json.dumps(result), encoding="utf-8")
+  for name in result["logs"].values():
+    (tmp_path / name).touch()
+  failed = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_smoke_artifact.py"), str(result_path)],
+                          capture_output=True, text=True)
+  assert failed.returncode != 0 and "client/server observation" in failed.stderr

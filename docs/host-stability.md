@@ -30,6 +30,8 @@ The same VmSwitch warning occurred 257 times in the preceding 24 hours, includin
 
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.
 
+Later on 2026-09-02, a Windows PowerShell verification process reported `OutOfMemoryException` after a CARLA client-smoke wrapper had already completed and written its result. The recorded CARLA result remained `pass`, its exact server PID was absent, and the WSL boot ID matched the immediately preceding bounded host-stack check. This is retained as a separate user-space verification-shell failure; no WSL restart, CARLA-run failure, or GPU/driver cause is assigned from it.
+
 A post-restart configuration snapshot found no user `.wslconfig`, about 14 GiB WSL memory available, an unused 4 GiB swap, RTX 4080 driver 616.56, and 812 MiB GPU memory in use at inspection. This makes a fixed user memory cap unlikely, but does not rule out transient resource pressure or identify the restart cause.
 
 With the expanded collector in place, a later 200-frame host probe completed `valid/pass` in 43.9 seconds: 9.94 seconds active, 0.995 telemetry coverage, 1.0 road-camera coverage, zero drop/departure/collision, exit code 0, and unchanged boot ID. Its exact post-start System/VmSwitch collection window contained zero selected events. This is bounded host-path evidence only, not long-duration stability clearance.

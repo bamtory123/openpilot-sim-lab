@@ -30,6 +30,7 @@ $startedAt = (Get-Date).ToUniversalTime().ToString("o")
 $server = $null
 $connectExit = $null
 $clientExit = $null
+$clientObservation = $null
 $failure = $null
 
 try {
@@ -50,6 +51,16 @@ try {
   & wsl.exe @cameraArgs 2>&1 | Tee-Object -FilePath $clientLog
   $clientExit = $LASTEXITCODE
   if ($clientExit -ne 0) { throw "CARLA camera/state/control smoke failed" }
+  $clientResult = Get-Content -Raw -LiteralPath $clientLog | ConvertFrom-Json
+  $clientObservation = [ordered]@{
+    client_version = $clientResult.client_version
+    server_version = $clientResult.server_version
+    camera = $clientResult.camera
+    vehicle_control = $clientResult.vehicle_control
+    vehicle_speed_mps = $clientResult.vehicle_speed_mps
+    actors_destroyed = $clientResult.actors_destroyed
+    world_settings_restored = $clientResult.world_settings_restored
+  }
 } catch {
   $failure = $_.Exception.Message
 } finally {
@@ -59,7 +70,7 @@ try {
   }
   $serverStopped = $null -eq (Get-Process -Id $server.Id -ErrorAction SilentlyContinue)
   [ordered]@{
-    schema_version = 1
+    schema_version = 2
     scope = "carla_client_or_connectivity_smoke_only"
     status = if ($null -eq $failure) { "pass" } else { "fail" }
     started_at_utc = $startedAt
@@ -71,6 +82,7 @@ try {
     server_stopped = if ($null -eq $server) { $null } else { $serverStopped }
     connect_exit_code = $connectExit
     client_exit_code = $clientExit
+    client_observation = $clientObservation
     failure = $failure
     logs = @{ server_stdout = "server.stdout.log"; server_stderr = "server.stderr.log"; connect = "connect.log"; client = "client.log" }
   } | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath $resultPath -Encoding utf8
