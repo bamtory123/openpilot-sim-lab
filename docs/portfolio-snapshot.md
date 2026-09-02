@@ -35,6 +35,7 @@ For the complete local readiness check, include the freshly retained bounded art
 
 ```bash
 uv run python scripts/verify_portfolio_readiness.py \
+  --verify-local-v01 \
   --repro-root outputs/reproducibility-package-20260903-portfolio \
   --host-stack outputs/host-stack-20260903-portfolio/host-stack.json \
   --carla-result outputs/carla-smoke/20260902T103857Z/result.json

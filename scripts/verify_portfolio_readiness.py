@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from build_v01_public_evidence import render_summary as render_v01_summary
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,9 +22,13 @@ def main() -> None:
   parser.add_argument("--repro-root", type=Path)
   parser.add_argument("--host-stack", type=Path)
   parser.add_argument("--carla-result", type=Path)
+  parser.add_argument("--verify-local-v01", action="store_true")
   args = parser.parse_args()
 
-  run("verify_v01_public_evidence.py")
+  v01_evidence = json.loads((ROOT / "examples/v0.1-portfolio-evidence/evidence.json").read_text(encoding="utf-8"))
+  v01_summary = (ROOT / "examples/v0.1-portfolio-evidence/SUMMARY.md").read_text(encoding="utf-8")
+  if v01_summary != render_v01_summary(v01_evidence):
+    raise SystemExit("public v0.1 summary differs from evidence.json")
   report = (ROOT / "docs/qualification-report.md").read_text(encoding="utf-8")
   snapshot = (ROOT / "docs/portfolio-snapshot.md").read_text(encoding="utf-8")
   carla = (ROOT / "examples/v0.2-carla-client-smoke/evidence.json").read_text(encoding="utf-8")
@@ -36,6 +41,9 @@ def main() -> None:
     raise SystemExit("public CARLA sample boundary is missing")
 
   checks = {"public_v01": "pass", "public_carla": "pass"}
+  if args.verify_local_v01:
+    run("verify_v01_public_evidence.py")
+    checks["v01_retained_source"] = "pass"
   if args.repro_root is not None:
     run("verify_reproducibility_package.py", str(args.repro_root))
     checks["reproducibility_package"] = "pass"
