@@ -129,5 +129,7 @@ def test_carla_smoke_preflight_keeps_connection_opt_in():
   documentation = (ROOT / "docs/carla-smoke.md").read_text(encoding="utf-8")
 
   assert 'parser.add_argument("--connect", action="store_true")' in script
+  assert 'parser.add_argument("--sync-ticks", type=int, default=0)' in script
+  assert "world.apply_settings(original_settings)" in script
   assert "carla_client_or_connectivity_smoke_only" in script
   assert "neither starts an OpenPilot bridge nor qualifies CARLA closed-loop behavior" in documentation
