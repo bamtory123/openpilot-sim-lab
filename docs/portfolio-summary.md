@@ -21,4 +21,4 @@ The pretrained OpenPilot model-driven candidate set cannot satisfy the current 5
 
 This project does not claim successful OpenPilot driving, real-road validation, HIL, vehicle-CAN actuation validation, CARLA closed-loop qualification, obstacle avoidance, or statistical/general driving generalization. Simulator-specialist experiments are separately scoped and never replace the pretrained OpenPilot baseline.
 
-See the [qualification report](qualification-report.md), [decision log](decisions.md), and [limitations](limitations.md).
+Start with the [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md): it is the small, public-safe entry point and preserves the distinction between the formal lane-departure failure and host compatibility probes. The retained local artifacts and final disposition are documented in the [qualification report](qualification-report.md), [decision log](decisions.md), and [limitations](limitations.md).

@@ -74,4 +74,4 @@ These are valid measurements, not invalid infrastructure runs. Their failure is 
 - Generalization across road geometry, rendering, speed, traffic interaction, weather, camera hardware, or real-world data.
 - HIL, CAN-bus integration, EPS/actuator validation, safety validation, or CARLA closed-loop validation.
 
-For experiment details see [simulator-specialist](simulator-specialist.md), [camera-domain-gap](camera-domain-gap.md), and [reproducibility](reproducibility.md).
+For the public-safe v0.1 evidence extract and its source hashes, see [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md). For experiment details see [simulator-specialist](simulator-specialist.md), [camera-domain-gap](camera-domain-gap.md), and [reproducibility](reproducibility.md).

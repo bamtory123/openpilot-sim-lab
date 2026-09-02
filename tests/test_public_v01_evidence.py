@@ -18,3 +18,9 @@ def test_public_v01_evidence_preserves_result_boundaries():
   sources = [evidence["formal_matrix"]["source"], evidence["baseline_audit"]["source"],
              evidence["regression_review"]["source"], *evidence["host_confirmation"]["sources"]]
   assert all(re.fullmatch(r"[0-9a-f]{64}", source["sha256"]) for source in sources)
+
+
+def test_public_v01_evidence_is_linked_from_portfolio_documents():
+  link = "../examples/v0.1-portfolio-evidence/README.md"
+  for document in ("docs/portfolio-summary.md", "docs/release-checklist.md", "docs/evaluation-boundary.md"):
+    assert link in (ROOT / document).read_text(encoding="utf-8")
