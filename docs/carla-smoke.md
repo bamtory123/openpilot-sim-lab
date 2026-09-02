@@ -50,7 +50,7 @@ Verify a retained wrapper result without starting CARLA. The current wrapper wri
 uv run python scripts/verify_carla_smoke_artifact.py outputs/carla-smoke/<run-id>/result.json
 ```
 
-Summarize the retained local artifacts without starting CARLA or making a closed-loop claim:
+Summarize the retained local artifacts without starting CARLA or making a closed-loop claim. A malformed result stays visible as a failed artifact instead of aborting the whole summary:
 
 ```bash
 uv run python scripts/summarize_carla_smoke_artifacts.py outputs/carla-smoke

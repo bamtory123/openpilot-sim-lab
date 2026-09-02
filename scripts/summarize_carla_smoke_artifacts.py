@@ -15,7 +15,14 @@ def main() -> None:
   runs = []
   for result_path in sorted(args.root.glob("*/result.json")):
     checked = subprocess.run([sys.executable, str(verifier), str(result_path)], capture_output=True, text=True)
-    result = json.loads(result_path.read_text(encoding="utf-8-sig"))
+    try:
+      result = json.loads(result_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as error:
+      runs.append({"run_id": result_path.parent.name, "verification": "fail", "status": None,
+                   "artifact_schema_version": None, "host": None, "port": None, "client_version": None,
+                   "server_version": None, "server_stopped": None,
+                   "verification_error": f"cannot read result: {error}"})
+      continue
     runs.append({
       "run_id": result_path.parent.name,
       "verification": "pass" if checked.returncode == 0 else "fail",

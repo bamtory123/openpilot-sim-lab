@@ -205,3 +205,15 @@ def test_carla_smoke_artifact_summary_reports_latest_verified_run(tmp_path):
   assert summary["scope"] == "carla_client_smoke_artifact_summary_only"
   assert summary["artifact_count"] == summary["verified_count"] == 1
   assert summary["latest"]["run_id"] == run.name
+
+
+def test_carla_smoke_artifact_summary_preserves_malformed_result_as_failed(tmp_path):
+  run = tmp_path / "broken"
+  run.mkdir()
+  (run / "result.json").write_text("not-json", encoding="utf-8")
+  output = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_carla_smoke_artifacts.py"), str(tmp_path)],
+                          check=True, capture_output=True, text=True)
+  summary = json.loads(output.stdout)
+  assert summary["artifact_count"] == 1 and summary["verified_count"] == 0
+  assert summary["latest"]["run_id"] == "broken"
+  assert summary["latest"]["verification"] == "fail"
