@@ -44,6 +44,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File \\wsl.localhost\Ubuntu-2
 
 The wrapper's default host is this workstation's current WSL gateway (`172.28.112.1`); pass `-HostIp <gateway>` when it changes. Its result remains CARLA-client smoke evidence only.
 
+Verify a retained wrapper result without starting CARLA:
+
+```bash
+uv run python scripts/verify_carla_smoke_artifact.py outputs/carla-smoke/<run-id>/result.json
+```
+
 | Check | Status | Evidence / constraint |
 |---|---|---|
 | Windows server start | Manual verification required | Shader compilation and GPU driver state can affect startup |
