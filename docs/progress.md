@@ -2,6 +2,7 @@
 
 ## Completed
 
+- On 2026-09-02, a fresh bounded host-stack check completed a 5-second CUDA arithmetic soak (3,457 iterations), a two-step offscreen MetaDrive road-camera probe, and preflight without a WSL boot-ID change. This is a short component-path confirmation only; it does not clear the long CUDA-backed bridge stability boundary.
 - The public v0.1 bundle now has a read-only local SHA-256 verifier. It rejects missing, changed, or path-unsafe retained sources and any accidentally exposed raw telemetry/camera/frame/process artifact.
 - The public-safe v0.1 evidence bundle is now linked from the portfolio summary, release checklist, and evaluation boundary. A unit test keeps that reviewer path from drifting while preserving the `not_qualified_yet` pretrained-driving disposition.
 - Public v0.1 evidence selection is generated in `examples/v0.1-portfolio-evidence`: a representative formal failure, approved baseline audit summary, hard-gate regression review, and two scoped host-confirmation summaries. Raw telemetry, camera data, frames, and process logs are excluded.
