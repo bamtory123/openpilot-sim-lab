@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Public-evidence verification now rejects a stale or manually drifted `SUMMARY.md`; delay groups are rendered in numeric 0/50/100/150 ms order independently of JSON key ordering. This caught and corrected a real generator/serialized-JSON ordering mismatch before submission.
 - The portfolio snapshot reviewer path now opens the generated public evidence summary before the detailed JSON bundle, keeping the central failure/host boundary visible at first read.
 - Windows WSL/GPU collector JSON now has a BOM-safe, numeric-severity-normalizing descriptive summarizer. For the fresh host-stack window (15 m 51 s), it retained 128 selected events (112 Information, 16 Verbose, zero Error/Warning/Critical); this is temporal correlation evidence only and does not assign a driver cause.
 - The public evidence bundle now generates a compact Markdown summary from the same retained sources as `evidence.json`. It makes the final `not_qualified_yet` disposition, formal lane-departure failure, candidate hard-gate failure, and host-only compatibility passes readable without exposing raw run data.

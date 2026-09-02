@@ -4,9 +4,12 @@ import hashlib
 import json
 from pathlib import Path
 
+from build_v01_public_evidence import render_summary
+
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_PATH = ROOT / "examples/v0.1-portfolio-evidence/evidence.json"
+SUMMARY_PATH = ROOT / "examples/v0.1-portfolio-evidence/SUMMARY.md"
 
 
 def source_records(evidence: dict) -> list[dict]:
@@ -36,6 +39,10 @@ def main() -> None:
              if path.name in forbidden_names]
   if exposed:
     errors.append(f"public bundle exposes excluded artifacts: {', '.join(map(str, exposed))}")
+  if not SUMMARY_PATH.is_file():
+    errors.append("public evidence summary is missing")
+  elif SUMMARY_PATH.read_text(encoding="utf-8") != render_summary(evidence):
+    errors.append("public evidence summary does not match evidence.json")
   if errors:
     raise SystemExit("\n".join(errors))
   print(json.dumps({"schema_version": 1, "status": "pass", "source_count": len(source_records(evidence))},

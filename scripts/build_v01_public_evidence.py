@@ -22,7 +22,8 @@ def source(path: Path) -> dict:
 def render_summary(evidence: dict) -> str:
   formal = evidence["formal_matrix"]
   host = evidence["host_confirmation"]
-  delays = " | ".join(f"{delay} ms: {rmse:.6f} m" for delay, rmse in formal["aggregate"].items())
+  delays = " | ".join(f"{delay} ms: {formal['aggregate'][delay]:.6f} m"
+                      for delay in sorted(formal["aggregate"], key=int))
   return "\n".join([
     "# v0.1 public evidence summary",
     "",

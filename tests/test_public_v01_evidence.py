@@ -30,6 +30,8 @@ def test_public_v01_evidence_has_a_local_hash_verifier():
   verifier = (ROOT / "scripts/verify_v01_public_evidence.py").read_text(encoding="utf-8")
   readme = (ROOT / "examples/v0.1-portfolio-evidence/README.md").read_text(encoding="utf-8")
   assert "hashlib.sha256" in verifier
+  assert "render_summary" in verifier
+  assert "summary does not match evidence.json" in verifier
   assert "uv run python scripts/build_v01_public_evidence.py" in readme
   assert "verify_v01_public_evidence.py" in readme
 
