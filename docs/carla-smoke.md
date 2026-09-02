@@ -50,15 +50,21 @@ Verify a retained wrapper result without starting CARLA. The current wrapper wri
 uv run python scripts/verify_carla_smoke_artifact.py outputs/carla-smoke/<run-id>/result.json
 ```
 
+Summarize the retained local artifacts without starting CARLA or making a closed-loop claim:
+
+```bash
+uv run python scripts/summarize_carla_smoke_artifacts.py outputs/carla-smoke
+```
+
 | Check | Status | Evidence / constraint |
 |---|---|---|
 | Windows server start | Manual verification required | Shader compilation and GPU driver state can affect startup |
 | WSL client import | Pass: v0.2 preparation | OpenPilot runtime imports `carla==0.9.16` |
 | Windows–WSL client connection | Pass: one connectivity smoke | CARLA 0.9.16 handshake at `172.28.112.1:2000`; server stopped immediately after the check |
 | Synchronous tick | Pass: one smoke | Two fixed-step ticks advanced frames `39941 → 39942`; prior world settings restored |
-| RGB camera/state/control mapping | Pass: five CARLA-only smokes | Each fresh-server smoke captured a 320×180 RGB frame, brake command, and vehicle state; the latest schema-2 client log is `outputs/carla-smoke/20260902T103857Z/client.log`; no OpenPilot adapter or response-quality conclusion |
-| Actor cleanup/restart | Pass: five independent cleanup smokes | Each smoke destroyed camera/vehicle and restored prior world settings; the latest schema-2 `result.json` records `server_stopped: true` with server/connect/client logs and client observations; historical actor/route failures remain open |
+| RGB camera/state/control mapping | 3 retained wrapper artifacts; 2 earlier manual observations | The three retained artifacts verify 320×180 RGB, brake command, and vehicle state; latest is schema 2 at `outputs/carla-smoke/20260902T103857Z/client.log`. The two earlier terminal-only observations are not equivalent retained evidence. No OpenPilot adapter or response-quality conclusion. |
+| Actor cleanup/restart | 3 retained wrapper artifacts; 2 earlier manual observations | Each retained artifact verifies actor cleanup and world-setting restoration; latest schema-2 `result.json` records `server_stopped: true` with server/connect/client logs and client observations. Historical actor/route failures remain open. |
 
-Any later PASS result must include the CARLA version, host/port, server log, client log, and a second-run result.
+New CARLA smoke evidence must use the wrapper and include the CARLA version, host/port, server log, client log, and a second-run result. Earlier manual observations remain historical context only.
 
 The retained connection/tick/camera result does not include an OpenPilot bridge, vehicle-response quality evaluation, route coverage, or closed-loop run. It must not be described as CARLA closed-loop integration.

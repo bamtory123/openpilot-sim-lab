@@ -181,3 +181,27 @@ def test_carla_smoke_artifact_verifier_requires_schema_2_observation(tmp_path):
   failed = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_smoke_artifact.py"), str(result_path)],
                           capture_output=True, text=True)
   assert failed.returncode != 0 and "client/server observation" in failed.stderr
+
+
+def test_carla_smoke_artifact_summary_reports_latest_verified_run(tmp_path):
+  run = tmp_path / "20260902T000000Z"
+  run.mkdir()
+  result = {
+    "schema_version": 2, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",
+    "host": "172.28.112.1", "port": 2000, "connect_exit_code": 0, "client_exit_code": 0,
+    "server_stopped": True, "failure": None,
+    "client_observation": {"client_version": "0.9.16", "server_version": "0.9.16",
+                           "camera": {"width": 320, "height": 180}, "vehicle_control": {},
+                           "actors_destroyed": True},
+    "logs": {"server_stdout": "server.stdout.log", "server_stderr": "server.stderr.log",
+             "connect": "connect.log", "client": "client.log"},
+  }
+  (run / "result.json").write_text(json.dumps(result), encoding="utf-8")
+  for name in result["logs"].values():
+    (run / name).touch()
+  output = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_carla_smoke_artifacts.py"), str(tmp_path)],
+                          check=True, capture_output=True, text=True)
+  summary = json.loads(output.stdout)
+  assert summary["scope"] == "carla_client_smoke_artifact_summary_only"
+  assert summary["artifact_count"] == summary["verified_count"] == 1
+  assert summary["latest"]["run_id"] == run.name
