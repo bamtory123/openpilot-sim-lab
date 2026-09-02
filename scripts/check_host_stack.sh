@@ -38,7 +38,7 @@ def git_source(root):
 gpu = subprocess.run(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"],
                      capture_output=True, text=True, check=False)
 Path(path).write_text(json.dumps({
-  "schema_version": 1,
+  "schema_version": 2,
   "created_at_utc": datetime.now(timezone.utc).isoformat(),
   "status": status,
   "exit_code": int(exit_code),

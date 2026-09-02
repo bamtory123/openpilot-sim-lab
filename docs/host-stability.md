@@ -53,6 +53,12 @@ For an offscreen MetaDrive renderer-only check, run `PYTHONPATH="$OPENPILOT_ROOT
 
 For the complete bounded host-stack sequence, run `SIMLAB_ALLOW_DIRTY=1 scripts/check_host_stack.sh`. Its defaults are a 20-second CUDA soak and a 20-step renderer probe before preflight; override `CUDA_SOAK_SECONDS` or `METADRIVE_RENDER_STEPS` only for a shorter diagnostic check. It compares WSL boot IDs before and after a normally completed sequence. Set `HOST_STACK_OUTPUT=outputs/host-stack/host-stack.json` to retain a structured pass or normally returned failure, including the failed stage, completed CUDA/renderer result, UTC, Python, GPU/driver, and sim-lab/OpenPilot commit/dirty provenance. A WSL restart can still prevent the script from writing its artifact; use the durable bridge-attempt recovery path for that case.
 
+Verify a retained artifact without running CUDA or MetaDrive again:
+
+```bash
+uv run python scripts/verify_host_stack_artifact.py outputs/host-stack/host-stack.json
+```
+
 For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It copies the resolved scenario, records absolute source/snapshot paths and a hash in `attempt.json` before launching the runner, so recovery remains independent of its later working directory. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
 
 `scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It verifies the attempt's recorded scenario hash against the frozen snapshot, and skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
