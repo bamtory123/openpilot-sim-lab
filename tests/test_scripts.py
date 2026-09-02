@@ -65,3 +65,24 @@ def test_host_stack_artifact_verifier_rejects_inconsistent_pass(tmp_path):
                           capture_output=True, text=True)
 
   assert result.returncode != 0 and "changed boot ID" in result.stderr
+
+
+def test_host_stack_comparison_is_descriptive_only(tmp_path):
+  base = {
+    "schema_version": 3, "status": "pass", "exit_code": 0, "failed_stage": None,
+    "recorded_wsl_boot_id": "a", "observed_wsl_boot_id": "a", "wsl_boot_changed": False,
+    "cuda": {"elapsed_ms": 1000, "iterations": 10}, "renderer": {"elapsed_ms": 20}, "preflight": "pass",
+    "provenance": {"sim_lab": {"commit": "a"}, "openpilot": {"commit": "b"}, "python_version": "3.12",
+                   "wsl_kernel": "kernel", "metadrive_version": "0.4.2.3", "gpu": "GPU"},
+  }
+  baseline, candidate = tmp_path / "baseline.json", tmp_path / "candidate.json"
+  baseline.write_text(json.dumps(base), encoding="utf-8")
+  base["cuda"]["iterations"] = 20
+  candidate.write_text(json.dumps(base), encoding="utf-8")
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/compare_host_stack_artifacts.py"), str(baseline), str(candidate)],
+                          check=True, capture_output=True, text=True)
+
+  comparison = json.loads(result.stdout)
+  assert comparison["scope"] == "descriptive_host_runtime_comparison_only"
+  assert comparison["comparison_status"] == "comparable"
+  assert comparison["candidate"]["cuda_iterations_per_s"] == 20

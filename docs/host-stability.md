@@ -59,6 +59,12 @@ Verify a retained artifact without running CUDA or MetaDrive again:
 uv run python scripts/verify_host_stack_artifact.py outputs/host-stack/host-stack.json
 ```
 
+Compare two valid artifacts descriptively—without producing a host-stability or driving verdict:
+
+```bash
+uv run python scripts/compare_host_stack_artifacts.py baseline/host-stack.json candidate/host-stack.json
+```
+
 For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It copies the resolved scenario, records absolute source/snapshot paths and a hash in `attempt.json` before launching the runner, so recovery remains independent of its later working directory. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
 
 `scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It verifies the attempt's recorded scenario hash against the frozen snapshot, and skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
