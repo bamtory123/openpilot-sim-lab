@@ -32,7 +32,7 @@ These commands run the fixed model-driven baseline, not a simulator-only control
 ```bash
 cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot
-export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python3"
+export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"
 
 $OPENPILOT_PYTHON -m simlab.runner preflight \
   --scenario configs/scenarios/md_default_loop_lane0_v1.yaml

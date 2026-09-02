@@ -35,3 +35,4 @@ def test_readme_uses_uv_for_openpilot_runtime_editable_install():
   readme = (ROOT / "README.md").read_text(encoding="utf-8")
   assert 'uv pip install --python "$OPENPILOT_PYTHON" --no-deps -e .' in readme
   assert "$OPENPILOT_PYTHON -m pip install --no-deps -e ." not in readme
+  assert 'OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"' in readme
