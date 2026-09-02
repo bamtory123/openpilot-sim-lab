@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Host-stack JSON now preserves normally returned failures as well as passes. A deliberate no-`--allow-dirty` preflight rejection wrote `status: fail`, `failed_stage: preflight`, exit code, completed CUDA/renderer data, and unchanged boot ID; a following 5-second/2-step run wrote a complete `status: pass` artifact. Guest-restart recovery remains a separate durable-attempt concern.
 - The bounded host-stack check can now retain successful CUDA, renderer, preflight, and before/after WSL boot-ID data in one `HOST_STACK_OUTPUT` JSON artifact. Its first structured run at `outputs/host-stack-20260902-followup/host-stack.json` passed: 5-second CUDA soak (3,386 iterations), two renderer steps/one capture, preflight, and unchanged boot ID. It remains component-path evidence only.
 - Preflight now names every dirty source it blocks, instead of emitting an ambiguous generic refusal. On the clean sim-lab checkout it correctly identifies only the intended dirty `metadrive` dependency; explicit `--allow-dirty` still passes and records that state in the manifest.
 - The quick-start and simulator instructions now make the current intentional dirty MetaDrive dependency state explicit: executable commands use `--allow-dirty`, while clean checkouts can omit it. A direct dirty-aware preflight and the test suite passed after the documentation correction.

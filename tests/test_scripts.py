@@ -44,4 +44,5 @@ def test_host_stack_supports_structured_success_evidence():
   host_stability = (ROOT / "docs/host-stability.md").read_text(encoding="utf-8")
   assert "HOST_STACK_OUTPUT" in script
   assert '"schema_version": 1' in script
+  assert '"failed_stage": None if status == "pass" else stage' in script
   assert "HOST_STACK_OUTPUT=outputs/host-stack/host-stack.json" in host_stability
