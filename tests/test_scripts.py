@@ -145,6 +145,7 @@ def test_carla_windows_wrapper_preserves_logs_and_cleanup_contract():
   assert "result.json" in script
   assert "--camera-state-control-smoke" in script
   assert "finally" in script and "Stop-Process -Id $server.Id" in script
+  assert "ip route show default" in script and "pass -HostIp explicitly" in script
   assert "carla_client_or_connectivity_smoke_only" in script
 
 

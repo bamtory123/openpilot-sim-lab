@@ -3,7 +3,7 @@ param(
   [string]$WslDistro = "Ubuntu-24.04",
   [string]$OpenpilotPython = "/home/hyunsung/src/openpilot/.venv/bin/python",
   [string]$SimlabRoot = "/home/hyunsung/src/openpilot-sim-lab",
-  [string]$HostIp = "172.28.112.1",
+  [string]$HostIp = "",
   [int]$Port = 2000,
   [int]$StartupTimeoutSeconds = 60,
   [string]$OutputRoot = (Join-Path (Split-Path -Parent $PSScriptRoot) "outputs\carla-smoke")
@@ -11,6 +11,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 if (-not (Test-Path -LiteralPath $CarlaExe -PathType Leaf)) { throw "CARLA executable is missing: $CarlaExe" }
+if ([string]::IsNullOrWhiteSpace($HostIp)) {
+  $defaultRoute = & wsl.exe -d $WslDistro -- ip route show default
+  if ($LASTEXITCODE -ne 0) { throw "cannot read the WSL default route; pass -HostIp explicitly" }
+  $routeMatch = [regex]::Match(($defaultRoute -join " "), "default via (?<host>[^ ]+)")
+  if (-not $routeMatch.Success) { throw "cannot find the WSL gateway; pass -HostIp explicitly" }
+  $HostIp = $routeMatch.Groups["host"].Value
+}
 
 $runDirectory = Join-Path $OutputRoot ((Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ"))
 New-Item -ItemType Directory -Force -Path $runDirectory | Out-Null
