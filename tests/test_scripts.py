@@ -122,3 +122,12 @@ def test_windows_event_summary_normalizes_windows_numeric_levels(tmp_path):
   summary = json.loads(result.stdout)
   assert summary["high_severity_event_count"] == 1
   assert summary["severity_counts"] == {"Error": 1, "Information": 1, "Verbose": 1}
+
+
+def test_carla_smoke_preflight_keeps_connection_opt_in():
+  script = (ROOT / "scripts/carla_smoke_preflight.py").read_text(encoding="utf-8")
+  documentation = (ROOT / "docs/carla-smoke.md").read_text(encoding="utf-8")
+
+  assert 'parser.add_argument("--connect", action="store_true")' in script
+  assert "carla_client_or_connectivity_smoke_only" in script
+  assert "neither starts an OpenPilot bridge nor qualifies CARLA closed-loop behavior" in documentation
