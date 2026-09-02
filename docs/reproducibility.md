@@ -13,6 +13,20 @@ scripts/run_reproducibility_package.sh outputs/reproducibility-package
 
 Success requires `verification.json` with `status: pass`, one `summary.json` marked `valid/pass`, a frozen scenario snapshot/hash, 200 published camera frames, and zero drops. Preserve the complete output directory. A failure remains evidence; do not rerun in place or replace its artifacts.
 
+## New PC / WSL bootstrap
+
+On Ubuntu WSL with an NVIDIA-enabled WSL GPU runtime, install `git` and [uv](https://docs.astral.sh/uv/), clone this repository into a workspace directory, then run:
+
+```bash
+cd /path/to/openpilot-sim-lab
+scripts/bootstrap_new_wsl.sh --install
+export OPENPILOT_ROOT="$(cd .. && pwd)/openpilot"
+export OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"
+scripts/run_reproducibility_package.sh outputs/reproducibility-package
+```
+
+The bootstrap fixes OpenPilot at `d7ee3435737d7e0bd88f14ffedd45999b6d2e957` and MetaDrive at `2716f55a9c7b928ce957a497a15c2c19840c08bc`, creates the OpenPilot environment, installs MetaDrive editable into it, and syncs sim-lab test dependencies. Run `scripts/bootstrap_new_wsl.sh --check` before the package to verify those exact commits and the runtime import without changing state.
+
 These commands run the fixed model-driven baseline, not a simulator-only controller diagnostic.
 
 ```bash
