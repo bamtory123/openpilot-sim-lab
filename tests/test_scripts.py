@@ -37,3 +37,11 @@ def test_readme_uses_uv_for_openpilot_runtime_editable_install():
   assert "$OPENPILOT_PYTHON -m pip install --no-deps -e ." not in readme
   assert 'OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"' in readme
   assert "$OPENPILOT_PYTHON -m simlab.runner batch --allow-dirty --outputs outputs" in readme
+
+
+def test_host_stack_supports_structured_success_evidence():
+  script = (ROOT / "scripts/check_host_stack.sh").read_text(encoding="utf-8")
+  host_stability = (ROOT / "docs/host-stability.md").read_text(encoding="utf-8")
+  assert "HOST_STACK_OUTPUT" in script
+  assert '"schema_version": 1' in script
+  assert "HOST_STACK_OUTPUT=outputs/host-stack/host-stack.json" in host_stability
