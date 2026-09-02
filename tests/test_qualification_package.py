@@ -20,6 +20,8 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
 
 def test_windows_collector_covers_wsl_vmswitch_operational_log():
   collector = (ROOT / "scripts/collect_windows_wsl_events.ps1").read_text(encoding="utf-8")
+  host_stability = (ROOT / "docs/host-stability.md").read_text(encoding="utf-8")
 
   assert "Microsoft-Windows-Hyper-V-VmSwitch-Operational" in collector
   assert "OID_GEN_STATISTICS" in collector
+  assert "Windows `System` and Hyper-V `VmSwitch Operational`" in host_stability

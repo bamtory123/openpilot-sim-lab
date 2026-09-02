@@ -69,4 +69,4 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File '\\wsl.localhost\Ubuntu-
   -OutputPath 'C:\path\to\run\windows-host-events.json'
 ```
 
-The collector records only matching System-log records in the selected time window (Hyper-V WSL switch, display/NVIDIA providers, or messages mentioning WSL/NVIDIA/display/GPU). It is evidence for temporal correlation; an event record by itself does not assign a driver root cause.
+The collector records matching Windows `System` and Hyper-V `VmSwitch Operational` records in the selected time window (Hyper-V WSL switch, display/NVIDIA providers, or messages mentioning WSL/NVIDIA/display/GPU). It suppresses the repeated VmSwitch ID 285 `OID_GEN_STATISTICS` diagnostic warning. This is evidence for temporal correlation; an event record by itself does not assign a driver root cause.
