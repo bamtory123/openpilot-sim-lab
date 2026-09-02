@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The public evidence bundle now generates a compact Markdown summary from the same retained sources as `evidence.json`. It makes the final `not_qualified_yet` disposition, formal lane-departure failure, candidate hard-gate failure, and host-only compatibility passes readable without exposing raw run data.
 - The portfolio snapshot now has one clean-tree verifier for the test suite, public evidence source hashes, and the no-release-tag boundary. It produces a commit-addressed pass line without creating or qualifying a release.
 - A submission-ready portfolio snapshot now gives reviewers one path through the qualification disposition, public-safe evidence, bounded reproduction, and explicit non-claims. It identifies the containing Git commit as the submission snapshot and does not create a new release tag.
 - A descriptive host-stack comparison tool now verifies both inputs, reports artifact status, CUDA iterations per second, renderer elapsed time, and changed runtime provenance without producing a stability or driving verdict. A fresh two-artifact check found both probes comparable and correctly flagged the changed sim-lab source state.

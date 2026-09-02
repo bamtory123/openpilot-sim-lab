@@ -2,6 +2,8 @@
 
 This is a deliberately small, public-safe selection from four local evidence sources. It excludes raw telemetry, camera data, frames, and process logs.
 
+Start with the generated [evidence summary](SUMMARY.md), then use `evidence.json` for the full selected values and source hashes.
+
 Each selected source is recorded with its local path and SHA-256 in `evidence.json`, so an evaluator with the retained local artifacts can verify that the public extract was generated from the stated evidence.
 
 - **Formal matrix:** one representative 0 ms summary plus the four-condition aggregate. Every formal result is `valid/fail: lane_departure`; it is not a driving-success claim.

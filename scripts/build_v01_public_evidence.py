@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "examples/v0.1-portfolio-evidence/evidence.json"
+SUMMARY = ROOT / "examples/v0.1-portfolio-evidence/SUMMARY.md"
 FORMAL_ROOT = ROOT / "outputs/v0.2-formal-delay-matrix-20260828"
 HOST_ROOT = ROOT / "outputs/v0.1-host-confirmation-probe-20260901"
 
@@ -16,6 +17,31 @@ def read(path: Path) -> dict:
 
 def source(path: Path) -> dict:
   return {"path": str(path.relative_to(ROOT)), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
+def render_summary(evidence: dict) -> str:
+  formal = evidence["formal_matrix"]
+  host = evidence["host_confirmation"]
+  delays = " | ".join(f"{delay} ms: {rmse:.6f} m" for delay, rmse in formal["aggregate"].items())
+  return "\n".join([
+    "# v0.1 public evidence summary",
+    "",
+    "## Qualification boundary",
+    "",
+    "The final v0.1 pretrained-driving disposition is `not_qualified_yet`. This bundle demonstrates validation-framework evidence, not successful pretrained OpenPilot driving.",
+    "",
+    "## Selected evidence",
+    "",
+    f"- **Formal model-driven matrix:** representative `{formal['representative_summary']['validity']}/{formal['representative_summary']['outcome']}` with `{', '.join(formal['representative_summary']['reasons'])}`. All retained formal results are lane-departure failures; delay-group median lateral RMSE: {delays}.",
+    f"- **Baseline audit:** `{evidence['baseline_audit']['status']}` `{evidence['baseline_audit']['baseline_id']}` with {len(evidence['baseline_audit']['run_ids'])} retained runs.",
+    f"- **Current candidate review:** Phase 1 `{evidence['regression_review']['verdict']}`. KPI deltas are `{evidence['regression_review']['scope']}`.",
+    f"- **Host confirmation:** {len(host['confirmed_summaries'])} `valid/pass` 200-frame compatibility probes. Scope: `{host['scope']}`.",
+    "",
+    "## Evidence integrity",
+    "",
+    "`evidence.json` records the full local source paths and SHA-256 digests. This public bundle excludes raw telemetry, camera data, frames, and process logs. Regenerate with `uv run python scripts/build_v01_public_evidence.py` and verify retained local sources with `uv run python scripts/verify_v01_public_evidence.py`.",
+    "",
+  ])
 
 
 def main() -> None:
@@ -45,7 +71,9 @@ def main() -> None:
   }
   OUTPUT.parent.mkdir(parents=True, exist_ok=True)
   OUTPUT.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+  SUMMARY.write_text(render_summary(evidence), encoding="utf-8")
   print(OUTPUT)
+  print(SUMMARY)
 
 
 if __name__ == "__main__":

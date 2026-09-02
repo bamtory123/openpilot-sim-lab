@@ -32,3 +32,12 @@ def test_public_v01_evidence_has_a_local_hash_verifier():
   assert "hashlib.sha256" in verifier
   assert "uv run python scripts/build_v01_public_evidence.py" in readme
   assert "verify_v01_public_evidence.py" in readme
+
+
+def test_public_v01_evidence_summary_preserves_result_boundaries():
+  summary = (ROOT / "examples/v0.1-portfolio-evidence/SUMMARY.md").read_text(encoding="utf-8")
+
+  assert "`not_qualified_yet`" in summary
+  assert "lane-departure failures" in summary
+  assert "compatibility probes" in summary
+  assert "not successful pretrained OpenPilot driving" in summary
