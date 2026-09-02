@@ -21,8 +21,10 @@ write_host_stack_result() {
   mkdir -p "$(dirname "$host_stack_output")"
   "$OPENPILOT_PYTHON" - "$host_stack_output" "$status" "$exit_code" "$stage" "$boot_before" "$boot_after" "$cuda_json" "$renderer_json" "$simlab_root" "$OPENPILOT_ROOT" <<'PY'
 from datetime import datetime, timezone
+import importlib.metadata
 import json
 from pathlib import Path
+import platform
 import subprocess
 import sys
 
@@ -38,7 +40,7 @@ def git_source(root):
 gpu = subprocess.run(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"],
                      capture_output=True, text=True, check=False)
 Path(path).write_text(json.dumps({
-  "schema_version": 2,
+  "schema_version": 3,
   "created_at_utc": datetime.now(timezone.utc).isoformat(),
   "status": status,
   "exit_code": int(exit_code),
@@ -50,7 +52,9 @@ Path(path).write_text(json.dumps({
   "renderer": json.loads(renderer) if renderer else None,
   "preflight": "pass" if status == "pass" else None,
   "provenance": {"sim_lab": git_source(simlab_root), "openpilot": git_source(openpilot_root),
-                 "python_version": sys.version, "gpu": gpu.stdout.strip() or None},
+                 "python_version": sys.version, "wsl_kernel": platform.release(),
+                 "metadrive_version": importlib.metadata.version("metadrive-simulator"),
+                 "gpu": gpu.stdout.strip() or None},
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 }

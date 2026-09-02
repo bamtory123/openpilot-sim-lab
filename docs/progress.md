@@ -2,6 +2,7 @@
 
 ## Completed
 
+- Host-stack schema v3 adds WSL kernel and MetaDrive version without invalidating stored v1/v2 artifacts; the verifier accepts all three schemas under their recorded contracts. A fresh v3 pass recorded kernel `6.18.33.2-microsoft-standard-WSL2`, MetaDrive `0.4.2.3`, RTX 4080 driver 616.56, and unchanged boot ID.
 - The host-stack artifact verifier accepts legacy schema v1 output and the new provenance-bearing schema v2 output, while reporting the verified artifact schema separately. A fresh schema v2 pass was generated and verified after the compatibility check.
 - Host-stack artifacts now add UTC, Python, GPU/driver, and sim-lab/OpenPilot commit/dirty provenance. A fresh 5-second/2-step artifact recorded RTX 4080 driver 616.56, the fixed OpenPilot commit, and an unchanged boot ID; it remains bounded component-path evidence.
 - Host-stack JSON now preserves normally returned failures as well as passes. A deliberate no-`--allow-dirty` preflight rejection wrote `status: fail`, `failed_stage: preflight`, exit code, completed CUDA/renderer data, and unchanged boot ID; a following 5-second/2-step run wrote a complete `status: pass` artifact. Guest-restart recovery remains a separate durable-attempt concern.
