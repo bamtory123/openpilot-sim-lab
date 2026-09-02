@@ -249,3 +249,16 @@ def test_carla_public_evidence_excludes_local_paths_and_logs(tmp_path):
   failed = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_smoke_public_evidence.py"), str(result_path),
                           "--output-dir", str(output_dir)], capture_output=True, text=True)
   assert failed.returncode != 0 and "summary differs" in failed.stderr
+
+
+def test_committed_carla_public_sample_is_sanitized_and_scoped():
+  sample_dir = ROOT / "examples/v0.2-carla-client-smoke"
+  evidence = json.loads((sample_dir / "evidence.json").read_text(encoding="utf-8"))
+  readme = (sample_dir / "README.md").read_text(encoding="utf-8")
+  serialized = json.dumps(evidence)
+
+  assert evidence["scope"] == "carla_client_smoke_public_sample_only"
+  assert len(evidence["source_sha256"]) == 64
+  assert all(token not in serialized for token in ("172.28.", "C:\\", "server.stdout.log", "client.log"))
+  assert "outside the v0.1 MetaDrive release gate" in readme
+  assert "does not demonstrate an OpenPilot bridge, closed loop" in readme
