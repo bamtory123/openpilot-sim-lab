@@ -42,6 +42,11 @@ def trace_route(carla, game_map, start, steps: int = 220) -> tuple[list, list[st
   return route, turns
 
 
+def initial_heading_change_deg(route, points: int = 30) -> float:
+  return sum(abs(yaw_delta(before.transform.rotation.yaw, after.transform.rotation.yaw))
+             for before, after in zip(route[:points], route[1:points + 1]))
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description="Build a deterministic CARLA city route asset")
   parser.add_argument("--host", required=True)
@@ -64,14 +69,14 @@ def main() -> None:
     if start is None:
       continue
     route, turns = trace_route(carla, game_map, start)
-    # A turn-bearing route avoids the historical all-straight asset; the route
-    # is still only a reproducible spawn/reference artifact, never controller input.
-    score = (len(set(turns) & {"left", "right"}), len(turns), len(route))
+    # Allow OpenPilot camera/model startup on roughly 60 m of straight road,
+    # then require city turns. The asset is still never controller input.
+    score = (len(set(turns) & {"left", "right"}), -initial_heading_change_deg(route), len(turns), len(route))
     candidates.append((score, route, turns))
   if not candidates:
     raise SystemExit("Town04 has no usable driving waypoint route")
   _, route, turns = max(candidates, key=lambda item: item[0])
-  if len(route) < 80 or not ({"left", "right"} & set(turns)):
+  if len(route) < 80 or not ({"left", "right"} & set(turns)) or initial_heading_change_deg(route) > 10.0:
     raise SystemExit("Town04 route search did not produce a turn-bearing city route")
   points = [[waypoint.transform.location.x, waypoint.transform.location.y, waypoint.transform.location.z,
              waypoint.transform.rotation.pitch, waypoint.transform.rotation.yaw, waypoint.transform.rotation.roll]
