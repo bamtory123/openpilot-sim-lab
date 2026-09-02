@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The public-safe CARLA client-smoke sample now has a retained-source verifier: it revalidates the local schema-2 artifact, recomputes the SHA-bound JSON and generated Markdown, and rejects drift. Fixture coverage verifies both a clean sample and a modified summary; this remains a local-source integrity check, not a v0.1 release gate.
 - A generated public-safe CARLA client-smoke sample now retains only the latest schema-2 observation and the source SHA-256: matched CARLA 0.9.16 client/server, 320×180 RGB, neutral-throttle/brake command, reported speed, actor cleanup, world restoration, and server stop. It excludes local paths, host address, logs, and raw camera data; it is explicitly v0.2 client-smoke evidence rather than OpenPilot closed loop or v0.1 qualification.
 - The CARLA artifact summarizer now preserves a malformed `result.json` as one failed artifact rather than aborting the complete local evidence summary; a unit fixture verifies this retention behavior. This is evidence-integrity handling only, not a simulator or driving verdict.
 - A read-only CARLA artifact summarizer now reports count, verifier status, and latest retained run without starting a simulator. It found three retained wrapper artifacts, all verified, with schema-2 run `20260902T103857Z` latest. The smoke table now distinguishes those three retained artifacts from two earlier terminal-only manual observations instead of treating all five as equivalent evidence.

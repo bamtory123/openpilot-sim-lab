@@ -243,3 +243,9 @@ def test_carla_public_evidence_excludes_local_paths_and_logs(tmp_path):
                   "--output-dir", str(output_dir)], check=True)
   public = (output_dir / "evidence.json").read_text(encoding="utf-8")
   assert "private" not in public and "server.stdout.log" not in public and "172.28.112.1" not in public
+  subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_smoke_public_evidence.py"), str(result_path),
+                  "--output-dir", str(output_dir)], check=True)
+  (output_dir / "README.md").write_text("drift", encoding="utf-8")
+  failed = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_smoke_public_evidence.py"), str(result_path),
+                          "--output-dir", str(output_dir)], capture_output=True, text=True)
+  assert failed.returncode != 0 and "summary differs" in failed.stderr

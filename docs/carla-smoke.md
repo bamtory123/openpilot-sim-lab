@@ -58,6 +58,13 @@ uv run python scripts/summarize_carla_smoke_artifacts.py outputs/carla-smoke
 
 A public-safe extract of the latest retained schema-2 observation is in [the CARLA client-smoke sample](../examples/v0.2-carla-client-smoke/README.md). It excludes local paths, raw camera data, and logs.
 
+Regenerate and verify that sample only when the retained local source artifact is available:
+
+```bash
+uv run python scripts/build_carla_smoke_public_evidence.py outputs/carla-smoke/<run-id>/result.json --output-dir examples/v0.2-carla-client-smoke
+uv run python scripts/verify_carla_smoke_public_evidence.py outputs/carla-smoke/<run-id>/result.json --output-dir examples/v0.2-carla-client-smoke
+```
+
 | Check | Status | Evidence / constraint |
 |---|---|---|
 | Windows server start | Manual verification required | Shader compilation and GPU driver state can affect startup |

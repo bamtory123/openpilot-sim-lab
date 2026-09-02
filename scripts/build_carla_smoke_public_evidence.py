@@ -31,17 +31,13 @@ The source artifact SHA-256 is `{evidence["source_sha256"]}`. It excludes local 
 """
 
 
-def main() -> None:
-  parser = argparse.ArgumentParser(description="Build a public-safe CARLA client-smoke sample")
-  parser.add_argument("result", type=Path)
-  parser.add_argument("--output-dir", type=Path, required=True)
-  args = parser.parse_args()
+def build_evidence(result_path: Path) -> dict:
   verifier = Path(__file__).with_name("verify_carla_smoke_artifact.py")
-  subprocess.run([sys.executable, str(verifier), str(args.result)], check=True)
-  source = args.result.read_bytes()
+  subprocess.run([sys.executable, str(verifier), str(result_path)], check=True)
+  source = result_path.read_bytes()
   result = json.loads(source.decode("utf-8-sig"))
   observation = result["client_observation"]
-  evidence = {
+  return {
     "schema_version": 1,
     "scope": "carla_client_smoke_public_sample_only",
     "artifact_schema_version": result["schema_version"],
@@ -57,6 +53,14 @@ def main() -> None:
       "world_settings_restored": observation["world_settings_restored"],
     },
   }
+
+
+def main() -> None:
+  parser = argparse.ArgumentParser(description="Build a public-safe CARLA client-smoke sample")
+  parser.add_argument("result", type=Path)
+  parser.add_argument("--output-dir", type=Path, required=True)
+  args = parser.parse_args()
+  evidence = build_evidence(args.result)
   args.output_dir.mkdir(parents=True, exist_ok=True)
   (args.output_dir / "evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
   (args.output_dir / "README.md").write_text(render_summary(evidence), encoding="utf-8")
