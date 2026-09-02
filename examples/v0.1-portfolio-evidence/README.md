@@ -12,7 +12,7 @@ Each selected source is recorded with its local path and SHA-256 in `evidence.js
 Regenerate `evidence.json` only from the retained local source artifacts:
 
 ```bash
-python scripts/build_v01_public_evidence.py
+uv run python scripts/build_v01_public_evidence.py
 ```
 
 Verify the retained local source hashes without rewriting the bundle:
