@@ -25,9 +25,12 @@ Both commands are client/connectivity smoke checks only; neither starts an OpenP
 | Check | Status | Evidence / constraint |
 |---|---|---|
 | Windows server start | Manual verification required | Shader compilation and GPU driver state can affect startup |
-| WSL client connection | Manual verification required | Host address must be supplied through local environment configuration |
+| WSL client import | Pass: v0.2 preparation | OpenPilot runtime imports `carla==0.9.16` |
+| Windows–WSL client connection | Pass: one connectivity smoke | CARLA 0.9.16 handshake at `172.28.112.1:2000`; server stopped immediately after the check |
 | Synchronous tick | Experimental | Record tick count in the smoke log |
 | RGB camera/state/control mapping | Experimental | Adapter lifecycle is not a v0.1 acceptance criterion |
 | Actor cleanup/restart | Known risk | Destroyed actor and route-spawn failures were observed during development |
 
 Any later PASS result must include the CARLA version, host/port, server log, client log, and a second-run result.
+
+The retained connection result does not include a synchronous tick, actor, camera, OpenPilot bridge, control mapping, cleanup, or second run. It must not be described as CARLA closed-loop integration.

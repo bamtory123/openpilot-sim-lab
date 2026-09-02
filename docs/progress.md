@@ -2,6 +2,7 @@
 
 ## Completed
 
+- The first v0.2 CARLA Windows–WSL connectivity smoke completed: the installed 0.9.16 client handshook with the temporary 0.9.16 Windows server at `172.28.112.1:2000`, then the server was stopped. This is one client/connectivity result only; synchronous tick, adapter, camera/control mapping, cleanup, and closed loop remain unverified and outside v0.1 qualification.
 - CARLA v0.2 preparation now has a client/connectivity-only preflight. The current runtime imported matching `carla==0.9.16` and confirmed the local Windows 0.9.16 server executable without starting a server, bridge, or closed-loop scenario; CARLA remains outside v0.1 qualification.
 - Public-evidence verification now rejects a stale or manually drifted `SUMMARY.md`; delay groups are rendered in numeric 0/50/100/150 ms order independently of JSON key ordering. This caught and corrected a real generator/serialized-JSON ordering mismatch before submission.
 - The portfolio snapshot reviewer path now opens the generated public evidence summary before the detailed JSON bundle, keeping the central failure/host boundary visible at first read.
