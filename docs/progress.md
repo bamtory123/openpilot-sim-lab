@@ -2,6 +2,7 @@
 
 ## Completed
 
+- A CARLA-only camera/state/control/cleanup smoke completed: one 320×180 RGB frame, brake command, and vehicle state were observed; camera and vehicle were destroyed and prior world settings restored. The first observed speed was 1.47 m/s, so this is not a stationary-vehicle or response-quality claim. OpenPilot adapter, route, restart, and closed loop remain unverified.
 - CARLA v0.2 synchronous-tick smoke also completed after the connectivity check: two fixed-step ticks advanced frames `39941 → 39942`, then restored the prior world settings and stopped the server. This has no actor, camera, OpenPilot bridge, control, cleanup, or closed-loop claim.
 - The first v0.2 CARLA Windows–WSL connectivity smoke completed: the installed 0.9.16 client handshook with the temporary 0.9.16 Windows server at `172.28.112.1:2000`, then the server was stopped. This is one client/connectivity result only; adapter, camera/control mapping, cleanup, and closed loop remain unverified and outside v0.1 qualification.
 - CARLA v0.2 preparation now has a client/connectivity-only preflight. The current runtime imported matching `carla==0.9.16` and confirmed the local Windows 0.9.16 server executable without starting a server, bridge, or closed-loop scenario; CARLA remains outside v0.1 qualification.

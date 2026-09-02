@@ -130,6 +130,8 @@ def test_carla_smoke_preflight_keeps_connection_opt_in():
 
   assert 'parser.add_argument("--connect", action="store_true")' in script
   assert 'parser.add_argument("--sync-ticks", type=int, default=0)' in script
+  assert 'parser.add_argument("--camera-state-control-smoke", action="store_true")' in script
   assert "world.apply_settings(original_settings)" in script
+  assert "actors_destroyed" in script
   assert "carla_client_or_connectivity_smoke_only" in script
   assert "neither starts an OpenPilot bridge nor qualifies CARLA closed-loop behavior" in documentation

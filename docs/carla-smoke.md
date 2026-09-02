@@ -29,15 +29,22 @@ To exercise only the CARLA synchronous world tick after the connection succeeds,
   --connect --host <Windows-WSL-host-IP> --port 2000 --sync-ticks 2
 ```
 
+The CARLA-only smoke creates one brake-commanded vehicle and one 320×180 RGB camera, checks one image/state/control result, then destroys both actors and restores the world settings. It does not start OpenPilot:
+
+```bash
+/home/hyunsung/src/openpilot/.venv/bin/python scripts/carla_smoke_preflight.py \
+  --connect --host <Windows-WSL-host-IP> --port 2000 --camera-state-control-smoke
+```
+
 | Check | Status | Evidence / constraint |
 |---|---|---|
 | Windows server start | Manual verification required | Shader compilation and GPU driver state can affect startup |
 | WSL client import | Pass: v0.2 preparation | OpenPilot runtime imports `carla==0.9.16` |
 | Windows–WSL client connection | Pass: one connectivity smoke | CARLA 0.9.16 handshake at `172.28.112.1:2000`; server stopped immediately after the check |
 | Synchronous tick | Pass: one smoke | Two fixed-step ticks advanced frames `39941 → 39942`; prior world settings restored |
-| RGB camera/state/control mapping | Experimental | Adapter lifecycle is not a v0.1 acceptance criterion |
-| Actor cleanup/restart | Known risk | Destroyed actor and route-spawn failures were observed during development |
+| RGB camera/state/control mapping | Pass: one CARLA-only smoke | 320×180 RGB frame, brake command, and vehicle state captured; no OpenPilot adapter or response-quality conclusion |
+| Actor cleanup/restart | Pass: one cleanup smoke | Camera/vehicle destroyed and prior world settings restored; historical actor/route failures and restart coverage remain open |
 
 Any later PASS result must include the CARLA version, host/port, server log, client log, and a second-run result.
 
-The retained connection/tick result does not include an actor, camera, OpenPilot bridge, control mapping, cleanup, or second run. It must not be described as CARLA closed-loop integration.
+The retained connection/tick/camera result does not include an OpenPilot bridge, vehicle-response quality evaluation, route coverage, restart repeat, or second run. It must not be described as CARLA closed-loop integration.
