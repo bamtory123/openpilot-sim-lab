@@ -30,3 +30,12 @@ Before submission, run the snapshot-only verifier from a clean sim-lab checkout:
 ```bash
 scripts/verify_portfolio_snapshot.sh
 ```
+
+For the complete local readiness check, include the freshly retained bounded artifacts explicitly. This validates their stored contracts without changing the v0.1 qualification disposition:
+
+```bash
+uv run python scripts/verify_portfolio_readiness.py \
+  --repro-root outputs/reproducibility-package-20260903-portfolio \
+  --host-stack outputs/host-stack-20260903-portfolio/host-stack.json \
+  --carla-result outputs/carla-smoke/20260902T103857Z/result.json
+```

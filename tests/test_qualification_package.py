@@ -31,7 +31,15 @@ def test_portfolio_snapshot_verifier_enforces_non_release_boundary():
 
   assert "git status --porcelain" in verifier
   assert "git tag --contains HEAD" in verifier
-  assert "verify_v01_public_evidence.py" in verifier
+  assert "verify_portfolio_readiness.py" in verifier
+
+
+def test_portfolio_readiness_check_keeps_public_boundaries():
+  result = __import__("subprocess").run([__import__("sys").executable, str(ROOT / "scripts/verify_portfolio_readiness.py")],
+                                         check=True, capture_output=True, text=True)
+  readiness = __import__("json").loads(result.stdout)
+  assert readiness == {"checks": {"public_carla": "pass", "public_v01": "pass"},
+                       "schema_version": 1, "scope": "portfolio_readiness_only", "status": "pass"}
 
 
 def test_windows_collector_covers_wsl_vmswitch_operational_log():

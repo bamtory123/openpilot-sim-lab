@@ -2,6 +2,7 @@
 
 ## Completed
 
+- A complete 2026-09-03 KST portfolio-readiness pass now verifies public v0.1 evidence, public CARLA sanitization, a fresh host-stack artifact, the retained CARLA schema-2 source, and a new 200-frame reproducibility package in one read-only result. The package was `valid/pass` for its scoped host/engagement/transport/artifact contract (9.99 s, 1.0 coverage, 200 published, zero drops, unchanged boot ID); it is not a pretrained-driving or long-duration host-stability result.
 - Camera-domain, dataset, and simulator-specialist documents now describe their completed pitch/gamma/appearance/geometry sequence in past tense. A stale-next scan leaves only the genuine v0.1 release-policy item and the defect-template section; it no longer suggests repeating already completed diagnostics.
 - CI now inspects the committed CARLA public sample directly: it rejects private host/path/log tokens and requires the v0.1 non-gate plus non-closed-loop boundary text. This protects the public artifact independently of the local-source generator fixture.
 - The public-safe CARLA client-smoke sample now has a retained-source verifier: it revalidates the local schema-2 artifact, recomputes the SHA-bound JSON and generated Markdown, and rejects drift. Fixture coverage verifies both a clean sample and a modified summary; this remains a local-source integrity check, not a v0.1 release gate.

@@ -14,5 +14,5 @@ if [[ -n "$(git tag --contains HEAD)" ]]; then
 fi
 
 uv run pytest -q
-uv run python scripts/verify_v01_public_evidence.py
+uv run python scripts/verify_portfolio_readiness.py
 echo "portfolio snapshot: PASS $(git rev-parse HEAD)"
