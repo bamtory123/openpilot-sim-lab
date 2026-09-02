@@ -8,6 +8,7 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   report = (ROOT / "docs/qualification-report.md").read_text(encoding="utf-8")
   checklist = (ROOT / "docs/release-checklist.md").read_text(encoding="utf-8")
   test_plan = (ROOT / "docs/test-plan.md").read_text(encoding="utf-8")
+  snapshot = (ROOT / "docs/portfolio-snapshot.md").read_text(encoding="utf-8")
 
   assert "`not_qualified_yet`" in report
   assert "# v0.1 qualification report\n" in report
@@ -18,6 +19,9 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   assert "`not_qualified_yet`" in checklist
   assert "| Requirements-to-artifact release trace | complete |" in checklist
   assert "qualification draft in progress" not in test_plan
+  assert "`not_qualified_yet`" in snapshot
+  assert "not a new GitHub release, tag" in snapshot
+  assert "../examples/v0.1-portfolio-evidence/README.md" in snapshot
 
 
 def test_windows_collector_covers_wsl_vmswitch_operational_log():

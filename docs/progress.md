@@ -2,6 +2,7 @@
 
 ## Completed
 
+- A submission-ready portfolio snapshot now gives reviewers one path through the qualification disposition, public-safe evidence, bounded reproduction, and explicit non-claims. It identifies the containing Git commit as the submission snapshot and does not create a new release tag.
 - A descriptive host-stack comparison tool now verifies both inputs, reports artifact status, CUDA iterations per second, renderer elapsed time, and changed runtime provenance without producing a stability or driving verdict. A fresh two-artifact check found both probes comparable and correctly flagged the changed sim-lab source state.
 - Host-stack schema v3 adds WSL kernel and MetaDrive version without invalidating stored v1/v2 artifacts; the verifier accepts all three schemas under their recorded contracts. A fresh v3 pass recorded kernel `6.18.33.2-microsoft-standard-WSL2`, MetaDrive `0.4.2.3`, RTX 4080 driver 616.56, and unchanged boot ID.
 - The host-stack artifact verifier accepts legacy schema v1 output and the new provenance-bearing schema v2 output, while reporting the verified artifact schema separately. A fresh schema v2 pass was generated and verified after the compatibility check.

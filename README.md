@@ -57,6 +57,7 @@ See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/res
 The validation plan and requirement/test traceability are [PLAN](PLAN.md), [requirements](docs/requirements.md), [test plan](docs/test-plan.md), and [traceability](docs/traceability.md).
 The current framework qualification is [not qualified yet](docs/qualification-report.md); its governing choices are in the [decision log](docs/decisions.md).
 For the concise portfolio framing, see [portfolio summary](docs/portfolio-summary.md).
+For a submission-ready reviewer path without creating a new release tag, see the [portfolio snapshot](docs/portfolio-snapshot.md).
 The separate MetaDrive-only RGB replay experiment is documented in [simulator-specialist](docs/simulator-specialist.md).
 For the exact formal-run procedure and result checks, see [reproducibility](docs/reproducibility.md).
 The release-friendly formal sample is in [examples/v0.2-formal-delay-matrix](examples/v0.2-formal-delay-matrix/README.md).
