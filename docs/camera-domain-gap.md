@@ -68,11 +68,15 @@ For that capture, simple RGB-derived statistics were:
 
 These values are regression baselines only. They cannot be compared to a real camera without a matched real-road data protocol.
 
-## Next controlled work
+## Completed controlled sequence
 
-1. Capture matched frame sets at fixed map positions before and during the curve; retain frame metadata and telemetry joins.
-2. Inspect model path/curvature output against those frame sets without changing controller gains.
-3. If a camera change is proposed, alter one documented variable at a time and preserve the 40-degree formal baseline unchanged.
+The following sequence is complete and produced the rendering-domain conclusion recorded below:
+
+1. Captured matched frame sets at fixed map positions before and during the curve, with frame metadata and telemetry joins.
+2. Inspected model path/curvature output against those frame sets without changing controller gains.
+3. Tested one documented camera variable at a time while preserving the 40-degree formal baseline unchanged.
+
+No further camera-pose, gamma, FOV, or overlay tuning is planned for the pretrained baseline under this contract. Any future perception work must remain separately labeled as a simulator-specialist experiment.
 
 ## Minimal-asset traffic limitation
 
