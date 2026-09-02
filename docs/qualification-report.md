@@ -18,11 +18,11 @@ The initial two formal-scenario attempts were retained as `invalid/not_evaluated
 
 The resolved, separately versioned 200-frame probe then completed two consecutive `valid/pass` runs on 2026-09-01. Each recorded 9.99 s active time, 1.0 telemetry/camera coverage, 200 published camera frames, zero drops, valid timestamps, engagement, zero wrapper exit code and no WSL boot-ID change. Its local evidence root is `outputs/v0.1-host-confirmation-probe-20260901`; it is intentionally not committed as release data and is not a driving-performance result.
 
-## Open item
+## Scoped host-confirmation contract
 
 The separate versioned nominal-10-second/200-frame `md_default_loop_lane0_host_confirmation_v1` probe retains the SUT, map, seed and 0 ms transport path but limits its verdict to engagement, transport and artifact integrity. It does not alter the frozen baseline or relabel the SUT outcome.
 
-## Remaining release evidence
+## Closed evidence and future policy
 
 - The independent same-provenance 0 ms candidate comparison is complete but Phase 1 hard-gate failed: all three candidate runs were `invalid/not_evaluated` for coverage after known lane departure. Its scenario hash matches the frozen baseline; the local candidate root is `outputs/v0.1-current-host-confirmation-20260901` and its immutable review artifact is `outputs/v0.1-current-host-confirmation-20260901/regression-review.json`. This is an honest non-qualification result, not an infrastructure-crash conclusion.
 - Define and approve the next baseline/candidate policy only if a future release needs a driving-performance comparison under the current active-time contract. Do not relabel the three invalid candidates as a passing or review-only result.
