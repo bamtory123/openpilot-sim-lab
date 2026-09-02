@@ -2,6 +2,7 @@
 
 ## Completed
 
+- A new clean-sim-lab bounded reproducibility package completed at `outputs/reproducibility-package-20260902-followup`: `verification.json` is `pass`; its 200-frame host probe was `valid/pass` with 9.99 seconds active time, 1.0 telemetry/road-camera coverage, zero drops/departure/collision, and unchanged WSL boot ID. The manifest pins sim-lab `53f6ca1` and records the existing dirty MetaDrive source state. This is host/transport reproducibility evidence only, not a pretrained-driving result.
 - On 2026-09-02, a fresh bounded host-stack check completed a 5-second CUDA arithmetic soak (3,457 iterations), a two-step offscreen MetaDrive road-camera probe, and preflight without a WSL boot-ID change. This is a short component-path confirmation only; it does not clear the long CUDA-backed bridge stability boundary.
 - The public v0.1 bundle now has a read-only local SHA-256 verifier. It rejects missing, changed, or path-unsafe retained sources and any accidentally exposed raw telemetry/camera/frame/process artifact.
 - The public-safe v0.1 evidence bundle is now linked from the portfolio summary, release checklist, and evaluation boundary. A unit test keeps that reviewer path from drifting while preserving the `not_qualified_yet` pretrained-driving disposition.
