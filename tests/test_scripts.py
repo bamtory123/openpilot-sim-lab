@@ -135,3 +135,14 @@ def test_carla_smoke_preflight_keeps_connection_opt_in():
   assert "actors_destroyed" in script
   assert "carla_client_or_connectivity_smoke_only" in script
   assert "neither starts an OpenPilot bridge nor qualifies CARLA closed-loop behavior" in documentation
+
+
+def test_carla_windows_wrapper_preserves_logs_and_cleanup_contract():
+  script = (ROOT / "scripts/run_carla_camera_smoke.ps1").read_text(encoding="utf-8")
+
+  assert "server.stdout.log" in script and "server.stderr.log" in script
+  assert '"connect.log"' in script and '"client.log"' in script
+  assert "result.json" in script
+  assert "--camera-state-control-smoke" in script
+  assert "finally" in script and "Stop-Process -Id $server.Id" in script
+  assert "carla_client_or_connectivity_smoke_only" in script
