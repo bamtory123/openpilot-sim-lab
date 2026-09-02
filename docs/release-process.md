@@ -14,7 +14,7 @@ Regression uses three phases. Phase 1 is an immediate hard gate for data integri
 
 Until baseline provenance, traceability, regression-review artifact and qualification report are present, the release state is `not_qualified_yet`. Those artifacts and a passing Phase 1 regression gate are necessary before the framework may receive `pass_with_limitations`; its SUT outcome remains separately reported as the known baseline functional failure.
 
-The current state and evidence gaps are recorded in the [draft qualification report](qualification-report.md).
+The current state and evidence gaps are recorded in the final [qualification report](qualification-report.md).
 
 The release owner records each remaining evidence item in the [release checklist](release-checklist.md); no GitHub release or tag is created while its state is `not_qualified_yet`.
 

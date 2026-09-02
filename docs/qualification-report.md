@@ -1,4 +1,4 @@
-# v0.1 qualification report (draft)
+# v0.1 qualification report
 
 ## Current framework verdict
 

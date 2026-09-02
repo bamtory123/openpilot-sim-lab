@@ -10,6 +10,8 @@ def test_qualification_package_preserves_current_verdict_and_boundaries():
   test_plan = (ROOT / "docs/test-plan.md").read_text(encoding="utf-8")
 
   assert "`not_qualified_yet`" in report
+  assert "# v0.1 qualification report\n" in report
+  assert "(draft)" not in report
   assert "valid/fail" in report
   assert "limitations](limitations.md)" in report
   assert "Phase 1 hard-gate failed" in report
