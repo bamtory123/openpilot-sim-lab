@@ -86,3 +86,39 @@ def test_host_stack_comparison_is_descriptive_only(tmp_path):
   assert comparison["scope"] == "descriptive_host_runtime_comparison_only"
   assert comparison["comparison_status"] == "comparable"
   assert comparison["candidate"]["cuda_iterations_per_s"] == 20
+
+
+def test_windows_event_summary_keeps_high_severity_count_descriptive(tmp_path):
+  events = {"since": "a", "until": "b", "events": [
+    {"LevelDisplayName": "Information", "LogName": "System", "ProviderName": "VmSwitch", "Id": 1},
+    {"LevelDisplayName": "Warning", "LogName": "System", "ProviderName": "Display", "Id": 2},
+  ]}
+  path = tmp_path / "events.json"
+  path.write_text(json.dumps(events), encoding="utf-8")
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_windows_wsl_events.py"), str(path)],
+                          check=True, capture_output=True, text=True)
+
+  summary = json.loads(result.stdout)
+  assert summary["scope"] == "descriptive_windows_wsl_gpu_event_summary_only"
+  assert summary["high_severity_event_count"] == 1
+
+
+def test_windows_event_summary_accepts_powershell_utf8_bom(tmp_path):
+  path = tmp_path / "events.json"
+  path.write_text(json.dumps({"events": []}), encoding="utf-8-sig")
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_windows_wsl_events.py"), str(path)],
+                          check=True, capture_output=True, text=True)
+
+  assert json.loads(result.stdout)["event_count"] == 0
+
+
+def test_windows_event_summary_normalizes_windows_numeric_levels(tmp_path):
+  path = tmp_path / "events.json"
+  path.write_text(json.dumps({"events": [{"LevelDisplayName": 2}, {"LevelDisplayName": 4}, {"LevelDisplayName": 5}]}),
+                  encoding="utf-8")
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_windows_wsl_events.py"), str(path)],
+                          check=True, capture_output=True, text=True)
+
+  summary = json.loads(result.stdout)
+  assert summary["high_severity_event_count"] == 1
+  assert summary["severity_counts"] == {"Error": 1, "Information": 1, "Verbose": 1}
