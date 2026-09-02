@@ -153,8 +153,11 @@ def _has_renderable_vehicle_assets() -> bool:
 
 
 def preflight(scenario: Scenario, openpilot_root: Path, allow_dirty: bool) -> None:
-  if not allow_dirty and (git_metadata(ROOT)["dirty"] or git_metadata(openpilot_root)["dirty"] or metadrive_source_metadata()["dirty"]):
-    raise RuntimeError("refusing dirty working tree; commit first or pass --allow-dirty")
+  sources = {"sim-lab": git_metadata(ROOT), "openpilot": git_metadata(openpilot_root),
+             "metadrive": metadrive_source_metadata()}
+  dirty_sources = [name for name, metadata in sources.items() if metadata["dirty"]]
+  if not allow_dirty and dirty_sources:
+    raise RuntimeError(f"refusing dirty working tree ({', '.join(dirty_sources)}); commit first or pass --allow-dirty")
   if scenario.data["environment"]["map_id"] not in ("openpilot_default_loop_v1", "openpilot_serpentine_v1"):
     raise ScenarioError("unsupported map")
   _compatibility_check(openpilot_root)

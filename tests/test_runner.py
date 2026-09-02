@@ -215,6 +215,15 @@ def test_visible_lead_preflight_requires_vehicle_assets(monkeypatch, tmp_path):
     preflight(scenario, tmp_path, allow_dirty=False)
 
 
+def test_preflight_names_dirty_sources(monkeypatch, tmp_path):
+  scenario = load_scenario(Path("configs/scenarios/md_default_loop_lane0_v1.yaml"))
+  monkeypatch.setattr("simlab.runner.git_metadata", lambda root: {"dirty": root == tmp_path})
+  monkeypatch.setattr("simlab.runner.metadrive_source_metadata", lambda: {"dirty": True})
+
+  with __import__("pytest").raises(RuntimeError, match="openpilot, metadrive"):
+    preflight(scenario, tmp_path, allow_dirty=False)
+
+
 def test_csv_writes_none_as_an_empty_field(tmp_path):
   path = tmp_path / "telemetry.csv"
   _write_csv(path, [{"path_y_20m": None, "speed_mps": 4.0}])
