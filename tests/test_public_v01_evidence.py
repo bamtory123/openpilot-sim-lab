@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 
@@ -14,3 +15,6 @@ def test_public_v01_evidence_preserves_result_boundaries():
   assert evidence["host_confirmation"]["scope"] == "compatibility_only_not_driving_performance"
   assert all(summary["validity"] == "valid" and summary["outcome"] == "pass"
              for summary in evidence["host_confirmation"]["confirmed_summaries"])
+  sources = [evidence["formal_matrix"]["source"], evidence["baseline_audit"]["source"],
+             evidence["regression_review"]["source"], *evidence["host_confirmation"]["sources"]]
+  assert all(re.fullmatch(r"[0-9a-f]{64}", source["sha256"]) for source in sources)

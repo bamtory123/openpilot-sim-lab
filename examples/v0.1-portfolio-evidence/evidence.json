@@ -7,7 +7,10 @@
       "md_default_loop_lane0_v1-20260828T102749Z-47bc6492"
     ],
     "scenario_hash": "7475a86c9af8e8b14a4bbc43ab3957e410f4087fa27e8ebd3cf6afb0879b1670",
-    "source": "baselines/md_default_loop_lane0_v1/historical-audit.json",
+    "source": {
+      "path": "baselines/md_default_loop_lane0_v1/historical-audit.json",
+      "sha256": "b0052354ea85c9424343ea82254a11bc42d8e3bb66796b3b8fca09c674f17dce"
+    },
     "status": "approved"
   },
   "excludes": [
@@ -52,7 +55,10 @@
       "termination_reason": "simulator_termination",
       "validity": "valid"
     },
-    "source": "outputs/v0.2-formal-delay-matrix-20260828"
+    "source": {
+      "path": "outputs/v0.2-formal-delay-matrix-20260828/md_default_loop_lane0_v1-20260828T101438Z-4dd55448/summary.json",
+      "sha256": "1f313f65f9b5ca4f8a5dad496056fe69b8494a3bd63415af348aa33c26f905e7"
+    }
   },
   "host_confirmation": {
     "confirmed_summaries": [
@@ -148,7 +154,16 @@
       }
     ],
     "scope": "compatibility_only_not_driving_performance",
-    "source": "outputs/v0.1-host-confirmation-probe-20260901"
+    "sources": [
+      {
+        "path": "outputs/v0.1-host-confirmation-probe-20260901/host-probe-20260901T142447Z/runs/md_default_loop_lane0_host_confirmation_v1-20260901T142447Z-257091f7/summary.json",
+        "sha256": "378f133115ea175b95466756d93b1294d469339f0bfcc888cb75fe3c63742cda"
+      },
+      {
+        "path": "outputs/v0.1-host-confirmation-probe-20260901/host-probe-20260901T142600Z/runs/md_default_loop_lane0_host_confirmation_v1-20260901T142600Z-e5d6bd08/summary.json",
+        "sha256": "ba492d1a35fc77358b69e5a5f033d8715e43938c1c96636f9c4fe813e6f85d61"
+      }
+    ]
   },
   "regression_review": {
     "metric_deltas": {
@@ -184,7 +199,10 @@
       "md_default_loop_lane0_v1-20260901T132114Z-1dc7d796:invalid"
     ],
     "scope": "diagnostic_only_after_phase_1_failure",
-    "source": "outputs/v0.1-current-host-confirmation-20260901/regression-review.json",
+    "source": {
+      "path": "outputs/v0.1-current-host-confirmation-20260901/regression-review.json",
+      "sha256": "ebc2f366486b744c36ab8955d2feff0516f525b56fccea5c1b9f80cf8a1ac995"
+    },
     "verdict": "hard_gate_fail"
   },
   "schema_version": 1,
