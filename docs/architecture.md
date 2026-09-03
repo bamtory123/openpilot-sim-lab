@@ -18,4 +18,4 @@ OpenPilot commands → CARLA adapter → CARLA VehicleControl → vehicle respon
 CARLA RGB/state ───────────────────→ existing camera transport / simulated sensors → OpenPilot
 ```
 
-The adapter owns synchronous CARLA ticks and actor lifetime. It consumes a prebuilt route asset only for town/start-pose validation; it must not feed route or CARLA ground truth into control. Each run records command versus applied control and physical transform/velocity/yaw response separately.
+The adapter owns synchronous CARLA ticks and actor lifetime. It consumes a prebuilt route asset only for town/start-pose validation; it must not feed route or CARLA ground truth into control. Each run records command versus applied control and physical transform/velocity/yaw response separately. Optional CARLA RGB capture has a bounded asynchronous PNG writer; its route labels are joined offline into `analysis_only` samples, so neither the queue nor its labels can affect control.

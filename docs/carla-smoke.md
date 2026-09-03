@@ -20,6 +20,18 @@ The route builder rejects the historical all-straight route asset. A failed rout
 uv run python scripts/verify_carla_adapter_pilot.py outputs/carla-adapter-pilot/<run-id>
 ```
 
+### Analysis-only RGB/route-label collection
+
+The pilot can additionally retain sparse CARLA RGB frames for later **analysis-only** work. This remains outside the OpenPilot control path: the callback places an immutable RGB copy on a bounded writer queue, and a separate thread writes PNGs. Route ground truth is joined from already-recorded telemetry only after the run finishes; it is never returned to the bridge or used as a controller input.
+
+Use `--capture-every-n-frames 20` for a 1 Hz capture at the adapter's 20 Hz camera rate:
+
+```bash
+uv run python scripts/run_carla_adapter_pilot.py ... --capture-every-n-frames 20
+```
+
+The run directory then contains `captures/`, `dataset_manifest.jsonl`, and `dataset_summary.json`. The manifest includes only measurement-period frames with matching route labels and sets every sample split to `analysis_only`. Any capture-writer overflow sets `dataset_summary.valid` to false; the run must not be used as a dataset. This is a provenance/label contract, not a trained model, an OpenPilot change, or a CARLA-driving result.
+
 ## Current v0.2 preparation
 
 The current WSL OpenPilot runtime has the matching `carla==0.9.16` Python client installed. The Windows workstation has a CARLA 0.9.16 server executable at the local user path, but no server is started or implied by this preparation step.

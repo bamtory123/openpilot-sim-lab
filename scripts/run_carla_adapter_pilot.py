@@ -51,8 +51,10 @@ def main() -> None:
   parser.add_argument("--measurement-s", type=float, default=60.0)
   parser.add_argument("--settle-s", type=float, default=5.0)
   parser.add_argument("--watchdog-s", type=float, default=180.0)
+  parser.add_argument("--capture-every-n-frames", type=int, default=0,
+                      help="persist CARLA RGB for analysis-only labels; 0 disables capture")
   args = parser.parse_args()
-  if args.measurement_s <= 0 or args.settle_s < 0 or args.watchdog_s <= args.measurement_s:
+  if args.measurement_s <= 0 or args.settle_s < 0 or args.watchdog_s <= args.measurement_s or args.capture_every_n_frames < 0:
     parser.error("invalid timing arguments")
   if not args.route_asset.is_file():
     parser.error(f"route asset is missing: {args.route_asset}")
@@ -62,6 +64,7 @@ def main() -> None:
   sys.path.insert(0, str(ROOT / "src"))
   sys.path.insert(0, str(openpilot_root))
   from simlab.carla_pilot import classify_pilot
+  from simlab.dataset import build_carla_dataset_manifest
   from openpilot.tools.sim.bridge.carla.carla_bridge import CarlaBridge
   from openpilot.tools.sim.bridge.common import QueueMessageType
 
@@ -74,7 +77,9 @@ def main() -> None:
     "route_asset": str(args.route_asset.resolve()), "route_asset_sha256": route_sha256,
     "town": args.town, "host": args.host, "port": args.port,
     "measurement_s": args.measurement_s, "settle_s": args.settle_s, "watchdog_s": args.watchdog_s,
-    "control_authority": "openpilot_only", "dynamic_traffic_count": 0})
+    "control_authority": "openpilot_only", "dynamic_traffic_count": 0,
+    "capture": {"enabled": bool(args.capture_every_n_frames), "every_n_frames": args.capture_every_n_frames,
+                "scope": "analysis_only_not_control_training"}})
   manager_log = (run_dir / "run.log").open("w", encoding="utf-8")
   runtime_bin = openpilot_root / ".venv/bin"
   env = {**os.environ, "SIMULATION": "1", "SIM_TINYGRAD_DEVICE": "CUDA",
@@ -84,10 +89,12 @@ def main() -> None:
   manager = subprocess.Popen(["./launch_openpilot.sh"], cwd=openpilot_root / "openpilot/tools/sim", env=env,
                              stdout=manager_log, stderr=subprocess.STDOUT, start_new_session=True)
   control_q, status_q = Queue(), Queue()
+  capture = ({"directory": str(run_dir / "captures"), "every_n_frames": args.capture_every_n_frames}
+             if args.capture_every_n_frames else {})
   bridge = CarlaBridge(False, False, host=args.host, port=args.port, town=args.town,
                        route_asset=str(args.route_asset), test_duration=args.measurement_s + args.settle_s + 5,
                        test_run=True, simlab_config={"fault": {"target_delay_ms": 0, "queue_capacity_frames": 8},
-                                                     "run": {"fault_settle_s": args.settle_s}})
+                                                     "run": {"fault_settle_s": args.settle_s}, "capture": capture})
   process = bridge.run(control_q, status_queue=status_q)
   lifecycle, events, telemetry, camera = ["PROCESS_START"], [], [], []
   termination, stop_reason, measured_at = None, None, None
@@ -144,13 +151,15 @@ def main() -> None:
                            termination=termination, expected_camera_frames=expected_camera_frames)
   write_csv(run_dir / "telemetry.csv", telemetry)
   write_csv(run_dir / "camera.csv", camera)
+  dataset_summary = build_carla_dataset_manifest(run_dir) if args.capture_every_n_frames else None
   with (run_dir / "events.jsonl").open("w", encoding="utf-8") as handle:
     for event in events:
       handle.write(json.dumps(event, sort_keys=True) + "\n")
   write_json(run_dir / "summary.json", {"schema_version": 1, "pilot_status": verdict.status,
     "reasons": list(verdict.reasons), "termination": termination, "stop_reason": stop_reason,
     "lifecycle": lifecycle, "measurement_telemetry_rows": len(measured_telemetry),
-    "measurement_camera_rows": len(measured_camera), "expected_camera_frames": expected_camera_frames})
+    "measurement_camera_rows": len(measured_camera), "expected_camera_frames": expected_camera_frames,
+    "dataset_summary": dataset_summary})
   print(run_dir)
 
 
