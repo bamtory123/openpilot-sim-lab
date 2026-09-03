@@ -26,7 +26,7 @@ Each telemetry record keeps the configured ratio, OpenPilot command, normalized 
 The commands are intentionally separate so long local runs can use the retained durable-attempt and host-event collection workflow:
 
 ```bash
-OPENPILOT_ROOT=/home/hyunsung/src/openpilot/openpilot \
+OPENPILOT_ROOT=/home/hyunsung/src/openpilot \
   .venv/bin/python -m simlab.runner actuation-tune --allow-dirty \
   --scenario configs/scenarios/md_default_loop_lane0_pretrained_actuation_tuning_v2.yaml \
   --outputs outputs/v0.2-actuation-tuning

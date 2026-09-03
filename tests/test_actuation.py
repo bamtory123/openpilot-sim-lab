@@ -27,6 +27,7 @@ def test_actuation_selection_uses_lowest_rmse_then_higher_ratio(tmp_path):
   assert result["status"] == "selected"
   assert result["selected_run_id"] == "ratio4"
   assert result["selected_steer_ratio"] == 4
+  assert result["changed_candidate_selected"] is True
 
 
 def test_actuation_selection_retains_invalid_candidates_without_selecting_them(tmp_path):
@@ -34,6 +35,7 @@ def test_actuation_selection_retains_invalid_candidates_without_selecting_them(t
 
   assert result["status"] == "no_eligible_candidate"
   assert result["candidates"][0]["eligible"] is False
+  assert result["changed_candidate_selected"] is False
 
 
 def test_actuation_scenarios_keep_openpilot_control_and_support_ratio_variants():
