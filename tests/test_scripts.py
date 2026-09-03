@@ -149,6 +149,27 @@ def test_carla_windows_wrapper_preserves_logs_and_cleanup_contract():
   assert "carla_client_or_connectivity_smoke_only" in script
 
 
+def test_carla_pilot_verifier_requires_analysis_only_capture_contract(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  for name in ("events.jsonl", "telemetry.csv", "camera.csv", "run.log"):
+    (run / name).touch()
+  (run / "captures").mkdir()
+  (run / "captures/road.png").write_bytes(b"png")
+  sample = {"split": "analysis_only", "image": "captures/road.png", "labels": {}}
+  (run / "dataset_manifest.jsonl").write_text(json.dumps(sample) + "\n")
+  dataset = {"scope": "carla_analysis_only_not_control_training", "joined_samples": 1, "dropped_frames": 0, "valid": True}
+  (run / "dataset_summary.json").write_text(json.dumps(dataset))
+  (run / "manifest.json").write_text(json.dumps({"scope": "carla_v02_adapter_pilot_not_road_qualification",
+                                                     "capture": {"enabled": True}}))
+  (run / "summary.json").write_text(json.dumps({"schema_version": 1, "pilot_status": "integrated-but-not-stable",
+                                                   "dataset_summary": dataset}))
+
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_adapter_pilot.py"), str(run)],
+                          check=True, capture_output=True, text=True)
+
+  assert json.loads(result.stdout)["dataset"] == {"valid": True, "joined_samples": 1, "dropped_frames": 0}
+
+
 def test_carla_smoke_artifact_verifier_rejects_missing_log(tmp_path):
   result = {
     "schema_version": 1, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",

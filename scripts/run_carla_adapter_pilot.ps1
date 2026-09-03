@@ -6,12 +6,13 @@ param(
   [string]$HostIp = "",
   [int]$Attempts = 10,
   [int]$MeasurementSeconds = 60,
+  [int]$CaptureEveryNFrames = 0,
   [int]$Port = 2000,
   [string]$OutputRoot = (Join-Path (Split-Path -Parent $PSScriptRoot) "outputs\carla-adapter-pilot")
 )
 
 $ErrorActionPreference = "Stop"
-if ($Attempts -lt 1) { throw "Attempts must be positive" }
+if ($Attempts -lt 1 -or $CaptureEveryNFrames -lt 0) { throw "attempt and capture values must be non-negative" }
 if (-not (Test-Path -LiteralPath $CarlaExe -PathType Leaf)) { throw "CARLA executable is missing: $CarlaExe" }
 if ([string]::IsNullOrWhiteSpace($HostIp)) {
   $route = & wsl.exe -d $WslDistro -- ip route show default
@@ -39,7 +40,9 @@ for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
     $asset = "$SimlabRoot/outputs/carla-adapter-pilot/routes/Town04-city-mixed-$attempt.json"
     & wsl.exe -d $WslDistro -- "$OpenpilotRoot/.venv/bin/python" "$SimlabRoot/scripts/build_carla_city_route_asset.py" --host $HostIp --port $Port --output $asset | Tee-Object -FilePath (Join-Path $attemptRoot "route-build.log")
     if ($LASTEXITCODE -ne 0) { throw "route asset build failed" }
-    $pilotRun = & wsl.exe -d $WslDistro -- "$OpenpilotRoot/.venv/bin/python" "$SimlabRoot/scripts/run_carla_adapter_pilot.py" --openpilot-root $OpenpilotRoot --route-asset $asset --host $HostIp --port $Port --measurement-s $MeasurementSeconds --output-root "$SimlabRoot/outputs/carla-adapter-pilot" | Tee-Object -FilePath (Join-Path $attemptRoot "pilot.log")
+    $pilotArgs = @("$OpenpilotRoot/.venv/bin/python", "$SimlabRoot/scripts/run_carla_adapter_pilot.py", "--openpilot-root", $OpenpilotRoot, "--route-asset", $asset, "--host", $HostIp, "--port", $Port, "--measurement-s", $MeasurementSeconds, "--output-root", "$SimlabRoot/outputs/carla-adapter-pilot")
+    if ($CaptureEveryNFrames -gt 0) { $pilotArgs += @("--capture-every-n-frames", $CaptureEveryNFrames) }
+    $pilotRun = & wsl.exe -d $WslDistro -- @pilotArgs | Tee-Object -FilePath (Join-Path $attemptRoot "pilot.log")
     if ($LASTEXITCODE -ne 0) { throw "adapter pilot failed" }
   } catch {
     $failure = $_.Exception.Message
@@ -60,6 +63,7 @@ for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
       host = $HostIp
       port = $Port
       dynamic_traffic_count = 0
+      capture_every_n_frames = $CaptureEveryNFrames
       logs = @{ connect = "connect.log"; server_stdout = "server.stdout.log"; server_stderr = "server.stderr.log" }
     } | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $attemptRoot "attempt.json") -Encoding utf8
   }
