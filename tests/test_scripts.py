@@ -47,6 +47,7 @@ def test_openpilot_patch_bundles_are_documented_and_hashed():
     digest = hashlib.sha256((ROOT / "patches" / name).read_bytes()).hexdigest()
     assert digest in readme
   assert "084747c75d2cbd23af65ab7a9e770bbd7b98bac9" in readme
+  assert 'git -C "$openpilot" apply --check "$simlab/patches/' in readme
 
 
 def test_readme_uses_uv_for_openpilot_runtime_editable_install():

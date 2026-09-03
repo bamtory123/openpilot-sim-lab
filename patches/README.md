@@ -8,12 +8,14 @@ second full OpenPilot mirror. They are not a replacement for upstream source.
 3. Apply the CARLA bundle only for the separate v0.2 adapter pilot.
 
 ```bash
-git apply --check patches/openpilot-v01-sim-instrumentation.patch
-git apply patches/openpilot-v01-sim-instrumentation.patch
+simlab=/path/to/openpilot-sim-lab
+openpilot=/path/to/openpilot
+git -C "$openpilot" apply --check "$simlab/patches/openpilot-v01-sim-instrumentation.patch"
+git -C "$openpilot" apply "$simlab/patches/openpilot-v01-sim-instrumentation.patch"
 
 # Optional: CARLA v0.2 only. It is not a v0.1 release input.
-git apply --check patches/openpilot-v02-carla-adapter.patch
-git apply patches/openpilot-v02-carla-adapter.patch
+git -C "$openpilot" apply --check "$simlab/patches/openpilot-v02-carla-adapter.patch"
+git -C "$openpilot" apply "$simlab/patches/openpilot-v02-carla-adapter.patch"
 ```
 
 | Bundle | SHA-256 | Scope |
