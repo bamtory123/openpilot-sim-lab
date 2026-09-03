@@ -1,5 +1,7 @@
 # Windows/WSL host-stability boundary
 
+The active public follow-up is [issue #7](https://github.com/bamtory123/openpilot-sim-lab/issues/7). It records this boundary without assigning a driver or simulator root cause.
+
 ## Observed on 2026-08-31
 
 Two long-running openpilot + MetaDrive bridge attempts coincided with WSL instance restart evidence. The WSL kernel log recorded `dxgkio_query_adapter_info` failures followed by `dxgkio_escape` failures and an unclean system journal replacement. Windows System events recorded deletion and recreation of the WSL Hyper-V virtual NIC at 16:28 and 16:49 local time.
