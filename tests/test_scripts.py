@@ -28,6 +28,12 @@ def test_openpilot_patch_verifier_checks_both_bundle_hashes():
   assert "openpilot-v02-carla-adapter.patch" in script
 
 
+def test_portfolio_snapshot_verifier_is_public_checkout_only():
+  script = (ROOT / "scripts/verify_portfolio_snapshot.sh").read_text(encoding="utf-8")
+  assert "verify_portfolio_readiness.py" in script
+  assert "--verify-local-v01" not in script
+
+
 def test_python_scripts_compile_without_runtime_dependencies():
   for path in sorted((ROOT / "scripts").glob("*.py")):
     py_compile.compile(str(path), doraise=True)
