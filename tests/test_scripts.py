@@ -154,10 +154,12 @@ def test_carla_pilot_verifier_requires_analysis_only_capture_contract(tmp_path):
   for name in ("events.jsonl", "telemetry.csv", "camera.csv", "run.log"):
     (run / name).touch()
   (run / "captures").mkdir()
-  (run / "captures/road.png").write_bytes(b"png")
-  sample = {"split": "analysis_only", "image": "captures/road.png", "labels": {}}
+  (run / "captures/road-frame-000001.png").write_bytes(b"png")
+  sample = {"split": "analysis_only", "image": "captures/road-frame-000001.png",
+            "labels": {"route_lateral_error_m": 0, "route_heading_error_deg": 0, "route_reference_curvature_1pm": 0}}
   (run / "dataset_manifest.jsonl").write_text(json.dumps(sample) + "\n")
-  dataset = {"scope": "carla_analysis_only_not_control_training", "joined_samples": 1, "dropped_frames": 0, "valid": True}
+  dataset = {"scope": "carla_analysis_only_not_control_training", "joined_samples": 1, "captured_frames": 1,
+             "dropped_frames": 0, "valid": True}
   (run / "dataset_summary.json").write_text(json.dumps(dataset))
   (run / "manifest.json").write_text(json.dumps({"scope": "carla_v02_adapter_pilot_not_road_qualification",
                                                      "capture": {"enabled": True}}))

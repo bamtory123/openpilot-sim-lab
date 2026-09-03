@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 VALID_STATUSES = {"invalid", "integrated-but-not-stable", "bounded-pass"}
+CARLA_LABEL_FIELDS = ("route_lateral_error_m", "route_heading_error_deg", "route_reference_curvature_1pm")
 
 
 def verify_dataset(run_dir: Path, summary: dict, manifest: dict) -> dict | None:
@@ -19,12 +20,17 @@ def verify_dataset(run_dir: Path, summary: dict, manifest: dict) -> dict | None:
   persisted = json.loads(dataset_summary_path.read_text(encoding="utf-8"))
   if persisted != dataset or dataset.get("scope") != "carla_analysis_only_not_control_training":
     raise SystemExit("CARLA dataset summary is inconsistent")
+  captured = len(list((run_dir / "captures").glob("road-frame-*.png")))
+  if captured != dataset.get("captured_frames"):
+    raise SystemExit("CARLA dataset capture count is inconsistent")
   samples = [json.loads(line) for line in manifest_path.read_text(encoding="utf-8").splitlines() if line]
   if len(samples) != dataset.get("joined_samples"):
     raise SystemExit("CARLA dataset sample count is inconsistent")
   for sample in samples:
     if sample.get("split") != "analysis_only" or not (run_dir / sample.get("image", "")).is_file():
       raise SystemExit("CARLA dataset sample is not analysis-only or image is missing")
+    if any(label not in sample.get("labels", {}) for label in CARLA_LABEL_FIELDS):
+      raise SystemExit("CARLA dataset sample is missing a route label")
   return {"valid": bool(dataset.get("valid")), "joined_samples": len(samples), "dropped_frames": dataset.get("dropped_frames")}
 
 
