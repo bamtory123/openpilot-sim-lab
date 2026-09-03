@@ -63,3 +63,14 @@ def test_progress_does_not_claim_the_retained_carla_matrix_is_missing():
 
   assert "No city-route matrix result has been collected" not in progress
   assert "formal Town04 adapter matrix completed ten isolated attempts" in progress
+
+
+def test_reviewer_guide_keeps_the_portfolio_claim_boundary_visible():
+  guide = (ROOT / "docs/reviewer-guide.md").read_text(encoding="utf-8")
+  readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+  assert "Portfolio review in 5 minutes" in readme
+  assert "`not_qualified_yet`" in guide
+  assert "OpenPilot is the **System Under Test (SUT)**" in guide
+  assert "not a pretrained-driving pass" in guide
+  assert "My code versus upstream components" in guide

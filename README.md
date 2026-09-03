@@ -2,6 +2,10 @@
 
 OpenPilot is the System Under Test (SUT), MetaDrive is the SIL environment, and this repository is the validation orchestration, telemetry, fault-injection, verdict and report framework. The v0.1 question is: *after normal engagement, how does a fixed camera transport delay change one fixed reference-lane tracking scenario?*
 
+## Portfolio review in 5 minutes
+
+Start with the [reviewer guide](docs/reviewer-guide.md). It separates this project's implemented validation framework from upstream OpenPilot/MetaDrive, points to the compact public evidence, and explains the honest v0.1 conclusion: framework evidence is complete, while pretrained-driving qualification remains `not_qualified_yet`.
+
 ## What this repository adds
 
 - deterministic scenario validation and environment manifests
