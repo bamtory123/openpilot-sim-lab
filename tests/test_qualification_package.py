@@ -51,3 +51,10 @@ def test_windows_collector_covers_wsl_vmswitch_operational_log():
   assert "Microsoft-Windows-Hyper-V-VmSwitch-Operational" in collector
   assert "OID_GEN_STATISTICS" in collector
   assert "Windows `System` and Hyper-V `VmSwitch Operational`" in host_stability
+
+
+def test_progress_does_not_claim_the_retained_carla_matrix_is_missing():
+  progress = (ROOT / "docs/progress.md").read_text(encoding="utf-8")
+
+  assert "No city-route matrix result has been collected" not in progress
+  assert "formal Town04 adapter matrix completed ten isolated attempts" in progress
