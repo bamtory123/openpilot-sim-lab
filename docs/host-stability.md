@@ -30,6 +30,8 @@ The same VmSwitch warning occurred 257 times in the preceding 24 hours, includin
 
 On 2026-09-03 KST, a new bounded host-stack run completed a 5.00-second CUDA soak (3,716 iterations), two offscreen renderer steps, and preflight without changing the WSL boot ID. Its artifact now also records the imported MetaDrive source commit and dirty state: the local MetaDrive checkout was already dirty, so preflight was invoked through the explicit diagnostic `SIMLAB_ALLOW_DIRTY=1` path. This is transparent host-path evidence only; it is not strict formal evidence, long-run clearance, or a driving result.
 
+The corresponding 80-second Windows System/VmSwitch collection window contained zero selected WSL/GPU events. This is a bounded temporal observation, not proof that no host cause exists and not an NVIDIA-driver attribution.
+
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.
 
 Later on 2026-09-02, a Windows PowerShell verification process reported `OutOfMemoryException` after a CARLA client-smoke wrapper had already completed and written its result. The recorded CARLA result remained `pass`, its exact server PID was absent, and the WSL boot ID matched the immediately preceding bounded host-stack check. The selected Windows System/VmSwitch collector window (2026-09-02T10:38:50Z–10:40:47Z) contained zero events. This is retained as a separate user-space verification-shell failure; the empty bounded collector does not prove absence of a host cause, and no WSL restart, CARLA-run failure, or GPU/driver cause is assigned from it.
