@@ -77,3 +77,13 @@ def test_build_carla_dataset_manifest_marks_overflow_invalid(tmp_path):
   (tmp_path / "telemetry.csv").write_text("simulation_frame\n")
 
   assert build_carla_dataset_manifest(tmp_path)["valid"] is False
+
+
+def test_audit_dataset_reads_carla_route_curvature_label(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  sample = {"split": "analysis_only", "labels": {"route_reference_curvature_1pm": -0.02}}
+  (run / "dataset_manifest.jsonl").write_text(json.dumps(sample))
+
+  result = audit_dataset(tmp_path)
+
+  assert result["curved_sample_count"] == 1 and result["reference_curvature_min_1pm"] == -0.02

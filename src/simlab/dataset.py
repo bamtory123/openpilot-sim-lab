@@ -52,7 +52,8 @@ def audit_dataset(root: Path) -> dict:
   samples = []
   for path in sorted(root.glob("*/dataset_manifest.jsonl")):
     samples.extend(json.loads(line) for line in path.read_text(encoding="utf-8").splitlines())
-  curvature = [float(sample["labels"].get("reference_curvature_1pm") or 0.0) for sample in samples]
+  curvature = [float(sample["labels"].get("reference_curvature_1pm") or
+                     sample["labels"].get("route_reference_curvature_1pm") or 0.0) for sample in samples]
   traffic_distance = [float(sample["labels"]["traffic_nearest_distance_m"]) for sample in samples
                       if sample["labels"].get("traffic_nearest_distance_m") not in (None, "")]
   traffic_ttc = [float(sample["labels"]["traffic_nearest_ttc_s"]) for sample in samples
