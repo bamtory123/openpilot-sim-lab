@@ -26,9 +26,11 @@ Regenerate and verify it only when the retained local matrix aggregate is availa
 
 ```bash
 uv run python scripts/build_carla_adapter_public_evidence.py outputs/carla-adapter-pilot/formal-<timestamp>-summary.json \
-  --output-dir examples/v0.2-carla-adapter-pilot
+  --output-dir examples/v0.2-carla-adapter-pilot \
+  --departure-contract historical_lane_sensor_event_pre_route_ground_truth_threshold
 uv run python scripts/verify_carla_adapter_public_evidence.py outputs/carla-adapter-pilot/formal-<timestamp>-summary.json \
-  --output-dir examples/v0.2-carla-adapter-pilot
+  --output-dir examples/v0.2-carla-adapter-pilot \
+  --departure-contract historical_lane_sensor_event_pre_route_ground_truth_threshold
 ```
 
 ### Analysis-only RGB/route-label collection
