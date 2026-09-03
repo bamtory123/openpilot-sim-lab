@@ -222,6 +222,12 @@ def test_carla_adapter_public_evidence_is_aggregate_and_source_bound(tmp_path):
   assert "private" not in serialized and '"run_count": 2' in serialized
 
 
+def test_portfolio_readiness_exposes_optional_carla_adapter_source_check():
+  script = (ROOT / "scripts/verify_portfolio_readiness.py").read_text(encoding="utf-8")
+  assert 'parser.add_argument("--carla-adapter-summary", type=Path)' in script
+  assert 'checks["carla_adapter_retained_source"] = "pass"' in script
+
+
 def test_carla_smoke_artifact_verifier_rejects_missing_log(tmp_path):
   result = {
     "schema_version": 1, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",
