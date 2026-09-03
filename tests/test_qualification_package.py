@@ -40,7 +40,7 @@ def test_portfolio_readiness_check_keeps_public_boundaries():
   result = __import__("subprocess").run([__import__("sys").executable, str(ROOT / "scripts/verify_portfolio_readiness.py")],
                                          check=True, capture_output=True, text=True)
   readiness = __import__("json").loads(result.stdout)
-  assert readiness == {"checks": {"public_carla": "pass", "public_v01": "pass"},
+  assert readiness == {"checks": {"public_carla": "pass", "public_improvement_case_study": "pass", "public_v01": "pass"},
                        "schema_version": 1, "scope": "portfolio_readiness_only", "status": "pass"}
 
 

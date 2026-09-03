@@ -18,6 +18,17 @@ def test_default_scenario_is_supported_and_hash_is_stable():
   assert scenario_with_seed(scenario, 123).data["environment"]["seed"] == 123
 
 
+def test_actuation_ratio_is_bounded_and_excluded_from_non_openpilot_controls(tmp_path):
+  path = tmp_path / "actuation.yaml"
+  base = (ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text()
+  path.write_text(base + "\nactuation:\n  steer_ratio: 4\n")
+  assert load_scenario(path).data["actuation"]["steer_ratio"] == 4
+  path.write_text(base + "\nactuation:\n  steer_ratio: 3\n")
+  with pytest.raises(ScenarioError): load_scenario(path)
+  path.write_text(base + "\nsimulator_control:\n  mode: pure_pursuit\n  target_speed_mps: 3\n  lookahead_m: 12\n  curvature_to_steer_gain: 1\nactuation:\n  steer_ratio: 4\n")
+  with pytest.raises(ScenarioError): load_scenario(path)
+
+
 def test_host_confirmation_probe_is_short_and_keeps_the_official_transport_contract():
   scenario = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_host_confirmation_v1.yaml")
 

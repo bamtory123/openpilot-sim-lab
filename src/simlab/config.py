@@ -83,6 +83,12 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("v0.1 rate contract is 100 Hz telemetry / 20 Hz camera")
   if not isinstance(validity.get("allow_frame_drop"), bool):
     raise ScenarioError("allow_frame_drop must be boolean")
+  actuation = data.get("actuation")
+  if actuation is not None:
+    if not isinstance(actuation, dict) or set(actuation) != {"steer_ratio"} or not isinstance(actuation.get("steer_ratio"), (int, float)):
+      raise ScenarioError("actuation must contain only numeric steer_ratio")
+    if float(actuation["steer_ratio"]) not in (1.0, 2.0, 4.0, 8.0):
+      raise ScenarioError("actuation.steer_ratio must be one of 1, 2, 4, 8")
   if "min_traffic_vehicle_count" in validity and (not isinstance(validity["min_traffic_vehicle_count"], int) or validity["min_traffic_vehicle_count"] < 0):
     raise ScenarioError("min_traffic_vehicle_count must be a non-negative integer")
   if "max_traffic_ego_nearest_distance_m" in validity and (not isinstance(validity["max_traffic_ego_nearest_distance_m"], (int, float)) or validity["max_traffic_ego_nearest_distance_m"] <= 0):
@@ -123,6 +129,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
       raise ScenarioError("specialist_replay.artifact_path must be a non-empty string")
     if not isinstance(specialist_replay.get("target_speed_mps"), (int, float)) or specialist_replay["target_speed_mps"] <= 0:
       raise ScenarioError("specialist_replay.target_speed_mps must be positive")
+    if actuation is not None:
+      raise ScenarioError("actuation is not permitted with specialist_replay")
   controller = data.get("simulator_control")
   if controller is not None:
     if not isinstance(controller, dict) or controller.get("mode") not in ("reference_lane_assist", "pure_pursuit", "reference_curvature_follow"):
@@ -136,6 +144,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     for key in keys:
       if not isinstance(controller.get(key), (int, float)) or controller[key] <= 0:
         raise ScenarioError(f"simulator_control.{key} must be positive")
+    if actuation is not None:
+      raise ScenarioError("actuation is not permitted with simulator_control")
 
 
 def load_scenario(path: Path) -> Scenario:
@@ -164,5 +174,12 @@ def scenario_with_seed(scenario: Scenario, seed: int) -> Scenario:
 def scenario_with_map_curve_direction(scenario: Scenario, direction: int) -> Scenario:
   data = json.loads(json.dumps(scenario.data))
   data["environment"]["map_curve_direction"] = direction
+  validate_scenario(data)
+  return Scenario(data=data, source=scenario.source)
+
+
+def scenario_with_actuation_ratio(scenario: Scenario, steer_ratio: float) -> Scenario:
+  data = json.loads(json.dumps(scenario.data))
+  data["actuation"] = {"steer_ratio": steer_ratio}
   validate_scenario(data)
   return Scenario(data=data, source=scenario.source)

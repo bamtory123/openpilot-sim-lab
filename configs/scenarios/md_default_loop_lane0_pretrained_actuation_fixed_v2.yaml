@@ -1,0 +1,32 @@
+schema_version: 1
+scenario_id: md_default_loop_lane0_pretrained_actuation_fixed_v2
+
+environment:
+  map_id: openpilot_default_loop_v1
+  seed: 20260827
+  reference_lane_index: 0
+
+actuation:
+  steer_ratio: 8
+
+run:
+  wait_ready_timeout_s: 60
+  wait_engage_timeout_s: 30
+  fault_settle_s: 5
+  measurement_camera_frames: 1200
+  wall_watchdog_s: 120
+
+fault:
+  type: camera_transport_delay
+  target_delay_ms: 0
+  queue_capacity_frames: 8
+  overflow_policy: invalid_run
+
+validity:
+  min_active_time_s: 55
+  min_telemetry_coverage_ratio: 0.99
+  allow_frame_drop: false
+
+logging:
+  telemetry_hz: 100
+  camera_hz_nominal: 20

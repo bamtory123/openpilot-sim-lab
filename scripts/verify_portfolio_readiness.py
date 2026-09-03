@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from build_v01_public_evidence import render_summary as render_v01_summary
+from build_performance_case_study import FORBIDDEN as PERFORMANCE_FORBIDDEN, render_summary as render_performance_summary
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -36,6 +37,8 @@ def main() -> None:
   carla_summary = (ROOT / "examples/v0.2-carla-client-smoke/README.md").read_text(encoding="utf-8")
   adapter = (ROOT / "examples/v0.2-carla-adapter-pilot/evidence.json").read_text(encoding="utf-8")
   adapter_summary = (ROOT / "examples/v0.2-carla-adapter-pilot/README.md").read_text(encoding="utf-8")
+  performance = json.loads((ROOT / "examples/v0.2-performance-improvement-case-study/evidence.json").read_text(encoding="utf-8"))
+  performance_summary = (ROOT / "examples/v0.2-performance-improvement-case-study/SUMMARY.md").read_text(encoding="utf-8")
   if "`not_qualified_yet`" not in report or "not a new GitHub release, tag" not in snapshot:
     raise SystemExit("v0.1 qualification boundary is missing")
   if any(token in carla for token in ("172.28.", "C:\\", "server.stdout.log", "client.log")):
@@ -44,8 +47,10 @@ def main() -> None:
     raise SystemExit("public CARLA sample boundary is missing")
   if '"scope": "carla_adapter_pilot_public_summary_only"' not in adapter or "does not demonstrate successful OpenPilot driving" not in adapter_summary:
     raise SystemExit("public CARLA adapter sample boundary is missing")
+  if performance_summary != render_performance_summary(performance) or any(token in json.dumps(performance) for token in PERFORMANCE_FORBIDDEN):
+    raise SystemExit("public performance case-study evidence is missing, stale, or exposes a local detail")
 
-  checks = {"public_v01": "pass", "public_carla": "pass"}
+  checks = {"public_v01": "pass", "public_carla": "pass", "public_improvement_case_study": "pass"}
   if args.verify_local_v01:
     run("verify_v01_public_evidence.py")
     checks["v01_retained_source"] = "pass"

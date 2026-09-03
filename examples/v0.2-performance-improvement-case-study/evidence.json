@@ -1,0 +1,388 @@
+{
+  "pretrained_actuation_calibration": {
+    "candidate_success": false,
+    "candidates": [
+      {
+        "eligible": true,
+        "lateral_rmse_m": 0.578483589499171,
+        "outcome": "fail",
+        "reasons": [
+          "lane_departure",
+          "lateral_error_threshold"
+        ],
+        "run_id": "md_default_loop_lane0_pretrained_actuation_tuning_v2-20260903T105107Z-16556f3f",
+        "steer_ratio": 8.0,
+        "validity": "valid"
+      },
+      {
+        "eligible": false,
+        "lateral_rmse_m": 0.9746513202718142,
+        "outcome": "not_evaluated",
+        "reasons": [
+          "camera_coverage",
+          "insufficient_active_time:16.40s<19.50s",
+          "telemetry_coverage"
+        ],
+        "run_id": "md_default_loop_lane0_pretrained_actuation_tuning_v2-20260903T105215Z-80b1407b",
+        "steer_ratio": 4.0,
+        "validity": "invalid"
+      },
+      {
+        "eligible": false,
+        "lateral_rmse_m": 0.9101413872461395,
+        "outcome": "not_evaluated",
+        "reasons": [
+          "camera_coverage",
+          "insufficient_active_time:7.74s<19.50s",
+          "telemetry_coverage"
+        ],
+        "run_id": "md_default_loop_lane0_pretrained_actuation_tuning_v2-20260903T105313Z-c22cde5c",
+        "steer_ratio": 2.0,
+        "validity": "invalid"
+      },
+      {
+        "eligible": false,
+        "lateral_rmse_m": 0.8675464898432301,
+        "outcome": "not_evaluated",
+        "reasons": [
+          "camera_coverage",
+          "insufficient_active_time:4.34s<19.50s",
+          "telemetry_coverage"
+        ],
+        "run_id": "md_default_loop_lane0_pretrained_actuation_tuning_v2-20260903T105351Z-00a9d934",
+        "steer_ratio": 1.0,
+        "validity": "invalid"
+      }
+    ],
+    "changed_candidate_selected": false,
+    "evaluation_sha256": "ea33ae21231c8c1a9cbeee39ec249cb34e34fdd27283425b4641d37c9387ed55",
+    "next_step": "retain_negative_result_no_changed_candidate",
+    "reason": "baseline_ratio_selected_no_actuation_change",
+    "selected_steer_ratio": 8.0,
+    "selection_sha256": "c09995dd3c7e0e3279917c11d50837128adafc57c7d1f73f2670886f1781179c",
+    "selection_status": "selected"
+  },
+  "schema_version": 1,
+  "scope": "simulator_specialist_improvement_case_study_not_pretrained_or_road_performance",
+  "specialist_cases": [
+    {
+      "baseline": {
+        "camera_frames_published": 1030,
+        "collision_occurred": false,
+        "lane_departure_occurred": true,
+        "lateral_rmse_m": 1.3423150127139039,
+        "outcome": "fail",
+        "reasons": [
+          "lane_departure",
+          "lateral_error_threshold"
+        ],
+        "scenario_id": "md_default_loop_lane0_temporal_dagger_speed2_gamma08_heldout_v1",
+        "sha256": "a3d24a67f9005201a0111f48310190fa090608784c0d602e86ee606652b25f92",
+        "target_delay_ms": 0,
+        "validity": "valid"
+      },
+      "candidate_mean_lateral_rmse_m": 0.2876467735598131,
+      "candidate_runs": [
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.28736929146800777,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+          "sha256": "4c4a8af301f63315f552a1de735107bd49ac41fcd959d3e0a682c50ced63ef29",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        },
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.2876613487635443,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+          "sha256": "b91e68634a28ce8ed738c187f8d271204f6c731106db58ea46464808fda5ab4c",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        },
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.2879096804478871,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+          "sha256": "f2e40f1f6f96c06cb2ecf120a3466200d11fed5cb789bb9c14df816dbaacabfc",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        }
+      ],
+      "delay_matrix": {
+        "0": {
+          "mean_lateral_rmse_m": 0.2870357297147181,
+          "runs": [
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28675313708938066,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "7df3232d4bd7f65da2df94a4a889a319f0e08c9c9dd9af5c0ec051bed31f5a05",
+              "target_delay_ms": 0,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28744084599585834,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "4494756a7c9079b9726f89a8fb5bd9c5c0b6a8f3fb087cd018c4b6d424424dc0",
+              "target_delay_ms": 0,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28691320605891524,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "03e11258fa65c8a198f67a48d90ba718dea4ca91e26572cff150e53a60842cad",
+              "target_delay_ms": 0,
+              "validity": "valid"
+            }
+          ]
+        },
+        "100": {
+          "mean_lateral_rmse_m": 0.2871999131316209,
+          "runs": [
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28682884310647755,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "1bdaf6817184bcc7f0a4ecdf33ab1b0fdf6e6b575be3b0794d2dad1199b8e7a6",
+              "target_delay_ms": 100,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28780314806055146,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "6e995516a7d06e90f81b20d6ee183f97bfb3070de4e23f3f10c060405b75e4b3",
+              "target_delay_ms": 100,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28696774822783366,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "1699db8705dea849f81d712a9e510ce7191109fc8a61d9c775acdbf633525dd7",
+              "target_delay_ms": 100,
+              "validity": "valid"
+            }
+          ]
+        },
+        "150": {
+          "mean_lateral_rmse_m": 0.28752514816149927,
+          "runs": [
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28757593666774567,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "494ed396591cff116068fa48afb3859fea8d19df393a4e391fe90cc0b0cb8ecf",
+              "target_delay_ms": 150,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28769715951379365,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "ee880ef6e6deb1d1ff008d95cf8bef6bc56740339e6eb0e1eb2ca77319e31d31",
+              "target_delay_ms": 150,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28730234830295837,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "61ad866894eebff453130a0f084c1a1fc0223b894e4b6ed5b0e3d0d28593bfbe",
+              "target_delay_ms": 150,
+              "validity": "valid"
+            }
+          ]
+        },
+        "50": {
+          "mean_lateral_rmse_m": 0.28793578655323027,
+          "runs": [
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.2877400873474726,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "9c8075c0d51e539dc68ae24dcbde34a1d678237497db341f18557aec9f835bdc",
+              "target_delay_ms": 50,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.28832718496474563,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "2bad2794478e1ff570e618816bdc93e73a3de3b69b43718bd9cfa7c5865cf4be",
+              "target_delay_ms": 50,
+              "validity": "valid"
+            },
+            {
+              "camera_frames_published": 1200,
+              "collision_occurred": false,
+              "lane_departure_occurred": false,
+              "lateral_rmse_m": 0.2877400873474726,
+              "outcome": "pass",
+              "reasons": [],
+              "scenario_id": "md_default_loop_lane0_temporal_v06_gamma_curve_speed2_gamma08_heldout_v1",
+              "sha256": "7ea0d94fe1d284dee7db4fd804e2f1e486e9756f53155ff4d660f4c0e2c51e00",
+              "target_delay_ms": 50,
+              "validity": "valid"
+            }
+          ]
+        }
+      },
+      "id": "targeted_gamma_curve_data"
+    },
+    {
+      "baseline": {
+        "camera_frames_published": 1147,
+        "collision_occurred": false,
+        "lane_departure_occurred": true,
+        "lateral_rmse_m": 0.5128819411531416,
+        "outcome": "fail",
+        "reasons": [
+          "lane_departure",
+          "lateral_error_threshold"
+        ],
+        "scenario_id": "md_tight_loop_lane0_temporal_v06_gamma_curve_speed2_heldout_v1",
+        "sha256": "9ca472616653f6bfd674ff95d8f88d2a7722dbf50e28511fdc640a6b9c66ce49",
+        "target_delay_ms": 0,
+        "validity": "valid"
+      },
+      "fixed_mean_lateral_rmse_m": 0.41223856265632913,
+      "fixed_runs": [
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.4110636586451733,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+          "sha256": "3db9b2d37ff1faf66831e55d0379a73d7b24a3f88b50124d7dced2661e732a9d",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        },
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.4079795045585277,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+          "sha256": "18e73cdd0fd7e644e56c4b95498663f581f12ae5c2d781ad0d8c2498d7c4c531",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        },
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.4176725247652862,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_tight_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+          "sha256": "5f89b732be88f812c586d4cf87147b985a2d79bcb3ede68bfece0c14a46af6ad",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        }
+      ],
+      "heldout_mean_lateral_rmse_m": 0.4905979650193486,
+      "heldout_runs": [
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.4949585183037212,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_intermediate_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+          "sha256": "d8042ef5326629a0cd52406a8d03dd4b158e3eb2771f5c9f6bb7bef9e7eb96e9",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        },
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.4867031088208871,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_intermediate_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+          "sha256": "308332c826ea5a35379fb5d6d59502a6d088cdb6dd57a11fe8790f1fa50d856b",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        },
+        {
+          "camera_frames_published": 1200,
+          "collision_occurred": false,
+          "lane_departure_occurred": false,
+          "lateral_rmse_m": 0.49013226793343756,
+          "outcome": "pass",
+          "reasons": [],
+          "scenario_id": "md_intermediate_loop_lane0_temporal_v06_gamma_tight_dagger_speed2_heldout_v1",
+          "sha256": "5203107285717dd067338a93afae34c35647b4bb44f2310123940e439beb9699",
+          "target_delay_ms": 0,
+          "validity": "valid"
+        }
+      ],
+      "id": "tight_dagger_geometry"
+    }
+  ]
+}

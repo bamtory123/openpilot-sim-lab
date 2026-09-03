@@ -44,6 +44,12 @@ v0.1은 formal 12-run evidence, provenance, data-integrity verdict, requirements
 
 v0.2 CARLA adapter pilot은 별도 branch의 bounded integration work다. Town04의 frozen city route에서 OpenPilot-only control, CARLA state/camera/control mapping, actor cleanup, non-blocking camera transport, 10×60 s isolated attempts를 검증한다. `invalid`/`integrated-but-not-stable`/`bounded-pass`는 adapter-pilot 상태일 뿐 MetaDrive KPI, release qualification, real-road capability를 대체하지 않는다. CARLA/OpenX adapter와 CAN/HIL interface design은 이 경계 밖의 후속 확장이다.
 
+## v0.2 SIL improvement case study
+
+v0.1 pretrained qualification is frozen. The new actuator-calibration track changes only the OpenPilot steering-angle to MetaDrive normalized-steer mapping (`actuation.steer_ratio`, default `8.0`), records command-to-response metrics, and excludes specialist replay and ground-truth simulator control. A 400-frame `8 → 4 → 2 → 1` diagnostic selects only an eligible changed candidate; a ratio-8 selection is retained as a no-change negative result. A changed candidate must pass three fixed and three held-out 1,200-frame runs before a delay matrix is permitted.
+
+The simulator-specialist track remains a separately source-hash-bound positive control. Neither track changes v0.1 evidence, pretrained model weights/planner, CAN/Panda, or any real-road claim. See [the case study](docs/performance-improvement-case-study.md).
+
 ## 한계
 
 모든 threshold는 자동차/OEM 기준이 아닌 `project_defined` 기준이어야 하며 baseline 측정 전 performance threshold를 확정하지 않는다. 상세 한계는 [limitations](docs/limitations.md)를 따른다.

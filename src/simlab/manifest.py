@@ -73,6 +73,7 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
   except Exception:
     metadrive_version = "not-installed"
   env = {key: os.environ[key] for key in ("SIMULATION", "SIM_TINYGRAD_DEVICE", "OPENPILOT_ROOT") if key in os.environ}
+  actuation = scenario.data.get("actuation", {})
   return {
     "schema_version": 1, "run_id": run_id, "created_at_utc": datetime.now(timezone.utc).isoformat(), "scenario_hash": scenario.hash,
     "sim_lab": git_metadata(simlab_root), "openpilot": git_metadata(openpilot_root),
@@ -83,6 +84,8 @@ def build_manifest(run_id: str, scenario: Scenario, simlab_root: Path, openpilot
     "gpu": _command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"]),
     "driver": _command(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"]),
     "gpu_runtime_snapshot": gpu_runtime_snapshot(),
+    "actuation": {"steer_ratio": float(actuation.get("steer_ratio", 8.0)),
+                  "mode": "openpilot_command" if not scenario.data.get("simulator_control") and not scenario.data.get("specialist_replay") else "not_applied"},
     "command": command, "environment": env,
   }
 

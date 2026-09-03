@@ -18,6 +18,11 @@ def _rms(values: list[float]) -> float | None:
   return math.sqrt(fmean([value * value for value in values])) if values else None
 
 
+def _linear_gain(pairs: list[tuple[float, float]]) -> float | None:
+  denominator = sum(command * command for command, _ in pairs)
+  return sum(command * applied for command, applied in pairs) / denominator if denominator else None
+
+
 def camera_timestamps_valid(camera: Iterable[dict]) -> bool:
   """Validate per-camera source ordering and capture-to-publish causality."""
   last_source_id: dict[str, int] = {}
@@ -69,6 +74,11 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
   traffic_closing_speed = [float(row["traffic_nearest_closing_speed_mps"]) for row in rows if row.get("traffic_nearest_closing_speed_mps") is not None]
   traffic_ttc = [float(row["traffic_nearest_ttc_s"]) for row in rows if row.get("traffic_nearest_ttc_s") is not None]
   simulation_times = [float(row["simulation_time_s"]) for row in rows if row.get("simulation_time_s") is not None]
+  command_applied = [(float(row["op_steering_angle_cmd_deg"]), float(row["applied_steering_angle_deg"])) for row in rows
+                     if row.get("op_steering_angle_cmd_deg") is not None and row.get("applied_steering_angle_deg") is not None]
+  nonzero_command_applied = [(command, applied) for command, applied in command_applied if abs(command) > 1e-6 and abs(applied) > 1e-6]
+  normalized_steer = [float(row["simulator_normalized_steer"]) for row in rows if row.get("simulator_normalized_steer") is not None]
+  actual_curvature = [float(row["actual_curvature_1pm"]) for row in rows if row.get("actual_curvature_1pm") is not None]
   return {
     "lateral_rmse_m": _rms(lateral), "lateral_abs_p95_m": _quantile([abs(value) for value in lateral], 0.95),
     "lateral_abs_max_m": max(map(abs, lateral), default=None), "heading_rmse_rad": _rms(heading),
@@ -92,6 +102,13 @@ def calculate_metrics(telemetry: Iterable[dict], camera: Iterable[dict]) -> dict
     "traffic_ego_nearest_distance_p05_m": _quantile(traffic_nearest_distance, 0.05),
     "traffic_nearest_closing_speed_max_mps": max(traffic_closing_speed, default=None),
     "traffic_nearest_ttc_min_s": min(traffic_ttc, default=None),
+    "openpilot_steer_command_rms_deg": _rms([command for command, _ in command_applied]),
+    "command_to_applied_steer_gain": _linear_gain(command_applied),
+    "command_applied_steer_sign_agreement": (sum(command * applied > 0 for command, applied in nonzero_command_applied) / len(nonzero_command_applied)
+                                             if nonzero_command_applied else None),
+    "simulator_normalized_steer_rms": _rms(normalized_steer),
+    "actual_curvature_rms_1pm": _rms(actual_curvature),
+    "actual_curvature_abs_p95_1pm": _quantile([abs(value) for value in actual_curvature], 0.95),
     "active_time_s": max(simulation_times) - min(simulation_times) if simulation_times else 0.0,
     "telemetry_samples": len(rows), "lane_departure_occurred": any(bool(row.get("lane_departure")) for row in rows),
     "collision_occurred": any(bool(row.get("collision")) for row in rows),

@@ -239,6 +239,46 @@ def test_carla_adapter_public_evidence_is_aggregate_and_source_bound(tmp_path):
   assert "private" not in serialized and '"run_count": 2' in serialized
 
 
+def test_performance_case_study_is_source_bound_and_public_safe(tmp_path):
+  def summary(path, *, outcome, rmse, delay=0):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"scenario_id": "synthetic", "target_delay_ms": delay, "validity": "valid",
+                                "outcome": outcome, "reasons": [], "metrics": {"lateral_rmse_m": rmse,
+                                "camera_frames_published": 1200, "lane_departure_occurred": outcome == "fail",
+                                "collision_occurred": False}}), encoding="utf-8")
+    return path
+
+  gamma_baseline = summary(tmp_path / "gamma-baseline.json", outcome="fail", rmse=1.0)
+  gamma_candidates = [summary(tmp_path / f"gamma-{index}.json", outcome="pass", rmse=0.2 + index / 100)
+                      for index in range(3)]
+  delay_root = tmp_path / "matrix"
+  for delay in (0, 50, 100, 150):
+    for index in range(3):
+      summary(delay_root / f"{delay}-{index}" / "summary.json", outcome="pass", rmse=0.25, delay=delay)
+  tight_baseline = summary(tmp_path / "tight-baseline.json", outcome="fail", rmse=0.8)
+  tight_fixed = [summary(tmp_path / f"tight-fixed-{index}.json", outcome="pass", rmse=0.4) for index in range(3)]
+  tight_heldout = [summary(tmp_path / f"tight-heldout-{index}.json", outcome="pass", rmse=0.5) for index in range(3)]
+  tuning = tmp_path / "tuning.json"
+  tuning.write_text(json.dumps({"status": "selected", "selected_steer_ratio": 8.0, "changed_candidate_selected": False,
+                                "candidates": [{"summary": "/private/summary.json", "steer_ratio": 8.0,
+                                "validity": "valid", "outcome": "fail", "reasons": [], "lateral_rmse_m": 1.0,
+                                "eligible": True}]}), encoding="utf-8")
+  evaluation = tmp_path / "evaluation.json"
+  evaluation.write_text(json.dumps({"candidate_success": False, "next_step": "retain_negative_result_no_changed_candidate",
+                                    "reason": "baseline_ratio_selected_no_actuation_change"}), encoding="utf-8")
+  output = tmp_path / "public"
+  command = [sys.executable, str(ROOT / "scripts/build_performance_case_study.py"), "--pretrained-tuning", str(tuning),
+             "--pretrained-evaluation", str(evaluation), "--gamma-baseline", str(gamma_baseline),
+             "--gamma-candidate", *(str(path) for path in gamma_candidates), "--gamma-delay-root", str(delay_root),
+             "--tight-baseline", str(tight_baseline), "--tight-fixed", *(str(path) for path in tight_fixed),
+             "--tight-heldout", *(str(path) for path in tight_heldout), "--output-dir", str(output)]
+  subprocess.run(command, check=True)
+  subprocess.run([sys.executable, str(ROOT / "scripts/verify_performance_case_study.py"), *command[2:]], check=True)
+  evidence = (output / "evidence.json").read_text(encoding="utf-8")
+  assert "simulator_specialist_improvement_case_study" in evidence
+  assert str(tmp_path) not in evidence and "telemetry.csv" not in evidence
+
+
 def test_portfolio_readiness_exposes_optional_carla_adapter_source_check():
   script = (ROOT / "scripts/verify_portfolio_readiness.py").read_text(encoding="utf-8")
   assert 'parser.add_argument("--carla-adapter-summary", type=Path)' in script

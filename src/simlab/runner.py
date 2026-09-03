@@ -15,7 +15,8 @@ from multiprocessing import Queue
 
 import yaml
 
-from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed, scenario_with_map_curve_direction
+from .config import Scenario, ScenarioError, load_scenario, scenario_with_delay, scenario_with_seed, scenario_with_map_curve_direction, scenario_with_actuation_ratio
+from .actuation import select_actuation_candidate
 from .baseline import audit_historical_baseline
 from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json, wsl_boot_id
@@ -409,9 +410,17 @@ def collect_dataset(scenario: Scenario, *, output_root: Path, allow_dirty: bool)
           for direction in directions for seed in seeds]
 
 
+def run_actuation_tuning(scenario: Scenario, *, output_root: Path, allow_dirty: bool) -> dict:
+  runs = [run_once(scenario_with_actuation_ratio(scenario, ratio), output_root=output_root, allow_dirty=allow_dirty)
+          for ratio in (8.0, 4.0, 2.0, 1.0)]
+  selection = select_actuation_candidate([run / "summary.json" for run in runs])
+  write_json(output_root / "actuation-selection.json", selection)
+  return selection
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description="MetaDrive SIL repeatability runner")
-  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "recover", "recover-attempt", "audit", "baseline-audit", "regression-review", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
+  parser.add_argument("command", choices=("preflight", "run", "batch", "collect", "actuation-tune", "recover", "recover-attempt", "audit", "baseline-audit", "regression-review", "report", "train-specialist", "train-temporal-specialist", "rebuild-specialist-manifests"))
   parser.add_argument("--scenario", type=Path, default=ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml")
   parser.add_argument("--outputs", type=Path, default=DEFAULT_OUTPUTS)
   parser.add_argument("--allow-dirty", action="store_true")
@@ -482,6 +491,8 @@ def main() -> None:
   elif args.command == "collect":
     for path in collect_dataset(scenario, output_root=args.outputs, allow_dirty=args.allow_dirty):
       print(path)
+  elif args.command == "actuation-tune":
+    print(json.dumps(run_actuation_tuning(scenario, output_root=args.outputs, allow_dirty=args.allow_dirty), indent=2, sort_keys=True))
   else:
     for path in run_batch(scenario, output_root=args.outputs, allow_dirty=args.allow_dirty):
       print(path)

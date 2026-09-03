@@ -6,6 +6,8 @@ OpenPilot is the System Under Test (SUT), MetaDrive is the SIL environment, and 
 
 Start with the [reviewer guide](docs/reviewer-guide.md). It separates this project's implemented validation framework from upstream OpenPilot/MetaDrive, points to the compact public evidence, and explains the honest v0.1 conclusion: framework evidence is complete, while pretrained-driving qualification remains `not_qualified_yet`.
 
+The [v0.2 SIL improvement loop](docs/performance-improvement-case-study.md) keeps pretrained actuator calibration separate from simulator-specialist positive controls; neither is a real-road performance claim.
+
 ## What this repository adds
 
 - deterministic scenario validation and environment manifests

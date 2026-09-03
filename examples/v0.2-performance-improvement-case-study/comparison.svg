@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300">
+<rect width="100%" height="100%" fill="white"/>
+<text x="30" y="30" font-family="sans-serif" font-size="18">Lateral RMSE (lower is better; simulator-only contracts)</text>
+<text x="30" y="75" font-family="sans-serif" font-size="14">Gamma baseline</text>
+<rect x="220" y="55" width="460.0" height="28" fill="#b45309"/>
+<text x="688.0" y="75" font-family="sans-serif" font-size="14">1.342 m</text>
+<text x="30" y="120" font-family="sans-serif" font-size="14">Gamma candidate</text>
+<rect x="220" y="100" width="98.6" height="28" fill="#15803d"/>
+<text x="326.6" y="120" font-family="sans-serif" font-size="14">0.288 m</text>
+<text x="30" y="165" font-family="sans-serif" font-size="14">Tight baseline</text>
+<rect x="220" y="145" width="175.8" height="28" fill="#b45309"/>
+<text x="403.8" y="165" font-family="sans-serif" font-size="14">0.513 m</text>
+<text x="30" y="210" font-family="sans-serif" font-size="14">Tight candidate</text>
+<rect x="220" y="190" width="141.3" height="28" fill="#15803d"/>
+<text x="369.3" y="210" font-family="sans-serif" font-size="14">0.412 m</text>
+<text x="30" y="255" font-family="sans-serif" font-size="14">52m held-out</text>
+<rect x="220" y="235" width="168.1" height="28" fill="#2563eb"/>
+<text x="396.1" y="255" font-family="sans-serif" font-size="14">0.491 m</text>
+</svg>

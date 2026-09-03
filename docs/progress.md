@@ -1,5 +1,8 @@
 # Progress
 
+- v0.2 actuator-calibration infrastructure now has a constrained `actuation.steer_ratio` interface, command-to-applied-response telemetry/KPIs, 400-frame candidate selection, six-run fixed/held-out gate, and a delay-matrix launcher that refuses to run unless that gate passes. The first actual `8 → 4 → 2 → 1` tuning retained `8` as `valid/fail` (0.57848 m lateral RMSE); `4`, `2`, and `1` were `invalid/not_evaluated` because their active-time/coverage contracts were not met. Ratio 8 is the unchanged baseline, so the evaluation correctly records `baseline_ratio_selected_no_actuation_change` rather than inventing a performance candidate. This is a reproducible negative calibration result, not a failure of the validation framework and not a pretrained or road-performance claim.
+- The v0.2 public performance case-study bundle now binds that negative calibration result and the separate gamma-targeted/tight-DAgger simulator-specialist positive controls to source SHA-256 values. It excludes raw frames, telemetry, local paths, logs, and models; its Markdown/SVG/evidence drift and forbidden-token checks run in the public-only portfolio verifier.
+
 ## Completed
 
 - A Windows `run_host_probe_with_events.ps1` wrapper now runs one bounded WSL host probe and collects the corresponding System/VmSwitch window in `finally`, preserving both JSON artifacts under the same output root even after a nonzero probe exit. Its first post-fix run wrote BOM-free wrapper JSON and retained a `valid/pass` 200-frame host-confirmation result, unchanged WSL boot ID, and zero selected Windows events. This is temporal-correlation evidence only, not a CUDA/driver cause or long-run stability conclusion.
