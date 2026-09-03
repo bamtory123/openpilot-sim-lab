@@ -25,7 +25,7 @@ This document is the submission entry point for the current repository commit. I
 
 Use the Git commit containing this file as the snapshot identifier. Do not create a new release tag while the qualification state remains `not_qualified_yet`; the earlier historical tags are archived harness snapshots only and do not override this disposition.
 
-Before submission, run the snapshot-only verifier from a clean sim-lab checkout:
+Before submission, run the snapshot-only verifier from a clean sim-lab checkout. It verifies only committed public material and intentionally does not require ignored local run artifacts:
 
 ```bash
 scripts/verify_portfolio_snapshot.sh

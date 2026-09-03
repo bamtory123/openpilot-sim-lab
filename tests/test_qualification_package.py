@@ -32,7 +32,7 @@ def test_portfolio_snapshot_verifier_enforces_non_release_boundary():
   assert "git status --porcelain" in verifier
   assert "git tag --contains HEAD" in verifier
   assert "verify_portfolio_readiness.py" in verifier
-  assert "--verify-local-v01" in verifier
+  assert "--verify-local-v01" not in verifier
 
 
 def test_portfolio_readiness_check_keeps_public_boundaries():
