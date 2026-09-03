@@ -32,6 +32,8 @@ The same VmSwitch warning occurred 257 times in the preceding 24 hours, includin
 
 On 2026-09-03 KST, a new bounded host-stack run completed a 5.00-second CUDA soak (3,716 iterations), two offscreen renderer steps, and preflight without changing the WSL boot ID. Its artifact now also records the imported MetaDrive source commit and dirty state: the local MetaDrive checkout was already dirty, so preflight was invoked through the explicit diagnostic `SIMLAB_ALLOW_DIRTY=1` path. This is transparent host-path evidence only; it is not strict formal evidence, long-run clearance, or a driving result.
 
+New schema-4 host-stack artifacts retain GPU snapshots immediately before and after the bounded sequence (name, driver, temperature, utilization, used/total memory, and P-state). These readings support descriptive comparison of resource conditions across future probes; they do not establish a restart cause or a stability verdict.
+
 The corresponding 80-second Windows System/VmSwitch collection window contained zero selected WSL/GPU events. This is a bounded temporal observation, not proof that no host cause exists and not an NVIDIA-driver attribution.
 
 After that restart, preflight plus a 5-second CUDA arithmetic check and one-step offscreen renderer check completed without a further boot-ID change. These are post-restart component checks only; they do not isolate the combined bridge workload or clear the long stability boundary.

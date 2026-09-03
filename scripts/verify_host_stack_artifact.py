@@ -12,13 +12,17 @@ def verify(path: Path) -> dict:
   missing = sorted(required - artifact.keys())
   if missing:
     raise ValueError(f"missing fields: {', '.join(missing)}")
-  if artifact["schema_version"] not in {1, 2, 3} or artifact["status"] not in {"pass", "fail"}:
+  if artifact["schema_version"] not in {1, 2, 3, 4} or artifact["status"] not in {"pass", "fail"}:
     raise ValueError("invalid schema or status")
   if artifact["schema_version"] == 2 and (not isinstance(artifact.get("provenance"), dict) or
                                            not {"sim_lab", "openpilot", "python_version", "gpu"} <= artifact["provenance"].keys()):
     raise ValueError("incomplete provenance")
   if artifact["schema_version"] == 3 and (not isinstance(artifact.get("provenance"), dict) or
                                            not {"sim_lab", "openpilot", "python_version", "wsl_kernel", "metadrive_version", "gpu"} <= artifact["provenance"].keys()):
+    raise ValueError("incomplete runtime provenance")
+  if artifact["schema_version"] == 4 and (not isinstance(artifact.get("provenance"), dict) or
+                                           not {"sim_lab", "openpilot", "python_version", "wsl_kernel", "metadrive_version", "gpu"} <= artifact["provenance"].keys() or
+                                           "gpu_before" not in artifact or "gpu_after" not in artifact):
     raise ValueError("incomplete runtime provenance")
   if artifact["status"] == "pass":
     if artifact["exit_code"] != 0 or artifact["failed_stage"] is not None or artifact["preflight"] != "pass":

@@ -8,6 +8,7 @@ set -euo pipefail
 simlab_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 host_stack_output="${HOST_STACK_OUTPUT:-}"
 boot_before="$(cat /proc/sys/kernel/random/boot_id)"
+gpu_before="$(nvidia-smi --query-gpu=name,driver_version,temperature.gpu,utilization.gpu,memory.used,memory.total,pstate --format=csv,noheader,nounits 2>/dev/null || true)"
 stage="cuda"
 cuda_json=""
 renderer_json=""
@@ -16,10 +17,12 @@ write_host_stack_result() {
   local status="$1"
   local exit_code="$2"
   local boot_after
+  local gpu_after
   boot_after="$(cat /proc/sys/kernel/random/boot_id)"
+  gpu_after="$(nvidia-smi --query-gpu=name,driver_version,temperature.gpu,utilization.gpu,memory.used,memory.total,pstate --format=csv,noheader,nounits 2>/dev/null || true)"
   [[ -n "$host_stack_output" ]] || return
   mkdir -p "$(dirname "$host_stack_output")"
-  "$OPENPILOT_PYTHON" - "$host_stack_output" "$status" "$exit_code" "$stage" "$boot_before" "$boot_after" "$cuda_json" "$renderer_json" "$simlab_root" "$OPENPILOT_ROOT" <<'PY'
+  "$OPENPILOT_PYTHON" - "$host_stack_output" "$status" "$exit_code" "$stage" "$boot_before" "$boot_after" "$cuda_json" "$renderer_json" "$simlab_root" "$OPENPILOT_ROOT" "$gpu_before" "$gpu_after" <<'PY'
 from datetime import datetime, timezone
 import importlib.metadata
 import json
@@ -28,7 +31,7 @@ import platform
 import subprocess
 import sys
 
-path, status, exit_code, stage, boot_before, boot_after, cuda, renderer, simlab_root, openpilot_root = sys.argv[1:]
+path, status, exit_code, stage, boot_before, boot_after, cuda, renderer, simlab_root, openpilot_root, gpu_before, gpu_after = sys.argv[1:]
 sys.path.insert(0, str(Path(simlab_root) / "src"))
 from simlab.manifest import metadrive_source_metadata
 
@@ -39,10 +42,14 @@ def git_source(root):
   return {"commit": commit.stdout.strip(), "dirty": bool(dirty.stdout.strip())}
 
 
-gpu = subprocess.run(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"],
-                     capture_output=True, text=True, check=False)
+def parse_gpu_snapshot(raw):
+  fields = ("name", "driver_version", "temperature_c", "utilization_percent", "memory_used_mib", "memory_total_mib", "pstate")
+  values = [value.strip() for value in raw.splitlines()[0].split(",")] if raw.strip() else []
+  return dict(zip(fields, values, strict=True)) if len(values) == len(fields) else None
+
+
 Path(path).write_text(json.dumps({
-  "schema_version": 3,
+  "schema_version": 4,
   "created_at_utc": datetime.now(timezone.utc).isoformat(),
   "status": status,
   "exit_code": int(exit_code),
@@ -52,11 +59,13 @@ Path(path).write_text(json.dumps({
   "wsl_boot_changed": boot_before != boot_after,
   "cuda": json.loads(cuda) if cuda else None,
   "renderer": json.loads(renderer) if renderer else None,
+  "gpu_before": parse_gpu_snapshot(gpu_before),
+  "gpu_after": parse_gpu_snapshot(gpu_after),
   "preflight": "pass" if status == "pass" else None,
   "provenance": {"sim_lab": git_source(simlab_root), "openpilot": git_source(openpilot_root),
                  "metadrive_source": metadrive_source_metadata(), "python_version": sys.version, "wsl_kernel": platform.release(),
                  "metadrive_version": importlib.metadata.version("metadrive-simulator"),
-                 "gpu": gpu.stdout.strip() or None},
+                 "gpu": (parse_gpu_snapshot(gpu_after) or {}).get("name")},
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 }
