@@ -48,6 +48,7 @@ def test_host_stack_supports_structured_success_evidence():
   assert '"schema_version": 3' in script
   assert '"failed_stage": None if status == "pass" else stage' in script
   assert '"provenance": {"sim_lab": git_source(simlab_root)' in script
+  assert '"metadrive_source": metadrive_source_metadata()' in script
   assert "HOST_STACK_OUTPUT=outputs/host-stack/host-stack.json" in host_stability
 
 
