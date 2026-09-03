@@ -1,5 +1,6 @@
 import py_compile
 import json
+import hashlib
 from pathlib import Path
 import re
 import stat
@@ -31,6 +32,14 @@ def test_local_documentation_links_exist():
     for target in re.findall(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text(encoding="utf-8")):
       if "://" not in target and not target.startswith("mailto:"):
         assert (document.parent / target).resolve().exists(), f"{document}: {target}"
+
+
+def test_openpilot_patch_bundles_are_documented_and_hashed():
+  readme = (ROOT / "patches/README.md").read_text(encoding="utf-8")
+  for name in ("openpilot-v01-sim-instrumentation.patch", "openpilot-v02-carla-adapter.patch"):
+    digest = hashlib.sha256((ROOT / "patches" / name).read_bytes()).hexdigest()
+    assert digest in readme
+  assert "084747c75d2cbd23af65ab7a9e770bbd7b98bac9" in readme
 
 
 def test_readme_uses_uv_for_openpilot_runtime_editable_install():

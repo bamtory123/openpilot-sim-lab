@@ -1,0 +1,595 @@
+diff --git a/openpilot/tools/sim/bridge/carla/__init__.py b/openpilot/tools/sim/bridge/carla/__init__.py
+new file mode 100644
+index 000000000..f4c0b8e42
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/__init__.py
+@@ -0,0 +1,5 @@
++"""CARLA adapter for the simulator bridge.
++
++This package intentionally contains no ground-truth or specialist controller.
++CARLA supplies sensor and vehicle-response data; openpilot owns vehicle commands.
++"""
+diff --git a/openpilot/tools/sim/bridge/carla/capture.py b/openpilot/tools/sim/bridge/carla/capture.py
+new file mode 100644
+index 000000000..f9624c228
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/capture.py
+@@ -0,0 +1,66 @@
++"""Asynchronous RGB capture for CARLA analysis datasets.
++
++This is deliberately outside the control path: the camera callback only queues
++an immutable copy and the writer records an image plus source-frame metadata.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++from queue import Full, Queue
++import threading
++from typing import Any, Callable
++
++import numpy as np
++
++
++class CaptureWriter:
++  def __init__(self, directory: str | None, every_n_frames: int, emit: Callable[[dict[str, Any]], None]):
++    if every_n_frames < 1:
++      raise ValueError("every_n_frames must be positive")
++    self.directory = Path(directory) if directory else None
++    self.every_n_frames, self.emit = every_n_frames, emit
++    self._queue: Queue[tuple[int, int, np.ndarray] | None] = Queue(maxsize=16)
++    self._thread: threading.Thread | None = None
++    self._overflow_count = 0
++    if self.directory is not None:
++      self.directory.mkdir(parents=True, exist_ok=True)
++      self._thread = threading.Thread(target=self._write, name="carla-capture-writer", daemon=True)
++      self._thread.start()
++
++  def offer(self, source_frame_id: int, capture_mono_ns: int, rgb: np.ndarray) -> None:
++    if self.directory is None or source_frame_id % self.every_n_frames:
++      return
++    try:
++      self._queue.put_nowait((source_frame_id, capture_mono_ns, rgb.copy()))
++    except Full:
++      self._overflow_count += 1
++      self.emit({"type": "dataset_capture_drop", "source_frame_id": source_frame_id,
++                 "capture_mono_ns": capture_mono_ns, "reason": "writer_queue_overflow"})
++
++  def _write(self) -> None:
++    from PIL import Image
++    while True:
++      item = self._queue.get()
++      if item is None:
++        return
++      source_frame_id, capture_mono_ns, rgb = item
++      filename = f"road-frame-{source_frame_id:06d}.png"
++      path = self.directory / filename
++      Image.fromarray(rgb).save(path)
++      metadata = {"type": "dataset_capture", "source_frame_id": source_frame_id,
++                  "capture_mono_ns": capture_mono_ns, "image": f"captures/{filename}"}
++      path.with_suffix(".json").write_text(json.dumps(metadata, sort_keys=True) + "\n", encoding="utf-8")
++      self.emit(metadata)
++
++  def close(self) -> int:
++    if self._thread is None:
++      return 0
++    self._queue.put(None)
++    self._thread.join(timeout=10)
++    if self._thread.is_alive():
++      raise RuntimeError("CARLA capture writer did not flush")
++    (self.directory / "capture_status.json").write_text(
++      json.dumps({"schema_version": 1, "dropped": self._overflow_count}, sort_keys=True) + "\n", encoding="utf-8")
++    return self._overflow_count
+diff --git a/openpilot/tools/sim/bridge/carla/carla_bridge.py b/openpilot/tools/sim/bridge/carla/carla_bridge.py
+new file mode 100644
+index 000000000..94e13eba3
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/carla_bridge.py
+@@ -0,0 +1,29 @@
++from __future__ import annotations
++
++import math
++from multiprocessing import Queue
++
++from openpilot.tools.sim.bridge.common import SimulatorBridge
++from openpilot.tools.sim.bridge.carla.carla_world import CarlaWorld
++
++
++class CarlaBridge(SimulatorBridge):
++  """Bridge adapter; CARLA never modifies openpilot control authority."""
++
++  TICKS_PER_FRAME = 5
++
++  def __init__(self, dual_camera, high_quality, *, host: str, port: int, town: str,
++               route_asset: str, test_duration=math.inf, test_run=False, simlab_config=None):
++    super().__init__(dual_camera, high_quality, simlab_config)
++    self.host, self.port, self.town = host, port, town
++    self.route_asset = route_asset
++    self.test_duration = test_duration if test_run else math.inf
++    self.test_run = test_run
++
++  def spawn_world(self, queue: Queue):
++    capture = self.simlab_config.get("capture", {})
++    return CarlaWorld(queue, dual_camera=self.dual_camera, host=self.host, port=self.port,
++                      town=self.town, route_asset=self.route_asset,
++                      test_duration=self.test_duration, test_run=self.test_run,
++                      capture_dir=capture.get("directory"),
++                      capture_every_n_frames=int(capture.get("every_n_frames", 10)))
+diff --git a/openpilot/tools/sim/bridge/carla/carla_world.py b/openpilot/tools/sim/bridge/carla/carla_world.py
+new file mode 100644
+index 000000000..a425028ec
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/carla_world.py
+@@ -0,0 +1,266 @@
++from __future__ import annotations
++
++import math
++from pathlib import Path
++from queue import Empty, Queue
++import time
++from typing import Any
++
++import numpy as np
++
++from openpilot.tools.sim.bridge.carla.control import normalized_steer
++from openpilot.tools.sim.bridge.carla.capture import CaptureWriter
++from openpilot.tools.sim.bridge.carla.route_asset import load_route_asset
++from openpilot.tools.sim.bridge.carla.optics import narrow_road_fov_deg
++from openpilot.tools.sim.bridge.common import QueueMessage, QueueMessageType
++from openpilot.tools.sim.lib.camerad import H, W
++from openpilot.tools.sim.lib.common import SimulatorState, World, vec3
++
++
++HONDA_CIVIC_2022_STEER_RATIO = 15.38
++# C3 narrow-road camera focal length (2648 px at the 1928 px simulator width).
++# CARLA defaults to 90°, which presents a materially different road geometry.
++NARROW_ROAD_FOV_DEG = narrow_road_fov_deg(W)
++ROUTE_DEPARTURE_M = 1.5
++
++
++class CarlaWorld(World):
++  """Synchronous CARLA implementation of the existing ``World`` contract.
++
++  The route asset selects a reproducible start pose only. It is diagnostic data,
++  never an input to steering or longitudinal control.
++  """
++
++  def __init__(self, status_q, *, dual_camera: bool, host: str, port: int, town: str,
++               route_asset: str, test_duration: float, test_run: bool,
++               capture_dir: str | None = None, capture_every_n_frames: int = 10):
++    super().__init__(dual_camera)
++    try:
++      import carla
++    except ImportError as error:
++      raise RuntimeError("CARLA Python API is unavailable; install carla==0.9.16") from error
++    self.carla, self.status_q, self.town = carla, status_q, town
++    self.test_duration, self.test_run = test_duration, test_run
++    self.route = load_route_asset(Path(route_asset), expected_town=town)
++    self.client = carla.Client(host, port)
++    self.client.set_timeout(30.0)
++    self.world = self.client.get_world()
++    observed_town = self.world.get_map().name.rsplit("/", 1)[-1]
++    if observed_town != town:
++      raise RuntimeError(f"CARLA town mismatch: {observed_town} != {town}; launcher must provision the map")
++    self.original_settings = self.world.get_settings()
++    settings = self.world.get_settings()
++    settings.synchronous_mode, settings.fixed_delta_seconds = True, 0.05
++    self.world.apply_settings(settings)
++    self._actors: list[Any] = []
++    self._sensors: list[Any] = []
++    self._frames: Queue[Any] = Queue(maxsize=2)
++    self._collisions: Queue[Any] = Queue()
++    self._lanes: Queue[Any] = Queue()
++    self._closed = False
++    self._engaged_at: float | None = None
++    self._last_yaw_deg: float | None = None
++    self._last_frame = -1
++    self._route_cursor = 0
++    self._physics: dict[str, Any] = {}
++    self._route_lateral_error_m: float | None = None
++    self._control = carla.VehicleControl()
++    self._command: dict[str, Any] = {}
++    self._capture = CaptureWriter(capture_dir, capture_every_n_frames, self._emit_capture_event)
++    self._spawn_ego()
++    self.status_q.put(QueueMessage(QueueMessageType.START_STATUS, {"backend": "carla", "town": town,
++                      "route_asset_sha256": self.route.sha256}))
++
++  def _transform(self, point):
++    x, y, z, pitch, yaw, roll = point
++    return self.carla.Transform(self.carla.Location(x=x, y=y, z=z), self.carla.Rotation(pitch=pitch, yaw=yaw, roll=roll))
++
++  def _put_latest(self, target: Queue[Any], value: Any):
++    try:
++      target.put_nowait(value)
++    except Exception:
++      try:
++        target.get_nowait()
++      except Empty:
++        pass
++      target.put_nowait(value)
++
++  def _spawn_ego(self):
++    blueprints = self.world.get_blueprint_library()
++    vehicle_bp = blueprints.filter("vehicle.tesla.model3")[0]
++    spawn = self._transform(self.route.points[0])
++    # Waypoints lie on the road surface; CARLA vehicle spawning needs a small
++    # clearance above it. This changes neither frozen XY nor yaw alignment.
++    spawn.location.z += 0.5
++    self.ego = self.world.try_spawn_actor(vehicle_bp, spawn)
++    if self.ego is None:
++      raise RuntimeError("route asset spawn is occupied")
++    # In synchronous mode CARLA does not expose the finalized actor transform
++    # until the first world tick.
++    self.world.tick()
++    actual = self.ego.get_transform()
++    xy_error = math.hypot(actual.location.x - spawn.location.x, actual.location.y - spawn.location.y)
++    yaw_error = abs((actual.rotation.yaw - spawn.rotation.yaw + 180.0) % 360.0 - 180.0)
++    if xy_error > 1.0 or yaw_error > 5.0:
++      self.ego.destroy()
++      raise RuntimeError(f"route asset spawn did not align with ego: xy={xy_error:.3f}m yaw={yaw_error:.3f}deg")
++    self._actors.append(self.ego)
++    limits = [wheel.max_steer_angle for wheel in self.ego.get_physics_control().wheels if wheel.max_steer_angle > 0]
++    if not limits:
++      raise RuntimeError("CARLA ego exposes no front steering limit")
++    self._steering_wheel_limit_deg = max(limits) * HONDA_CIVIC_2022_STEER_RATIO
++    camera_bp = blueprints.find("sensor.camera.rgb")
++    camera_bp.set_attribute("image_size_x", str(W))
++    camera_bp.set_attribute("image_size_y", str(H))
++    camera_bp.set_attribute("fov", f"{NARROW_ROAD_FOV_DEG:.6f}")
++    camera_bp.set_attribute("sensor_tick", "0.05")
++    camera = self.world.spawn_actor(camera_bp, self.carla.Transform(self.carla.Location(x=1.45, z=1.35)), attach_to=self.ego)
++    camera.listen(self._on_camera)
++    self._sensors.append(camera)
++    collision = self.world.spawn_actor(blueprints.find("sensor.other.collision"), self.carla.Transform(), attach_to=self.ego)
++    collision.listen(self._collisions.put)
++    self._sensors.append(collision)
++    lane = self.world.spawn_actor(blueprints.find("sensor.other.lane_invasion"), self.carla.Transform(), attach_to=self.ego)
++    lane.listen(self._lanes.put)
++    self._sensors.append(lane)
++
++  def _on_camera(self, image):
++    capture_mono_ns = time.monotonic_ns()
++    rgb = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((H, W, 4))[:, :, :3][:, :, ::-1].copy()
++    self._put_latest(self._frames, (image.frame, capture_mono_ns, rgb))
++    self._capture.offer(image.frame, capture_mono_ns, rgb)
++
++  def _emit_capture_event(self, payload: dict[str, Any]) -> None:
++    self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, payload))
++
++  def apply_controls(self, steer_angle, throttle_out, brake_out):
++    # openpilot desired curvature/steering-wheel convention is opposite to
++    # CARLA's normalized road-wheel steering convention.
++    steer = normalized_steer(-float(steer_angle), self._steering_wheel_limit_deg)
++    self._control = self.carla.VehicleControl(steer=steer, throttle=float(np.clip(throttle_out, 0.0, 1.0)),
++                                              brake=float(np.clip(brake_out, 0.0, 1.0)))
++    self.ego.apply_control(self._control)
++    self._command.update({"openpilot_steering_wheel_deg": float(steer_angle), "carla_normalized_steer": steer,
++                          "carla_throttle": self._control.throttle, "carla_brake": self._control.brake,
++                          "control_source": "openpilot"})
++
++  def set_control_telemetry(self, steering_angle_deg, accel, throttle, brake, model_curvature, planner_curvature,
++                            control_curvature, *unused):
++    self._command.update({"openpilot_steering_wheel_deg": float(steering_angle_deg), "openpilot_accel_mps2": float(accel),
++                          "model_target_curvature_1pm": float(model_curvature),
++                          "planner_target_curvature_1pm": float(planner_curvature),
++                          "control_target_curvature_1pm": float(control_curvature),
++                          "openpilot_throttle": float(throttle), "openpilot_brake": float(brake)})
++
++  def emit_camera_telemetry(self, payload):
++    self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, payload))
++
++  def emit_run_event(self, state):
++    self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, {"type": "run_state", "state": state,
++                      "backend": "carla", "mono_ns": time.monotonic_ns()}))
++
++  def tick(self):
++    self.world.tick()
++    snapshot = self.world.get_snapshot()
++    if snapshot.frame == self._last_frame:
++      return
++    self._last_frame = snapshot.frame
++    transform, velocity = self.ego.get_transform(), self.ego.get_velocity()
++    speed = math.sqrt(velocity.x ** 2 + velocity.y ** 2 + velocity.z ** 2)
++    yaw_rate = None
++    if self._last_yaw_deg is not None:
++      delta = (transform.rotation.yaw - self._last_yaw_deg + 180.0) % 360.0 - 180.0
++      yaw_rate = math.radians(delta) / max(snapshot.timestamp.delta_seconds, 1e-3)
++    self._last_yaw_deg = transform.rotation.yaw
++    self._physics = {"type": "vehicle_telemetry", "backend": "carla",
++      "simulation_frame": snapshot.frame, "simulation_time_s": snapshot.timestamp.elapsed_seconds,
++      "speed_mps": speed, "yaw_deg": transform.rotation.yaw,
++      "yaw_rate_radps": yaw_rate, "actual_curvature_1pm": yaw_rate / speed if yaw_rate is not None and speed > 0.1 else None,
++      "carla_x_m": transform.location.x, "carla_y_m": transform.location.y, **self._route_ground_truth(transform)}
++
++  def _route_ground_truth(self, transform):
++    """Route-asset ground truth for diagnostics only; never control input."""
++    location = transform.location
++    points = self.route.points
++    low, high = max(0, self._route_cursor - 8), min(len(points), self._route_cursor + 40)
++    self._route_cursor = min(range(low, high), key=lambda index: math.hypot(location.x - points[index][0], location.y - points[index][1]))
++    x, y, _, _, yaw, _ = points[self._route_cursor]
++    yaw_rad = math.radians(yaw)
++    dx, dy = location.x - x, location.y - y
++    lateral_error = dx * -math.sin(yaw_rad) + dy * math.cos(yaw_rad)
++    self._route_lateral_error_m = lateral_error
++    heading_error = (transform.rotation.yaw - yaw + 180.0) % 360.0 - 180.0
++    before, after = max(0, self._route_cursor - 2), min(len(points) - 1, self._route_cursor + 10)
++    route_curvature = None
++    if after > before:
++      delta_yaw = (points[after][4] - points[before][4] + 180.0) % 360.0 - 180.0
++      route_curvature = math.radians(delta_yaw) / ((after - before) * 2.0)
++    return {"route_progress_m": self._route_cursor * 2.0, "route_lateral_error_m": lateral_error,
++            "route_heading_error_deg": heading_error, "route_reference_curvature_1pm": route_curvature}
++
++  def read_state(self):
++    if not self._collisions.empty():
++      self.status_q.put(QueueMessage(QueueMessageType.TERMINATION_INFO, {"collision": True}))
++      self.exit_event.set()
++    lane_invasions = 0
++    while not self._lanes.empty():
++      self._lanes.get_nowait()
++      lane_invasions += 1
++    if lane_invasions:
++      self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, {"type": "lane_invasion", "count": lane_invasions,
++                        "route_lateral_error_m": self._route_lateral_error_m}))
++    if self._engaged_at is not None and self._route_lateral_error_m is not None and abs(self._route_lateral_error_m) > ROUTE_DEPARTURE_M:
++      self.status_q.put(QueueMessage(QueueMessageType.TERMINATION_INFO, {"lane_departure": True,
++                        "route_lateral_error_m": self._route_lateral_error_m, "threshold_m": ROUTE_DEPARTURE_M}))
++      self.exit_event.set()
++    if self.test_run and self._engaged_at is not None and time.monotonic() - self._engaged_at >= self.test_duration:
++      self.status_q.put(QueueMessage(QueueMessageType.TERMINATION_INFO, {"timeout": True}))
++      self.exit_event.set()
++
++  def read_sensors(self, state: SimulatorState):
++    transform, velocity = self.ego.get_transform(), self.ego.get_velocity()
++    state.velocity = vec3(float(velocity.x), float(velocity.y), float(velocity.z))
++    state.bearing = float(transform.rotation.yaw)
++    state.imu.bearing = state.bearing
++    state.imu.accelerometer = vec3(0.0, 0.0, 0.0)
++    state.imu.gyroscope = vec3(0.0, 0.0, 0.0)
++    state.gps.from_xy((transform.location.x, transform.location.y))
++    state.steering_angle = self._control.steer * self._steering_wheel_limit_deg
++    state.valid = True
++    if self._physics:
++      self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, {**self._physics, **self._command,
++                        "mono_ns": time.monotonic_ns()}))
++    if state.is_engaged and self._engaged_at is None:
++      self._engaged_at = time.monotonic()
++
++  def read_cameras(self):
++    try:
++      _, _, image = self._frames.get(timeout=2.0)
++    except Empty as error:
++      raise RuntimeError("CARLA camera did not produce a frame within 2 seconds") from error
++    self.road_image[...] = image
++    self.image_lock.release()
++
++  def reset(self):
++    raise RuntimeError("CARLA adapter pilot does not support in-run reset; start a new isolated run")
++
++  def close(self, reason: str):
++    if self._closed:
++      return
++    self._closed = True
++    dropped = self._capture.close()
++    if dropped:
++      self._emit_capture_event({"type": "dataset_capture_summary", "dropped": dropped})
++    for sensor in reversed(self._sensors):
++      try:
++        sensor.stop()
++        sensor.destroy()
++      except RuntimeError:
++        pass
++    for actor in reversed(self._actors):
++      try:
++        actor.destroy()
++      except RuntimeError:
++        pass
++    self.world.apply_settings(self.original_settings)
++    self.status_q.put(QueueMessage(QueueMessageType.CLOSE_STATUS, {"backend": "carla", "reason": reason}))
+diff --git a/openpilot/tools/sim/bridge/carla/control.py b/openpilot/tools/sim/bridge/carla/control.py
+new file mode 100644
+index 000000000..cb2759279
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/control.py
+@@ -0,0 +1,9 @@
++"""Pure CARLA control conversion used by the adapter and contract tests."""
++
++from __future__ import annotations
++
++
++def normalized_steer(steering_wheel_deg: float, wheel_limit_deg: float) -> float:
++  if wheel_limit_deg <= 0:
++    raise ValueError("wheel_limit_deg must be positive")
++  return max(-1.0, min(1.0, steering_wheel_deg / wheel_limit_deg))
+diff --git a/openpilot/tools/sim/bridge/carla/optics.py b/openpilot/tools/sim/bridge/carla/optics.py
+new file mode 100644
+index 000000000..81ef31aeb
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/optics.py
+@@ -0,0 +1,7 @@
++from __future__ import annotations
++
++import math
++
++
++def narrow_road_fov_deg(width_px: int, focal_length_px: float = 2648.0) -> float:
++  return math.degrees(2.0 * math.atan(width_px / (2.0 * focal_length_px)))
+diff --git a/openpilot/tools/sim/bridge/carla/route_asset.py b/openpilot/tools/sim/bridge/carla/route_asset.py
+new file mode 100644
+index 000000000..4f556bfba
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/carla/route_asset.py
+@@ -0,0 +1,35 @@
++"""Validated, immutable CARLA route assets used by the adapter pilot."""
++
++from __future__ import annotations
++
++from dataclasses import dataclass
++import hashlib
++import json
++from pathlib import Path
++
++
++@dataclass(frozen=True)
++class RouteAsset:
++  town: str
++  points: tuple[tuple[float, float, float, float, float, float], ...]
++  turn_plan: tuple[str, ...]
++  sha256: str
++
++
++def load_route_asset(path: Path, *, expected_town: str) -> RouteAsset:
++  raw = path.read_bytes()
++  data = json.loads(raw)
++  if data.get("town") != expected_town:
++    raise RuntimeError(f"route asset town mismatch: {data.get('town')} != {expected_town}")
++  points = data.get("points")
++  if not isinstance(points, list) or len(points) < 80:
++    raise RuntimeError("route asset must contain at least 80 points")
++  normalized = []
++  for point in points:
++    if not isinstance(point, list) or len(point) != 6 or not all(isinstance(value, (int, float)) for value in point):
++      raise RuntimeError("route asset points must be six numeric transform values")
++    normalized.append(tuple(float(value) for value in point))
++  turn_plan = data.get("turn_plan", [])
++  if not isinstance(turn_plan, list) or any(turn not in {"straight", "left", "right", "u_turn"} for turn in turn_plan):
++    raise RuntimeError("route asset has invalid turn_plan")
++  return RouteAsset(expected_town, tuple(normalized), tuple(turn_plan), hashlib.sha256(raw).hexdigest())
+diff --git a/openpilot/tools/sim/run_bridge.py b/openpilot/tools/sim/run_bridge.py
+index c0cb665cd..df5f15b07 100755
+--- a/openpilot/tools/sim/run_bridge.py
++++ b/openpilot/tools/sim/run_bridge.py
+@@ -8,10 +8,21 @@ from multiprocessing import Queue
+ 
+ from openpilot.tools.sim.bridge.metadrive.metadrive_bridge import MetaDriveBridge
+ 
+-def create_bridge(dual_camera, high_quality, test_duration=math.inf, test_run=False, simlab_config=None):
++def create_bridge(dual_camera, high_quality, test_duration=math.inf, test_run=False, simlab_config=None,
++                  simulator="metadrive", carla_host="127.0.0.1", carla_port=2000, carla_town="Town04",
++                  carla_route_asset=None):
+   queue: Any = Queue()
+-
+-  simulator_bridge = MetaDriveBridge(dual_camera, high_quality, test_duration, test_run, simlab_config)
++  if simulator == "metadrive":
++    simulator_bridge = MetaDriveBridge(dual_camera, high_quality, test_duration, test_run, simlab_config)
++  elif simulator == "carla":
++    if carla_route_asset is None:
++      raise ValueError("--carla-route-asset is required for --simulator carla")
++    from openpilot.tools.sim.bridge.carla.carla_bridge import CarlaBridge
++    simulator_bridge = CarlaBridge(dual_camera, high_quality, host=carla_host, port=carla_port, town=carla_town,
++                                   route_asset=str(carla_route_asset), test_duration=test_duration,
++                                   test_run=test_run, simlab_config=simlab_config)
++  else:
++    raise ValueError(f"unsupported simulator: {simulator}")
+   simulator_process = simulator_bridge.run(queue)
+ 
+   return queue, simulator_process, simulator_bridge
+@@ -28,6 +39,11 @@ def parse_args(add_args=None):
+   parser.add_argument('--test-run', action='store_true')
+   parser.add_argument('--test-duration', type=float, default=math.inf)
+   parser.add_argument('--simlab-config', type=Path, help='YAML scenario generated by openpilot-sim-lab')
++  parser.add_argument('--simulator', choices=('metadrive', 'carla'), default='metadrive')
++  parser.add_argument('--carla-host', default='127.0.0.1')
++  parser.add_argument('--carla-port', type=int, default=2000)
++  parser.add_argument('--carla-town', default='Town04')
++  parser.add_argument('--carla-route-asset', type=Path)
+ 
+   return parser.parse_args(add_args)
+ 
+@@ -40,7 +56,9 @@ if __name__ == "__main__":
+     with args.simlab_config.open() as f:
+       simlab_config = yaml.safe_load(f) or {}
+   queue, simulator_process, simulator_bridge = create_bridge(args.dual_camera, args.high_quality,
+-                                                              args.test_duration, args.test_run, simlab_config)
++                                                              args.test_duration, args.test_run, simlab_config,
++                                                              args.simulator, args.carla_host, args.carla_port,
++                                                              args.carla_town, args.carla_route_asset)
+ 
+   if args.joystick:
+     # start input poll for joystick
+diff --git a/openpilot/tools/sim/tests/test_carla_adapter.py b/openpilot/tools/sim/tests/test_carla_adapter.py
+new file mode 100644
+index 000000000..a0c37ba3a
+--- /dev/null
++++ b/openpilot/tools/sim/tests/test_carla_adapter.py
+@@ -0,0 +1,46 @@
++import json
++from dataclasses import FrozenInstanceError
++from pathlib import Path
++
++import pytest
++
++from openpilot.tools.sim.bridge.carla.control import normalized_steer
++from openpilot.tools.sim.bridge.carla.optics import narrow_road_fov_deg
++from openpilot.tools.sim.bridge.carla.route_asset import load_route_asset
++
++
++def test_normalized_steer_clamps_at_wheel_limit():
++  assert normalized_steer(0.0, 100.0) == 0.0
++  assert normalized_steer(50.0, 100.0) == 0.5
++  assert normalized_steer(-200.0, 100.0) == -1.0
++
++
++def test_carla_interface_uses_opposite_steering_sign():
++  assert normalized_steer(-70.0, 700.0) == -0.1
++
++
++def test_normalized_steer_rejects_invalid_limit():
++  with pytest.raises(ValueError):
++    normalized_steer(1.0, 0.0)
++
++
++def test_narrow_road_fov_matches_c3_optics_contract():
++  assert 39.9 < narrow_road_fov_deg(1928) < 40.1
++
++
++def test_route_asset_is_immutable_and_hashed(tmp_path: Path):
++  path = tmp_path / "town04.json"
++  path.write_text(json.dumps({"town": "Town04", "turn_plan": ["straight", "left"],
++                               "points": [[float(i), 0, 0, 0, 0, 0] for i in range(80)]}), encoding="utf-8")
++  route = load_route_asset(path, expected_town="Town04")
++  assert len(route.points) == 80
++  assert len(route.sha256) == 64
++  with pytest.raises(FrozenInstanceError):
++    route.town = "Town03"  # type: ignore[misc]
++
++
++def test_route_asset_rejects_wrong_town(tmp_path: Path):
++  path = tmp_path / "town03.json"
++  path.write_text(json.dumps({"town": "Town03", "points": [[0, 0, 0, 0, 0, 0]] * 80}), encoding="utf-8")
++  with pytest.raises(RuntimeError, match="town mismatch"):
++    load_route_asset(path, expected_town="Town04")
+diff --git a/openpilot/tools/sim/tests/test_carla_capture.py b/openpilot/tools/sim/tests/test_carla_capture.py
+new file mode 100644
+index 000000000..830c91cfd
+--- /dev/null
++++ b/openpilot/tools/sim/tests/test_carla_capture.py
+@@ -0,0 +1,26 @@
++import json
++
++import numpy as np
++
++from openpilot.tools.sim.bridge.carla.capture import CaptureWriter
++
++
++def test_capture_writer_saves_immutable_frame(tmp_path):
++  events = []
++  writer = CaptureWriter(str(tmp_path), 2, events.append)
++  frame = np.zeros((2, 3, 3), dtype=np.uint8)
++  frame[0, 0] = (10, 20, 30)
++  writer.offer(4, 123, frame)
++  frame[0, 0] = (0, 0, 0)
++
++  assert writer.close() == 0
++  assert (tmp_path / "road-frame-000004.png").is_file()
++  assert json.loads((tmp_path / "road-frame-000004.json").read_text())["capture_mono_ns"] == 123
++  assert events[0]["image"] == "captures/road-frame-000004.png"
++
++
++def test_capture_writer_samples_configured_frames(tmp_path):
++  writer = CaptureWriter(str(tmp_path), 3, lambda _: None)
++  writer.offer(4, 1, np.zeros((1, 1, 3), dtype=np.uint8))
++  assert writer.close() == 0
++  assert not list(tmp_path.glob("*.png"))

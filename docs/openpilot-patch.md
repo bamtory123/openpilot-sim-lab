@@ -2,6 +2,11 @@
 
 Base: `commaai/openpilot@084747c75d2cbd23af65ab7a9e770bbd7b98bac9`
 
+For a source-only reproduction, apply the checked patch bundles in
+[`patches/README.md`](../patches/README.md). They were `git apply --check`
+validated in a clean worktree at this exact base. This avoids requiring a
+second full OpenPilot mirror in the portfolio repository.
+
 The project fork keeps these changes on `project/sim-instrumentation`; the experiment framework remains in this repository.
 
 | Area | Added interface | Effect on upstream simulation |
@@ -18,7 +23,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Calibration telemetry | modeld calibration RPY and status | exposes the image warp state before any calibration experiment |
 | Model camera contract | modeld device type, camera sensor, width, height, and focal length | records the runtime intrinsics key rather than assuming the PC camera configuration |
 
-The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. No CARLA adapter or specialist model code is part of the v0.1 branch.
+The instrumented branch also retains WSL CUDA/runtime fixes needed by this workstation. Dormant specialist interfaces exist in the shared checkout, but no specialist model or CARLA adapter control is part of the v0.1 formal scenario or qualification result. The CARLA adapter is shipped separately as the optional v0.2 patch bundle.
 
 The workstation's MetaDrive 0.4.2.3 source also has one local dependency correction: its default `traffic_vehicle_config` now declares `render_vehicle: false`. `BaseVehicle` requires that key when a nonzero traffic density creates an actor, while the stock traffic-only override omitted it. Apply the tracked [MetaDrive patch](../patches/metadrive-0.4.2.3-traffic-render-vehicle.patch) from the dependency checkout, then retain its dirty state in the run manifest; it must not be silently substituted for a clean pinned dependency.
 
