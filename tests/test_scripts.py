@@ -56,6 +56,7 @@ def test_readme_uses_uv_for_openpilot_runtime_editable_install():
   assert "$OPENPILOT_PYTHON -m pip install --no-deps -e ." not in readme
   assert 'OPENPILOT_PYTHON="$OPENPILOT_ROOT/.venv/bin/python"' in readme
   assert "$OPENPILOT_PYTHON -m simlab.runner batch --allow-dirty --outputs outputs" in readme
+  assert "bounded v0.2 Windows–WSL adapter-pilot and smoke-test effort" in readme
 
 
 def test_host_stack_supports_structured_success_evidence():
