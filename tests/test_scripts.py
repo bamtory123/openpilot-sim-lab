@@ -204,6 +204,22 @@ def test_carla_pilot_summary_tracks_dataset_and_after_filter(tmp_path):
   assert summary["run_count"] == 1 and summary["dataset_valid_count"] == 1 and summary["dataset_joined_samples"] == 3
 
 
+def test_carla_adapter_public_evidence_is_aggregate_and_source_bound(tmp_path):
+  source = tmp_path / "summary.json"
+  source.write_text(json.dumps({"schema_version": 1, "scope": "carla_v02_adapter_pilot_not_road_qualification",
+                                "run_count": 2, "status_counts": {"integrated-but-not-stable": 2},
+                                "reason_counts": {"lane_departure": 2}, "runs": [{"host": "private"}]}))
+  output = tmp_path / "public"
+
+  subprocess.run([sys.executable, str(ROOT / "scripts/build_carla_adapter_public_evidence.py"), str(source),
+                  "--output-dir", str(output)], check=True)
+  subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_adapter_public_evidence.py"), str(source),
+                  "--output-dir", str(output)], check=True)
+
+  serialized = (output / "evidence.json").read_text(encoding="utf-8")
+  assert "private" not in serialized and '"run_count": 2' in serialized
+
+
 def test_carla_smoke_artifact_verifier_rejects_missing_log(tmp_path):
   result = {
     "schema_version": 1, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",
@@ -317,3 +333,15 @@ def test_committed_carla_public_sample_is_sanitized_and_scoped():
   assert all(token not in serialized for token in ("172.28.", "C:\\", "server.stdout.log", "client.log"))
   assert "outside the v0.1 MetaDrive release gate" in readme
   assert "does not demonstrate an OpenPilot bridge, closed loop" in readme
+
+
+def test_committed_carla_adapter_public_sample_is_sanitized_and_scoped():
+  sample_dir = ROOT / "examples/v0.2-carla-adapter-pilot"
+  evidence = json.loads((sample_dir / "evidence.json").read_text(encoding="utf-8"))
+  readme = (sample_dir / "README.md").read_text(encoding="utf-8")
+
+  assert evidence["scope"] == "carla_adapter_pilot_public_summary_only"
+  assert evidence["formal"] == {"run_count": 10, "status_counts": {"integrated-but-not-stable": 10},
+                                 "reason_counts": {"lane_departure": 10}}
+  assert all(token not in json.dumps(evidence) for token in ("172.28.", "C:\\", "run_id", "telemetry"))
+  assert "does not demonstrate successful OpenPilot driving" in readme

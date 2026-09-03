@@ -33,12 +33,16 @@ def main() -> None:
   snapshot = (ROOT / "docs/portfolio-snapshot.md").read_text(encoding="utf-8")
   carla = (ROOT / "examples/v0.2-carla-client-smoke/evidence.json").read_text(encoding="utf-8")
   carla_summary = (ROOT / "examples/v0.2-carla-client-smoke/README.md").read_text(encoding="utf-8")
+  adapter = (ROOT / "examples/v0.2-carla-adapter-pilot/evidence.json").read_text(encoding="utf-8")
+  adapter_summary = (ROOT / "examples/v0.2-carla-adapter-pilot/README.md").read_text(encoding="utf-8")
   if "`not_qualified_yet`" not in report or "not a new GitHub release, tag" not in snapshot:
     raise SystemExit("v0.1 qualification boundary is missing")
   if any(token in carla for token in ("172.28.", "C:\\", "server.stdout.log", "client.log")):
     raise SystemExit("public CARLA evidence exposes a local detail")
   if "outside the v0.1 MetaDrive release gate" not in carla_summary or "does not demonstrate an OpenPilot bridge, closed loop" not in carla_summary:
     raise SystemExit("public CARLA sample boundary is missing")
+  if '"scope": "carla_adapter_pilot_public_summary_only"' not in adapter or "does not demonstrate successful OpenPilot driving" not in adapter_summary:
+    raise SystemExit("public CARLA adapter sample boundary is missing")
 
   checks = {"public_v01": "pass", "public_carla": "pass"}
   if args.verify_local_v01:

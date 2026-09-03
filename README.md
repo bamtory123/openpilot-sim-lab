@@ -59,6 +59,7 @@ This is SIL only. Camera rendering, timing, synthetic CAN, vehicle dynamics, and
 
 See [the instrumentation summary](docs/openpilot-patch.md), [formal progress/results](docs/progress.md), and [CARLA smoke-test status](docs/carla-smoke.md).
 The separate [CARLA client-smoke public sample](examples/v0.2-carla-client-smoke/README.md) is v0.2 connectivity/camera/control-cleanup evidence only, not an OpenPilot closed-loop result.
+The [CARLA adapter-pilot public summary](examples/v0.2-carla-adapter-pilot/README.md) retains its bounded matrix failures and is likewise not a driving result.
 The validation plan and requirement/test traceability are [PLAN](PLAN.md), [requirements](docs/requirements.md), [test plan](docs/test-plan.md), and [traceability](docs/traceability.md).
 The current framework qualification is [not qualified yet](docs/qualification-report.md); its governing choices are in the [decision log](docs/decisions.md).
 For the concise portfolio framing, see [portfolio summary](docs/portfolio-summary.md).

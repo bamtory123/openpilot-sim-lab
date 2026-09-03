@@ -1,0 +1,14 @@
+{
+  "formal": {
+    "reason_counts": {
+      "lane_departure": 10
+    },
+    "run_count": 10,
+    "status_counts": {
+      "integrated-but-not-stable": 10
+    }
+  },
+  "schema_version": 1,
+  "scope": "carla_adapter_pilot_public_summary_only",
+  "source_sha256": "aa5ee8a5dc1369a76a9301ddf6ca41e24c9690ac549d7b8b14f96af5395c516d"
+}
