@@ -20,6 +20,17 @@ The route builder rejects the historical all-straight route asset. A failed rout
 uv run python scripts/verify_carla_adapter_pilot.py outputs/carla-adapter-pilot/<run-id>
 ```
 
+The retained ten-run adapter-pilot matrix is also represented by a public-safe aggregate. It preserves the ten `integrated-but-not-stable: lane_departure` outcomes rather than presenting a driving pass, and excludes local paths, host/IP data, raw RGB, telemetry, logs, and individual IDs. See [the CARLA adapter-pilot public summary](../examples/v0.2-carla-adapter-pilot/README.md).
+
+Regenerate and verify it only when the retained local matrix aggregate is available:
+
+```bash
+uv run python scripts/build_carla_adapter_public_evidence.py outputs/carla-adapter-pilot/formal-<timestamp>-summary.json \
+  --output-dir examples/v0.2-carla-adapter-pilot
+uv run python scripts/verify_carla_adapter_public_evidence.py outputs/carla-adapter-pilot/formal-<timestamp>-summary.json \
+  --output-dir examples/v0.2-carla-adapter-pilot
+```
+
 ### Analysis-only RGB/route-label collection
 
 The pilot can additionally retain sparse CARLA RGB frames for later **analysis-only** work. This remains outside the OpenPilot control path: the callback places an immutable RGB copy on a bounded writer queue, and a separate thread writes PNGs. Route ground truth is joined from already-recorded telemetry only after the run finishes; it is never returned to the bridge or used as a controller input.
