@@ -40,7 +40,9 @@ The governing baseline, regression, and qualification choices are retained in th
 
 ## Definition of Done와 roadmap
 
-v0.1은 formal 12-run evidence, provenance, data-integrity verdict, requirements-to-artifact traceability, provisional baseline/regression contract, qualification report와 known limitations을 갖추는 것을 목표로 한다. 그 전 release qualification은 `not_qualified_yet`이며, P0 artifact 완성과 Phase 1 regression gate 통과가 있어야만 framework verdict `pass_with_limitations`을 허용한다. 실제 GitHub Release 자동화는 구현 전까지 계획으로만 둔다. v0.2 이후에는 GPU runtime regression, CARLA/OpenX adapter, CAN/HIL interface design을 별도 확장으로 다룬다.
+v0.1은 formal 12-run evidence, provenance, data-integrity verdict, requirements-to-artifact traceability, provisional baseline/regression contract, qualification report와 known limitations을 갖추는 것을 목표로 한다. 그 전 release qualification은 `not_qualified_yet`이며, P0 artifact 완성과 Phase 1 regression gate 통과가 있어야만 framework verdict `pass_with_limitations`을 허용한다. 실제 GitHub Release 자동화는 구현 전까지 계획으로만 둔다.
+
+v0.2 CARLA adapter pilot은 별도 branch의 bounded integration work다. Town04의 frozen city route에서 OpenPilot-only control, CARLA state/camera/control mapping, actor cleanup, non-blocking camera transport, 10×60 s isolated attempts를 검증한다. `invalid`/`integrated-but-not-stable`/`bounded-pass`는 adapter-pilot 상태일 뿐 MetaDrive KPI, release qualification, real-road capability를 대체하지 않는다. CARLA/OpenX adapter와 CAN/HIL interface design은 이 경계 밖의 후속 확장이다.
 
 ## 한계
 

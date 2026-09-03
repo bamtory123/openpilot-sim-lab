@@ -1,5 +1,6 @@
 import py_compile
 import json
+import hashlib
 from pathlib import Path
 import re
 import stat
@@ -20,6 +21,13 @@ def test_shell_scripts_are_executable():
     assert path.stat().st_mode & stat.S_IXUSR, path
 
 
+def test_openpilot_patch_verifier_checks_both_bundle_hashes():
+  script = (ROOT / "scripts/verify_openpilot_patch_bundles.sh").read_text(encoding="utf-8")
+  assert "worktree add --detach" in script and "worktree remove --force" in script
+  assert "openpilot-v01-sim-instrumentation.patch" in script
+  assert "openpilot-v02-carla-adapter.patch" in script
+
+
 def test_python_scripts_compile_without_runtime_dependencies():
   for path in sorted((ROOT / "scripts").glob("*.py")):
     py_compile.compile(str(path), doraise=True)
@@ -31,6 +39,15 @@ def test_local_documentation_links_exist():
     for target in re.findall(r"\[[^\]]+\]\(([^)#]+)(?:#[^)]+)?\)", document.read_text(encoding="utf-8")):
       if "://" not in target and not target.startswith("mailto:"):
         assert (document.parent / target).resolve().exists(), f"{document}: {target}"
+
+
+def test_openpilot_patch_bundles_are_documented_and_hashed():
+  readme = (ROOT / "patches/README.md").read_text(encoding="utf-8")
+  for name in ("openpilot-v01-sim-instrumentation.patch", "openpilot-v02-carla-adapter.patch"):
+    digest = hashlib.sha256((ROOT / "patches" / name).read_bytes()).hexdigest()
+    assert digest in readme
+  assert "084747c75d2cbd23af65ab7a9e770bbd7b98bac9" in readme
+  assert 'git -C "$openpilot" apply --check "$simlab/patches/' in readme
 
 
 def test_readme_uses_uv_for_openpilot_runtime_editable_install():
@@ -48,6 +65,7 @@ def test_host_stack_supports_structured_success_evidence():
   assert '"schema_version": 3' in script
   assert '"failed_stage": None if status == "pass" else stage' in script
   assert '"provenance": {"sim_lab": git_source(simlab_root)' in script
+  assert '"metadrive_source": metadrive_source_metadata()' in script
   assert "HOST_STACK_OUTPUT=outputs/host-stack/host-stack.json" in host_stability
 
 
@@ -144,9 +162,45 @@ def test_carla_windows_wrapper_preserves_logs_and_cleanup_contract():
   assert '"connect.log"' in script and '"client.log"' in script
   assert "result.json" in script
   assert "--camera-state-control-smoke" in script
-  assert "finally" in script and "Stop-Process -Id $server.Id" in script
+  assert "finally" in script and "taskkill.exe /PID $server.Id /T /F" in script
   assert "ip route show default" in script and "pass -HostIp explicitly" in script
   assert "carla_client_or_connectivity_smoke_only" in script
+
+
+def test_carla_pilot_verifier_requires_analysis_only_capture_contract(tmp_path):
+  run = tmp_path / "run"; run.mkdir()
+  for name in ("events.jsonl", "telemetry.csv", "camera.csv", "run.log"):
+    (run / name).touch()
+  (run / "captures").mkdir()
+  (run / "captures/road-frame-000001.png").write_bytes(b"png")
+  sample = {"split": "analysis_only", "image": "captures/road-frame-000001.png",
+            "labels": {"route_lateral_error_m": 0, "route_heading_error_deg": 0, "route_reference_curvature_1pm": 0}}
+  (run / "dataset_manifest.jsonl").write_text(json.dumps(sample) + "\n")
+  dataset = {"scope": "carla_analysis_only_not_control_training", "joined_samples": 1, "captured_frames": 1,
+             "dropped_frames": 0, "valid": True}
+  (run / "dataset_summary.json").write_text(json.dumps(dataset))
+  (run / "manifest.json").write_text(json.dumps({"scope": "carla_v02_adapter_pilot_not_road_qualification",
+                                                     "capture": {"enabled": True}}))
+  (run / "summary.json").write_text(json.dumps({"schema_version": 1, "pilot_status": "integrated-but-not-stable",
+                                                   "dataset_summary": dataset}))
+
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_adapter_pilot.py"), str(run)],
+                          check=True, capture_output=True, text=True)
+
+  assert json.loads(result.stdout)["dataset"] == {"valid": True, "joined_samples": 1, "dropped_frames": 0}
+
+
+def test_carla_pilot_summary_tracks_dataset_and_after_filter(tmp_path):
+  for timestamp, joined in (("20260903T010000Z", 2), ("20260903T020000Z", 3)):
+    run = tmp_path / f"carla-city-mixed-pilot-{timestamp}-abc"; run.mkdir()
+    (run / "summary.json").write_text(json.dumps({"schema_version": 1, "pilot_status": "integrated-but-not-stable",
+      "reasons": ["lane_departure"], "dataset_summary": {"valid": True, "joined_samples": joined}}))
+
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_carla_adapter_pilot.py"), str(tmp_path),
+                           "--after", "20260903T010000Z"], check=True, capture_output=True, text=True)
+
+  summary = json.loads(result.stdout)
+  assert summary["run_count"] == 1 and summary["dataset_valid_count"] == 1 and summary["dataset_joined_samples"] == 3
 
 
 def test_carla_smoke_artifact_verifier_rejects_missing_log(tmp_path):

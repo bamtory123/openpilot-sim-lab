@@ -23,6 +23,10 @@ The default scenario is model-driven. Its current 0 ms baseline is a valid lane-
 
 ## Quick start (WSL)
 
+If starting from a clean upstream OpenPilot checkout, first apply the pinned
+[OpenPilot patch bundles](patches/README.md). The CARLA bundle is optional and
+must not be applied for the v0.1 MetaDrive-only reproduction.
+
 ```bash
 cd /home/hyunsung/src/openpilot-sim-lab
 export OPENPILOT_ROOT=/home/hyunsung/src/openpilot

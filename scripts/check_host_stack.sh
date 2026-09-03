@@ -29,6 +29,8 @@ import subprocess
 import sys
 
 path, status, exit_code, stage, boot_before, boot_after, cuda, renderer, simlab_root, openpilot_root = sys.argv[1:]
+sys.path.insert(0, str(Path(simlab_root) / "src"))
+from simlab.manifest import metadrive_source_metadata
 
 
 def git_source(root):
@@ -52,7 +54,7 @@ Path(path).write_text(json.dumps({
   "renderer": json.loads(renderer) if renderer else None,
   "preflight": "pass" if status == "pass" else None,
   "provenance": {"sim_lab": git_source(simlab_root), "openpilot": git_source(openpilot_root),
-                 "python_version": sys.version, "wsl_kernel": platform.release(),
+                 "metadrive_source": metadrive_source_metadata(), "python_version": sys.version, "wsl_kernel": platform.release(),
                  "metadrive_version": importlib.metadata.version("metadrive-simulator"),
                  "gpu": gpu.stdout.strip() or None},
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")

@@ -65,7 +65,9 @@ try {
   $failure = $_.Exception.Message
 } finally {
   if ($null -ne $server) {
-    Stop-Process -Id $server.Id -ErrorAction SilentlyContinue
+    # The Unreal renderer is a child of CarlaUE4.exe; terminate the process
+    # tree so an interrupted smoke cannot retain GPU memory.
+    & taskkill.exe /PID $server.Id /T /F *> $null
     Start-Sleep -Seconds 2
   }
   $serverStopped = $null -eq (Get-Process -Id $server.Id -ErrorAction SilentlyContinue)

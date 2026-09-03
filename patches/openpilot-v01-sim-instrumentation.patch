@@ -1,0 +1,1285 @@
+diff --git a/openpilot/selfdrive/modeld/helpers.py b/openpilot/selfdrive/modeld/helpers.py
+index 37ab0b26d..385948a2b 100644
+--- a/openpilot/selfdrive/modeld/helpers.py
++++ b/openpilot/selfdrive/modeld/helpers.py
+@@ -1,5 +1,6 @@
+ import io
+ import json
++import os
+ import pickle
+ import shutil
+ import struct
+@@ -11,13 +12,22 @@ from openpilot.common.hardware.usb import CHESTNUT_FW_VERSION, CHESTNUT_USB_IDS,
+ 
+ MODELS_DIR = Path(__file__).resolve().parent / 'models'
+ TG_INPUT_DEVICES_PATH = MODELS_DIR / 'tg_input_devices.json'
++SIM_CUDA_MODEL_PATH = MODELS_DIR / 'sim_cuda_driving_tinygrad.pkl'
++
++
++def sim_cuda_enabled() -> bool:
++  return os.getenv('SIMULATION') == '1' and os.getenv('SIM_TINYGRAD_DEVICE') == 'CUDA' and SIM_CUDA_MODEL_PATH.is_file()
+ 
+ 
+ def get_tg_input_devices(process_name: str, usbgpu: bool):
++  if process_name == 'openpilot.selfdrive.modeld.modeld' and not usbgpu and sim_cuda_enabled():
++    return {'WARP_DEV': 'CUDA', 'QUEUE_DEV': 'CUDA'}
+   with open(TG_INPUT_DEVICES_PATH) as f:
+     return json.load(f)[process_name]['default' if not usbgpu else 'usbgpu']
+ 
+ def modeld_pkl_path(usbgpu: bool):
++  if not usbgpu and sim_cuda_enabled():
++    return SIM_CUDA_MODEL_PATH
+   prefix = 'big_' if usbgpu else ''
+   return MODELS_DIR / f'{prefix}driving_tinygrad.pkl'
+ 
+diff --git a/openpilot/selfdrive/modeld/modeld.py b/openpilot/selfdrive/modeld/modeld.py
+index 7f049912d..fc850c400 100755
+--- a/openpilot/selfdrive/modeld/modeld.py
++++ b/openpilot/selfdrive/modeld/modeld.py
+@@ -34,6 +34,7 @@ from openpilot.selfdrive.modeld.helpers import usbgpu_present, usbgpu_compiled,
+ 
+ PROCESS_NAME = "openpilot.selfdrive.modeld.modeld"
+ SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
++SIMULATION = os.getenv('SIMULATION') == '1'
+ 
+ LAT_SMOOTH_SECONDS = 0.0
+ LONG_SMOOTH_SECONDS = 0.3
+@@ -167,6 +168,12 @@ class ModelState:
+     for key in bufs.keys():
+       ptr = np.frombuffer(bufs[key].data, dtype=np.uint8).ctypes.data
+       yuv_size = self.frame_buf_params[key][3]
++      if SIMULATION and self.WARP_DEV == 'CUDA':
++        # VisionIpc buffers supplied by the simulator live in host memory.
++        # CUDA cannot safely dereference their host addresses via from_blob, so
++        # make an explicit copy into device-owned memory for simulation only.
++        self.full_frames[key] = Tensor(np.frombuffer(bufs[key].data, dtype=np.uint8).copy(), device=self.WARP_DEV).realize()
++        continue
+       # There is a ringbuffer of imgs, just cache tensors pointing to all of them
+       cache_key = (key, ptr)
+       if cache_key not in self._blob_cache:
+diff --git a/openpilot/selfdrive/selfdrived/selfdrived.py b/openpilot/selfdrive/selfdrived/selfdrived.py
+index 1f1f6f734..53a5faaf6 100755
+--- a/openpilot/selfdrive/selfdrived/selfdrived.py
++++ b/openpilot/selfdrive/selfdrived/selfdrived.py
+@@ -378,7 +378,8 @@ class SelfdriveD:
+     no_system_errors = (not has_disable_events) or (len(self.events) == num_events)
+     warmup_sec = 5.
+     big_model_settling = self.big_model_loading or time.monotonic() < self.big_model_ready_t + warmup_sec
+-    if not self.sm.all_checks() and no_system_errors and not big_model_settling:  # the load holds modelV2 and friends back on purpose
++    checks_ok = self.sm.all_alive() if SIMULATION else self.sm.all_checks()
++    if not checks_ok and no_system_errors and not big_model_settling:  # the load holds modelV2 and friends back on purpose
+       if not self.sm.all_alive():
+         self.events.add(EventName.commIssue)
+       elif not self.sm.all_freq_ok():
+diff --git a/openpilot/system/manager/process_config.py b/openpilot/system/manager/process_config.py
+index b8a1e4a12..4c13299fc 100644
+--- a/openpilot/system/manager/process_config.py
++++ b/openpilot/system/manager/process_config.py
+@@ -55,6 +55,15 @@ def always_run(started: bool, params: Params, CP: car.CarParams) -> bool:
+ def only_onroad(started: bool, params: Params, CP: car.CarParams) -> bool:
+   return started
+ 
++
++def modeld_process():
++  # tinygrad CUDA is not fork-safe under WSL. The simulator uses an exec-based
++  # launcher so modeld receives a fresh CUDA context; production keeps the
++  # upstream PythonProcess behavior.
++  if os.getenv("SIMULATION") == "1":
++    return NativeProcess("modeld", ".", ["python3", "-m", "openpilot.selfdrive.modeld.modeld"], only_onroad)
++  return PythonProcess("modeld", "openpilot.selfdrive.modeld.modeld", only_onroad)
++
+ def only_offroad(started: bool, params: Params, CP: car.CarParams) -> bool:
+   return not started
+ 
+@@ -82,7 +91,7 @@ procs = [
+   PythonProcess("micd", "openpilot.system.micd", iscar),
+   PythonProcess("timed", "openpilot.system.timed", always_run, enabled=not PC),
+ 
+-  PythonProcess("modeld", "openpilot.selfdrive.modeld.modeld", only_onroad),
++  modeld_process(),
+   PythonProcess("dmonitoringmodeld", "openpilot.selfdrive.modeld.dmonitoringmodeld", driverview, enabled=(WEBCAM or not PC)),
+ 
+   PythonProcess("sensord", "openpilot.system.sensord.sensord", only_onroad, enabled=not PC),
+diff --git a/openpilot/tools/sim/bridge/common.py b/openpilot/tools/sim/bridge/common.py
+index 1d00e3b0f..8f0c8d1c6 100644
+--- a/openpilot/tools/sim/bridge/common.py
++++ b/openpilot/tools/sim/bridge/common.py
+@@ -1,11 +1,13 @@
+ import signal
+ import threading
+ import functools
++import time
+ import numpy as np
++from openpilot.common.transformations.camera import DEVICE_CAMERAS
+ 
+ from collections import namedtuple
+ from enum import Enum
+-from multiprocessing import Process, Queue, Value
++from multiprocessing import Event, Process, Queue, Value
+ from abc import ABC, abstractmethod
+ from opendbc.car.honda.values import CruiseButtons
+ from openpilot.common.params import Params
+@@ -22,6 +24,7 @@ class QueueMessageType(Enum):
+   CONTROL_COMMAND = 1
+   TERMINATION_INFO = 2
+   CLOSE_STATUS = 3
++  TELEMETRY = 4
+ 
+ def control_cmd_gen(cmd: str):
+   return QueueMessage(QueueMessageType.CONTROL_COMMAND, cmd)
+@@ -36,7 +39,7 @@ def rk_loop(function, hz, exit_event: threading.Event):
+ class SimulatorBridge(ABC):
+   TICKS_PER_FRAME = 5
+ 
+-  def __init__(self, dual_camera, high_quality):
++  def __init__(self, dual_camera, high_quality, simlab_config=None):
+     set_params_enabled()
+     self.params = Params()
+     self.params.put_bool("AlphaLongitudinalEnabled", True, block=True)
+@@ -45,10 +48,12 @@ class SimulatorBridge(ABC):
+ 
+     self.dual_camera = dual_camera
+     self.high_quality = high_quality
++    self.simlab_config = simlab_config or {}
+ 
+     self._exit_event: threading.Event | None = None
+     self._threads = []
+     self._keep_alive = True
++    self._shutdown_event = Event()
+     self.started = Value('i', False)
+     signal.signal(signal.SIGTERM, self._on_shutdown)
+     self.simulator_state = SimulatorState()
+@@ -65,10 +70,11 @@ class SimulatorBridge(ABC):
+ 
+   def shutdown(self):
+     self._keep_alive = False
++    self._shutdown_event.set()
+ 
+-  def bridge_keep_alive(self, q: Queue, retries: int):
++  def bridge_keep_alive(self, control_q: Queue, status_q: Queue, retries: int):
+     try:
+-      self._run(q)
++      self._run(control_q, status_q)
+     finally:
+       self.close("bridge terminated")
+ 
+@@ -81,8 +87,11 @@ class SimulatorBridge(ABC):
+     if self.world is not None:
+       self.world.close(reason)
+ 
+-  def run(self, queue, retries=-1):
+-    bridge_p = Process(name="bridge", target=self.bridge_keep_alive, args=(queue, retries))
++  def run(self, control_queue, retries=-1, status_queue=None):
++    # Keep the historical single-queue API by default, but allow experiment
++    # runners to prevent the bridge from consuming its own telemetry.
++    status_queue = control_queue if status_queue is None else status_queue
++    bridge_p = Process(name="bridge", target=self.bridge_keep_alive, args=(control_queue, status_queue, retries))
+     bridge_p.start()
+     return bridge_p
+ 
+@@ -97,11 +106,13 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+   def spawn_world(self, q: Queue, /) -> World:
+     pass
+ 
+-  def _run(self, q: Queue):
+-    self.world = self.spawn_world(q)
++  def _run(self, control_q: Queue, status_q: Queue):
++    self.world = self.spawn_world(status_q)
+ 
+     self.simulated_car = SimulatedCar()
+-    self.simulated_sensors = SimulatedSensors(self.dual_camera)
++    camera_fault = self.simlab_config.get("fault", {})
++    camera_sink = getattr(self.world, "emit_camera_telemetry", None)
++    self.simulated_sensors = SimulatedSensors(self.dual_camera, camera_fault, camera_sink)
+ 
+     self._exit_event = threading.Event()
+ 
+@@ -117,7 +128,11 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+     for _ in range(20):
+       self.world.tick()
+ 
+-    while self._keep_alive:
++    fault_enabled = False
++    measurement_announced = False
++    fault_enabled_at = None
++    fault_settle_s = float(self.simlab_config.get("run", {}).get("fault_settle_s", 5))
++    while self._keep_alive and not self._shutdown_event.is_set():
+       throttle_out = steer_out = brake_out = 0.0
+       throttle_op = steer_op = brake_op = 0.0
+ 
+@@ -128,8 +143,8 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+       throttle_manual = steer_manual = brake_manual = 0.
+ 
+       # Read manual controls
+-      if not q.empty():
+-        message = q.get()
++      if not control_q.empty():
++        message = control_q.get()
+         if message.type == QueueMessageType.CONTROL_COMMAND:
+           m = message.info.split('_')
+           if m[0] == "steer":
+@@ -171,6 +186,17 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+       self.simulated_car.sm.update(0)
+       self.simulator_state.is_engaged = self.simulated_car.sm['selfdriveState'].active
+ 
++      if self.rk.frame % 10 == 0:
++        selfdrive_state = self.simulated_car.sm['selfdriveState']
++        status_q.put(QueueMessage(QueueMessageType.TELEMETRY, {
++          "type": "openpilot_state", "frame": self.rk.frame,
++          "engageable": bool(selfdrive_state.engageable),
++          "engaged": bool(self.simulator_state.is_engaged),
++          "state": str(selfdrive_state.state), "alert_text_1": selfdrive_state.alertText1,
++          "alert_text_2": selfdrive_state.alertText2,
++          "onroad_events": [str(event.name) for event in self.simulated_car.sm['onroadEvents']],
++        }))
++
+       if self.simulator_state.is_engaged:
+         throttle_op = np.clip(self.simulated_car.sm['carControl'].actuators.accel / 1.6, 0.0, 1.0)
+         brake_op = np.clip(-self.simulated_car.sm['carControl'].actuators.accel / 4.0, 0.0, 1.0)
+@@ -185,6 +211,53 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+       brake_out = brake_op if self.simulator_state.is_engaged else brake_manual
+       steer_out = steer_op if self.simulator_state.is_engaged else steer_manual
+ 
++      if hasattr(self.world, "set_control_telemetry"):
++        model = self.simulated_car.sm['modelV2']
++        model_curvature = model.action.desiredCurvature
++        planner_curvature = self.simulated_car.sm['lateralManeuverPlan'].desiredCurvature
++        control_curvature = self.simulated_car.sm['controlsState'].desiredCurvature
++        path_x = np.asarray(model.position.x)
++        path_y = np.asarray(model.position.y)
++        path_valid = len(path_x) == len(path_y) and len(path_x) > 1
++        path_reaches_20m = path_valid and path_x[-1] >= 20.0
++        path_y_20m = float(np.interp(20.0, path_x, path_y)) if path_reaches_20m else None
++        path_heading_20m = float(np.arctan2(path_y_20m - path_y[0], 20.0 - path_x[0])) if path_reaches_20m else None
++        path_end_x = float(path_x[-1]) if path_valid else 0.0
++        path_end_y = float(path_y[-1]) if path_valid else 0.0
++        path_end_heading = float(np.arctan2(path_y[-1] - path_y[0], path_x[-1] - path_x[0])) if path_valid else 0.0
++        path_end_speed = float(model.velocity.x[-1]) if len(model.velocity.x) else None
++        calibration = self.simulated_car.sm['extrinsicsCalibration']
++        calibration_rpy = list(calibration.rpyCalib) if len(calibration.rpyCalib) == 3 else [None, None, None]
++        device_type = str(self.simulated_car.sm['deviceState'].deviceType)
++        camera_sensor = str(self.simulated_car.sm['narrowRoadCameraState'].sensor)
++        camera_config = DEVICE_CAMERAS.get((device_type, camera_sensor))
++        left_lane = model.laneLines[1] if len(model.laneLines) > 1 else None
++        right_lane = model.laneLines[2] if len(model.laneLines) > 2 else None
++        left_lane_prob = model.laneLineProbs[1] if len(model.laneLineProbs) > 1 else None
++        right_lane_prob = model.laneLineProbs[2] if len(model.laneLineProbs) > 2 else None
++        left_lane_y0 = left_lane.y[0] if left_lane and len(left_lane.y) else None
++        right_lane_y0 = right_lane.y[0] if right_lane and len(right_lane.y) else None
++        self.world.set_control_telemetry(steer_op, self.simulated_car.sm['carControl'].actuators.accel if self.simulator_state.is_engaged else 0.0,
++                                         throttle_out, brake_out, model_curvature, planner_curvature, control_curvature,
++                                         path_y_20m, path_heading_20m, path_end_x, path_end_y, path_end_heading, path_end_speed,
++                                         self.simulated_car.sm.valid['modelV2'], model.frameId, model.frameAge,
++                                         model.frameDropPerc, model.modelExecutionTime, calibration_rpy, str(calibration.calStatus),
++                                         device_type, camera_sensor, camera_config.narrow_road.width if camera_config else None,
++                                         camera_config.narrow_road.height if camera_config else None,
++                                         camera_config.narrow_road.focal_length if camera_config else None,
++                                         left_lane_prob, right_lane_prob, left_lane_y0, right_lane_y0)
++
++      if self.simulator_state.is_engaged and not fault_enabled:
++        self.simulated_sensors.enable_camera_transport_fault(True)
++        fault_enabled = True
++        fault_enabled_at = time.monotonic()
++        if hasattr(self.world, "emit_run_event"):
++          self.world.emit_run_event("ENABLE_FAULT")
++      if fault_enabled and not measurement_announced and fault_enabled_at is not None and time.monotonic() - fault_enabled_at >= fault_settle_s:
++        measurement_announced = True
++        if hasattr(self.world, "emit_run_event"):
++          self.world.emit_run_event("MEASURE")
++
+       self.world.apply_controls(steer_out, throttle_out, brake_out)
+       self.world.read_state()
+       self.world.read_sensors(self.simulator_state)
+@@ -203,3 +276,5 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+       self.started.value = True
+ 
+       self.rk.keep_time()
++
++    self.simulated_sensors.close()
+diff --git a/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py b/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py
+index 4222ba45a..7b66ff59b 100644
+--- a/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py
++++ b/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py
+@@ -1,7 +1,6 @@
+ import math
+ from multiprocessing import Queue
+ 
+-from metadrive.component.sensors.base_camera import _cuda_enable
+ from metadrive.component.map.pg_map import MapGenerateMethod
+ 
+ from openpilot.tools.sim.bridge.common import SimulatorBridge
+@@ -27,7 +26,7 @@ def curve_block(length, angle=45, direction=0):
+     "dir": direction
+   }
+ 
+-def create_map(track_size=60):
++def create_map(track_size=60, curve_direction=0):
+   curve_len = track_size * 2
+   return {
+     "type": MapGenerateMethod.PG_MAP_FILE,
+@@ -36,13 +35,13 @@ def create_map(track_size=60):
+     "config": [
+       None,
+       straight_block(track_size),
+-      curve_block(curve_len, 90),
++      curve_block(curve_len, 90, curve_direction),
+       straight_block(track_size),
+-      curve_block(curve_len, 90),
++      curve_block(curve_len, 90, curve_direction),
+       straight_block(track_size),
+-      curve_block(curve_len, 90),
++      curve_block(curve_len, 90, curve_direction),
+       straight_block(track_size),
+-      curve_block(curve_len, 90),
++      curve_block(curve_len, 90, curve_direction),
+     ]
+   }
+ 
+@@ -50,8 +49,8 @@ def create_map(track_size=60):
+ class MetaDriveBridge(SimulatorBridge):
+   TICKS_PER_FRAME = 5
+ 
+-  def __init__(self, dual_camera, high_quality, test_duration=math.inf, test_run=False):
+-    super().__init__(dual_camera, high_quality)
++  def __init__(self, dual_camera, high_quality, test_duration=math.inf, test_run=False, simlab_config=None):
++    super().__init__(dual_camera, high_quality, simlab_config)
+ 
+     self.should_render = False
+     self.test_run = test_run
+@@ -71,9 +70,12 @@ class MetaDriveBridge(SimulatorBridge):
+         "enable_reverse": False,
+         "render_vehicle": False,
+         "image_source": "rgb_road",
++        "show_navi_mark": bool(self.simlab_config.get("environment", {}).get("show_navi_mark", True)),
+       },
+       "sensors": sensors,
+-      "image_on_cuda": _cuda_enable,
++      # Keep simulator images in host memory. Under WSL, MetaDrive's CUDA image
++      # path and tinygrad modeld sharing the RTX can poison the CUDA context.
++      "image_on_cuda": False,
+       "image_observation": True,
+       "interface_panel": [],
+       "out_of_route_done": False,
+@@ -82,7 +84,9 @@ class MetaDriveBridge(SimulatorBridge):
+       "crash_object_done": False,
+       "arrive_dest_done": False,
+       "traffic_density": 0.0, # traffic is incredibly expensive
+-      "map_config": create_map(),
++      "random_spawn_lane_index": False,
++      "map_config": create_map(track_size=int(self.simlab_config.get("environment", {}).get("map_track_size_m", 60)),
++                               curve_direction=int(self.simlab_config.get("environment", {}).get("map_curve_direction", 0))),
+       "decision_repeat": 1,
+       "physics_world_step_size": self.TICKS_PER_FRAME/100,
+       "preload_models": False,
+@@ -90,4 +94,14 @@ class MetaDriveBridge(SimulatorBridge):
+       "anisotropic_filtering": False
+     }
+ 
++    # Only fields implemented by the bridge are exposed to the simulator.
++    config["simlab"] = self.simlab_config
++    seed = self.simlab_config.get("environment", {}).get("seed")
++    if seed is not None:
++      # MetaDrive 0.4.2.3 treats reset(seed=...) as a scenario index and
++      # rejects arbitrary integers. start_seed fixes the generated scenario
++      # while preserving the normal reset lifecycle.
++      config["start_seed"] = int(seed)
++      config["num_scenarios"] = 1
++
+     return MetaDriveWorld(queue, config, self.test_duration, self.test_run, self.dual_camera)
+diff --git a/openpilot/tools/sim/bridge/metadrive/metadrive_process.py b/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
+index 01d047375..232832472 100644
+--- a/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
++++ b/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
+@@ -1,9 +1,12 @@
+ import math
++import os
+ import time
++import json
+ import numpy as np
+ 
+ from collections import namedtuple
+ from panda3d.core import Vec3
++from PIL import Image
+ from multiprocessing.connection import Connection
+ 
+ from metadrive.engine.core.engine_core import EngineCore
+@@ -15,13 +18,20 @@ from openpilot.common.realtime import Ratekeeper
+ 
+ from openpilot.tools.sim.lib.common import vec3
+ from openpilot.tools.sim.lib.camerad import W, H
++from openpilot.tools.sim.bridge.metadrive.specialist_replay import SpecialistReplay
+ 
+ C3_POSITION = Vec3(0.0, 0, 1.22)
+ C3_HPR = Vec3(0, 0,0)
+ 
+ 
+ metadrive_simulation_state = namedtuple("metadrive_simulation_state", ["running", "done", "done_info"])
+-metadrive_vehicle_state = namedtuple("metadrive_vehicle_state", ["velocity", "position", "bearing", "steering_angle"])
++metadrive_vehicle_state = namedtuple("metadrive_vehicle_state", ["velocity", "position", "bearing", "steering_angle", "ground_truth"])
++
++
++def world_signed_angle(forward: np.ndarray, target: np.ndarray) -> float:
++  """Signed angle from a vehicle world-frame direction to a world-frame target."""
++  return math.atan2(float(forward[0] * target[1] - forward[1] * target[0]), float(np.dot(forward, target)))
++
+ 
+ def apply_metadrive_patches(arrive_dest_done=True):
+   # By default, metadrive won't try to use cuda images unless it's used as a sensor for vehicles, so patch that in
+@@ -52,6 +62,13 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+                       controls_recv: Connection, simulation_state_send: Connection, vehicle_state_send: Connection,
+                       exit_event, op_engaged, test_duration, test_run):
+   arrive_dest_done = config.pop("arrive_dest_done", True)
++  simlab_config = config.pop("simlab", {})
++  environment_config = simlab_config.get("environment", {})
++  simulator_control = simlab_config.get("simulator_control")
++  specialist_dataset = simlab_config.get("specialist_dataset")
++  specialist_replay_config = simlab_config.get("specialist_replay")
++  reference_lane_index = int(environment_config.get("reference_lane_index", 0))
++  seed = environment_config.get("seed")
+   apply_metadrive_patches(arrive_dest_done)
+ 
+   road_image = np.frombuffer(camera_array.get_obj(), dtype=np.uint8).reshape((H, W, 3))
+@@ -60,14 +77,176 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+     wide_road_image = np.frombuffer(wide_camera_array.get_obj(), dtype=np.uint8).reshape((H, W, 3))
+ 
+   env = MetaDriveEnv(config)
++  specialist_replay = SpecialistReplay(specialist_replay_config["artifact_path"]) if specialist_replay_config is not None else None
++  camera_fov_deg = float(environment_config.get("camera_fov_deg", 40))
++  camera_gamma = float(environment_config.get("camera_gamma", 1.0))
++  camera_position = Vec3(*map(float, environment_config.get("camera_position_m", C3_POSITION)))
++  camera_hpr = Vec3(*map(float, environment_config.get("camera_hpr_deg", C3_HPR)))
++  debug_camera_path = os.environ.get("SIMLAB_CAMERA_DEBUG_PATH")
++  debug_camera_metadata_path = os.environ.get("SIMLAB_CAMERA_DEBUG_METADATA_PATH") or (f"{debug_camera_path}.json" if debug_camera_path else None)
++  debug_camera_after_frame = int(os.environ.get("SIMLAB_CAMERA_DEBUG_AFTER_FRAME", "0"))
++  debug_capture_frames = [int(frame) for frame in os.environ.get("SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES", "").split(",") if frame]
++  debug_capture_dir = os.environ.get("SIMLAB_CAMERA_DEBUG_CAPTURE_DIR")
++  if debug_capture_frames and not debug_capture_dir:
++    raise ValueError("SIMLAB_CAMERA_DEBUG_CAPTURE_DIR is required with SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES")
++  debug_capture_index = 0
++  debug_camera_captured = False
++  controller_target_curvature = 0.0
++  controller_lookahead_heading_error = 0.0
++  previous_velocity_heading = None
++  previous_simulation_time_s = None
++  normalized_steer = 0.0
+ 
+   def get_current_lane_info(vehicle):
+     _, lane_info, on_lane = vehicle.navigation._get_current_lane(vehicle)
+     lane_idx = lane_info[2] if lane_info is not None else None
+     return lane_idx, on_lane
+ 
++  specialist_prediction = None
++
++  def reference_lane_telemetry(vehicle, simulation_frame, simulation_time_s, acceleration_mps2):
++    nonlocal previous_velocity_heading, previous_simulation_time_s
++    vehicle_width = float(vehicle.config.get("width") or 2.0)
++    velocity_xy = np.asarray(vehicle.velocity[:2])
++    speed_mps = float(np.linalg.norm(vehicle.velocity))
++    yaw_rate = 0.0
++    if speed_mps > 0.1:
++      velocity_heading = math.atan2(float(velocity_xy[1]), float(velocity_xy[0]))
++    else:
++      velocity_heading = None
++    if velocity_heading is not None and previous_velocity_heading is not None and previous_simulation_time_s is not None:
++      dt = simulation_time_s - previous_simulation_time_s
++      if dt > 0:
++        yaw_rate = ((velocity_heading - previous_velocity_heading + math.pi) % (2 * math.pi) - math.pi) / dt
++    if velocity_heading is not None:
++      previous_velocity_heading = velocity_heading
++      previous_simulation_time_s = simulation_time_s
++    lanes = list(getattr(vehicle.navigation, "current_ref_lanes", []) or [])
++    lane = lanes[reference_lane_index] if 0 <= reference_lane_index < len(lanes) else None
++    lane_idx, on_lane = get_current_lane_info(vehicle)
++    result = {
++      "type": "vehicle_telemetry", "simulation_frame": simulation_frame, "simulation_time_s": simulation_time_s,
++      "position_x_m": float(vehicle.position[0]), "position_y_m": float(vehicle.position[1]),
++      "speed_mps": speed_mps, "acceleration_mps2": acceleration_mps2,
++      "simulator_control_mode": "specialist_replay" if specialist_replay is not None else (simulator_control["mode"] if simulator_control is not None else "openpilot"),
++      "specialist_replay_normalized_steer": specialist_prediction,
++      "simulator_normalized_steer": float(normalized_steer),
++      "applied_steering_angle_deg": float(vehicle.steering * vehicle.MAX_STEERING),
++      "actual_yaw_rate_rad_s": yaw_rate,
++      "actual_curvature_1pm": yaw_rate / speed_mps if speed_mps > 0.1 else 0.0,
++      "controller_target_curvature_1pm": controller_target_curvature,
++      "controller_lookahead_heading_error_rad": controller_lookahead_heading_error,
++      "reference_tangent_world_x": None, "reference_tangent_world_y": None,
++      "vehicle_velocity_dir_x": None, "vehicle_velocity_dir_y": None,
++      "lookahead_vector_world_x": None, "lookahead_vector_world_y": None,
++      "lookahead_dot_velocity": None, "lookahead_cross_velocity": None,
++      "reference_lane_index": reference_lane_index, "current_lane_index": lane_idx,
++      "metadrive_on_lane": bool(on_lane), "reference_road_id": None,
++      "route_progress_m": None, "lateral_error_m": None, "heading_error_rad": None,
++      "lane_width_m": None, "vehicle_width_m": vehicle_width,
++      "lane_departure": False, "collision": bool(getattr(vehicle, "crash_vehicle", False) or getattr(vehicle, "crash_object", False)),
++      "specialist_teacher_curvature_1pm": None, "specialist_teacher_normalized_steer": None,
++    }
++    if lane is None:
++      return result
++    longitudinal, lateral = lane.local_coordinates(vehicle.position)
++    lane_width = float(getattr(lane, "width", None) or vehicle_width)
++    tangent = np.asarray(lane.position(longitudinal + 1.0, 0.0)) - np.asarray(lane.position(longitudinal - 1.0, 0.0))
++    tangent_norm = float(np.linalg.norm(tangent))
++    lookahead_m = float(simulator_control.get("lookahead_m", 0.0)) if simulator_control is not None else 0.0
++    lookahead_vector = np.asarray(lane.position(longitudinal + lookahead_m, 0.0)) - np.asarray(vehicle.position)
++    velocity_xy = np.asarray(vehicle.velocity[:2])
++    velocity_xy_norm = float(np.linalg.norm(velocity_xy))
++    velocity_direction = velocity_xy / velocity_xy_norm if velocity_xy_norm > 0.1 else None
++    heading_error = (float(vehicle.heading_theta) - float(lane.heading_theta_at(longitudinal)) + math.pi) % (2 * math.pi) - math.pi
++    result.update({
++      "reference_road_id": str(getattr(lane, "index", (None,))[0]), "route_progress_m": float(longitudinal),
++      "lateral_error_m": float(lateral), "heading_error_rad": heading_error, "lane_width_m": lane_width,
++      "reference_curvature_1pm": ((float(lane.heading_theta_at(longitudinal + 1.0)) - float(lane.heading_theta_at(longitudinal - 1.0)) + math.pi) % (2 * math.pi) - math.pi) / 2.0,
++      "lane_departure": abs(float(lateral)) > max(0.0, (lane_width - result["vehicle_width_m"]) / 2),
++    })
++    if specialist_dataset is not None:
++      teacher = specialist_dataset["teacher"]
++      target = lane.position(longitudinal + float(teacher["lookahead_m"]), 0.0)
++      delta = np.asarray(target) - np.asarray(vehicle.position)
++      distance = max(float(np.linalg.norm(delta)), 0.1)
++      if velocity_direction is not None:
++        alpha = world_signed_angle(velocity_direction, delta)
++        teacher_curvature = 2.0 * math.sin(alpha) / distance
++        result["specialist_teacher_curvature_1pm"] = teacher_curvature
++        result["specialist_teacher_normalized_steer"] = float(np.clip(
++          teacher_curvature * float(teacher["curvature_to_steer_gain"]), -0.2, 0.2))
++    if tangent_norm > 0.0:
++      result["reference_tangent_world_x"] = float(tangent[0] / tangent_norm)
++      result["reference_tangent_world_y"] = float(tangent[1] / tangent_norm)
++    if velocity_direction is not None:
++      result.update({
++        "vehicle_velocity_dir_x": float(velocity_direction[0]), "vehicle_velocity_dir_y": float(velocity_direction[1]),
++        "lookahead_vector_world_x": float(lookahead_vector[0]), "lookahead_vector_world_y": float(lookahead_vector[1]),
++        "lookahead_dot_velocity": float(np.dot(velocity_direction, lookahead_vector)),
++        "lookahead_cross_velocity": float(velocity_direction[0] * lookahead_vector[1] - velocity_direction[1] * lookahead_vector[0]),
++      })
++    return result
++
++  def simulator_controller(vehicle):
++    nonlocal controller_target_curvature, controller_lookahead_heading_error
++    assert simulator_control is not None
++    lanes = list(getattr(vehicle.navigation, "current_ref_lanes", []) or [])
++    lane = lanes[reference_lane_index] if 0 <= reference_lane_index < len(lanes) else None
++    if lane is None:
++      return 0.0, 0.0
++    longitudinal, lateral = lane.local_coordinates(vehicle.position)
++    if simulator_control["mode"] == "pure_pursuit":
++      target = lane.position(longitudinal + float(simulator_control["lookahead_m"]), 0.0)
++      delta = np.asarray(target) - np.asarray(vehicle.position)
++      distance = max(float(np.linalg.norm(delta)), 0.1)
++      velocity_xy = np.asarray(vehicle.velocity[:2])
++      velocity_norm = float(np.linalg.norm(velocity_xy))
++      if velocity_norm <= 0.1:
++        steer = 0.0
++      else:
++        forward = velocity_xy / velocity_norm
++        alpha = world_signed_angle(forward, delta)
++        controller_target_curvature = 2.0 * math.sin(alpha) / distance
++        controller_lookahead_heading_error = alpha
++        steer = controller_target_curvature * float(simulator_control["curvature_to_steer_gain"])
++    elif simulator_control["mode"] == "reference_curvature_follow":
++      reference_curvature = ((float(lane.heading_theta_at(longitudinal + 1.0)) - float(lane.heading_theta_at(longitudinal - 1.0)) + math.pi) % (2 * math.pi) - math.pi) / 2.0
++      velocity_xy = np.asarray(vehicle.velocity[:2])
++      velocity_norm = float(np.linalg.norm(velocity_xy))
++      tangent = np.asarray(lane.position(longitudinal + 1.0, 0.0)) - np.asarray(lane.position(longitudinal - 1.0, 0.0))
++      tangent_heading = math.atan2(float(tangent[1]), float(tangent[0]))
++      heading_error = 0.0 if velocity_norm <= 0.1 else world_signed_angle(velocity_xy / velocity_norm, np.array([math.cos(tangent_heading), math.sin(tangent_heading)]))
++      controller_target_curvature = reference_curvature - float(simulator_control["lateral_gain"]) * float(lateral) - float(simulator_control["heading_gain"]) * heading_error
++      controller_lookahead_heading_error = heading_error
++      steer = controller_target_curvature * float(simulator_control["curvature_to_steer_gain"])
++    else:
++      target_heading = float(lane.heading_theta_at(longitudinal + float(simulator_control["lookahead_m"])))
++      heading_error = (float(vehicle.heading_theta) - target_heading + math.pi) % (2 * math.pi) - math.pi
++      steer = -float(simulator_control["lateral_gain"]) * float(lateral) - float(simulator_control["heading_gain"]) * heading_error
++    speed_error = float(simulator_control["target_speed_mps"]) - float(np.linalg.norm(vehicle.velocity))
++    return float(np.clip(steer, -0.2, 0.2)), float(np.clip(0.25 * speed_error, -1.0, 1.0))
++
++  def specialist_controller(image):
++    nonlocal specialist_prediction, specialist_last_image
++    if image is None:
++      specialist_prediction = 0.0
++    elif image is not specialist_last_image:
++      specialist_prediction = specialist_replay.predict(image)
++      specialist_last_image = image
++    speed_error = float(specialist_replay_config["target_speed_mps"]) - float(np.linalg.norm(env.vehicle.velocity))
++    return specialist_prediction, float(np.clip(0.25 * speed_error, -1.0, 1.0))
++
+   def reset():
++    nonlocal previous_velocity_heading, previous_simulation_time_s, specialist_last_image
++    # The fixed seed is configured as MetaDrive's start_seed. Passing it to
++    # reset() would be interpreted as a bounded scenario index on 0.4.2.3.
+     env.reset()
++    previous_velocity_heading = None
++    previous_simulation_time_s = None
++    specialist_last_image = None
++    if specialist_replay is not None:
++      specialist_replay.reset()
+     env.vehicle.config["max_speed_km_h"] = 1000
+     lane_idx_prev, _ = get_current_lane_info(env.vehicle)
+ 
+@@ -81,45 +260,82 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+     return lane_idx_prev
+ 
+   lane_idx_prev = reset()
++  env.engine.sensors["rgb_road"].get_lens().setFov(camera_fov_deg)
+   start_time = None
++  previous_speed = 0.0
+ 
+   def get_cam_as_rgb(cam):
++    nonlocal debug_camera_captured, debug_capture_index
+     cam = env.engine.sensors[cam]
+     cam.get_cam().reparentTo(env.vehicle.origin)
+-    cam.get_cam().setPos(C3_POSITION)
+-    cam.get_cam().setHpr(C3_HPR)
++    cam.get_cam().setPos(camera_position)
++    cam.get_cam().setHpr(camera_hpr)
+     img = cam.perceive(to_float=False)
+     if not isinstance(img, np.ndarray):
+       img = img.get() # convert cupy array to numpy
++    if camera_gamma != 1.0:
++      img = np.rint(np.power(img.astype(np.float32) / 255.0, camera_gamma) * 255.0).astype(np.uint8)
++    if cam is env.engine.sensors["rgb_road"]:
++      capture_path = metadata_path = None
++      if debug_capture_index < len(debug_capture_frames) and rk.frame >= debug_capture_frames[debug_capture_index]:
++        capture_path = os.path.join(debug_capture_dir, f"road-frame-{rk.frame:06d}.png")
++        metadata_path = f"{capture_path}.json"
++        debug_capture_index += 1
++      elif debug_camera_path and not debug_camera_captured and rk.frame >= debug_camera_after_frame:
++        capture_path, metadata_path = debug_camera_path, debug_camera_metadata_path
++        debug_camera_captured = True
++      if capture_path:
++        os.makedirs(os.path.dirname(capture_path), exist_ok=True)
++        Image.fromarray(img).save(capture_path)
++        if metadata_path:
++          os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
++          with open(metadata_path, "w", encoding="utf-8") as handle:
++            json.dump({"simulation_frame": rk.frame, "simulation_time_s": rk.frame / 100,
++                       "camera_fov_deg": camera_fov_deg, "camera_focal_length_px": W / (2.0 * math.tan(math.radians(camera_fov_deg) / 2.0)),
++                       "camera_position_m": list(map(float, camera_position)),
++                       "camera_hpr_deg": list(map(float, camera_hpr)), "camera_gamma": camera_gamma}, handle, sort_keys=True)
+     return img
+ 
+   rk = Ratekeeper(100, None)
+ 
+   steer_ratio = 8
+   vc = [0,0]
++  steer_angle = gas = 0.0
++  latest_road_image = None
++  specialist_last_image = None
+ 
+   while not exit_event.is_set():
++    speed_mps = float(np.linalg.norm(env.vehicle.velocity))
++    acceleration_mps2 = (speed_mps - previous_speed) * 100
++    previous_speed = speed_mps
++    ground_truth = reference_lane_telemetry(env.vehicle, rk.frame, rk.frame / 100, acceleration_mps2)
+     vehicle_state = metadrive_vehicle_state(
+       velocity=vec3(x=float(env.vehicle.velocity[0]), y=float(env.vehicle.velocity[1]), z=0),
+       position=env.vehicle.position,
+       bearing=float(math.degrees(env.vehicle.heading_theta)),
+-      steering_angle=env.vehicle.steering * env.vehicle.MAX_STEERING
++      steering_angle=env.vehicle.steering * env.vehicle.MAX_STEERING,
++      ground_truth=ground_truth,
+     )
+     vehicle_state_send.send(vehicle_state)
+ 
++    should_reset = False
+     if controls_recv.poll(0):
+       while controls_recv.poll(0):
+         steer_angle, gas, should_reset = controls_recv.recv()
+ 
+-      steer_metadrive = steer_angle * 1 / (env.vehicle.MAX_STEERING * steer_ratio)
+-      steer_metadrive = np.clip(steer_metadrive, -1, 1)
+-
+-      vc = [steer_metadrive, gas]
+-
+       if should_reset:
+         lane_idx_prev = reset()
+         start_time = None
+ 
++    if simulator_control is not None:
++      steer_metadrive, gas = simulator_controller(env.vehicle)
++    elif specialist_replay is not None:
++      steer_metadrive, gas = specialist_controller(latest_road_image)
++    else:
++      steer_metadrive = np.clip(steer_angle * 1 / (env.vehicle.MAX_STEERING * steer_ratio), -1, 1)
++    normalized_steer = float(steer_metadrive)
++    vc = [steer_metadrive, gas]
++
+     is_engaged = op_engaged.is_set()
+     if is_engaged and start_time is None:
+       start_time = time.monotonic()
+@@ -148,7 +364,8 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+ 
+       if dual_camera:
+         wide_road_image[...] = get_cam_as_rgb("rgb_wide")
+-      road_image[...] = get_cam_as_rgb("rgb_road")
++      latest_road_image = get_cam_as_rgb("rgb_road")
++      road_image[...] = latest_road_image
+       image_lock.release()
+ 
+     rk.keep_time()
+diff --git a/openpilot/tools/sim/bridge/metadrive/metadrive_world.py b/openpilot/tools/sim/bridge/metadrive/metadrive_world.py
+index 54b461a46..62e4d9d89 100644
+--- a/openpilot/tools/sim/bridge/metadrive/metadrive_world.py
++++ b/openpilot/tools/sim/bridge/metadrive/metadrive_world.py
+@@ -32,6 +32,7 @@ class MetaDriveWorld(World):
+     self.op_engaged = multiprocessing.Event()
+ 
+     self.test_run = test_run
++    self.ready_timeout_s = float(config.get("simlab", {}).get("run", {}).get("wait_ready_timeout_s", 60))
+ 
+     self.first_engage = None
+     self.last_check_timestamp = 0
+@@ -50,6 +51,11 @@ class MetaDriveWorld(World):
+     print("---- Spawning Metadrive world, this might take awhile ----")
+     print("----------------------------------------------------------")
+ 
++    if not self.vehicle_state_recv.poll(self.ready_timeout_s):
++      self.exit_event.set()
++      self.metadrive_process.terminate()
++      self.metadrive_process.join(timeout=10)
++      raise RuntimeError(f"MetaDrive did not emit an initial vehicle state within {self.ready_timeout_s}s")
+     self.vehicle_last_pos = self.vehicle_state_recv.recv().position # wait for a state message to ensure metadrive is launched
+     self.status_q.put(QueueMessage(QueueMessageType.START_STATUS, "started"))
+ 
+@@ -57,6 +63,54 @@ class MetaDriveWorld(World):
+     self.vc = [0.0,0.0]
+     self.reset_time = 0
+     self.should_reset = False
++    self._control_telemetry = {}
++
++  def emit_camera_telemetry(self, payload):
++    self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, payload))
++
++  def emit_run_event(self, state):
++    self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, {"type": "run_state", "state": state, "mono_ns": time.monotonic_ns()}))
++
++  def set_control_telemetry(self, steering_cmd_deg, accel_cmd_mps2, applied_throttle, applied_brake,
++                            model_curvature, planner_curvature, control_curvature, model_path_y_20m,
++                            model_path_heading_20m_rad, model_path_end_x_m, model_path_end_y_m,
++                            model_path_end_heading_rad, model_path_end_speed_mps, model_valid, model_frame_id,
++                            model_frame_age, model_frame_drop_perc, model_execution_time_s, calibration_rpy_rad, calibration_status,
++                            model_device_type, model_camera_sensor, model_camera_width_px, model_camera_height_px, model_camera_focal_length_px,
++                            model_left_lane_prob, model_right_lane_prob, model_left_lane_y0_m, model_right_lane_y0_m):
++    self._control_telemetry = {
++      "op_steering_angle_cmd_deg": steering_cmd_deg,
++      "op_accel_cmd_mps2": accel_cmd_mps2,
++      "applied_throttle": applied_throttle,
++      "applied_brake": applied_brake,
++      "model_target_curvature_1pm": model_curvature,
++      "planner_target_curvature_1pm": planner_curvature,
++      "control_target_curvature_1pm": control_curvature,
++      "model_path_y_20m": model_path_y_20m,
++      "model_path_heading_20m_rad": model_path_heading_20m_rad,
++      "model_path_end_x_m": model_path_end_x_m,
++      "model_path_end_y_m": model_path_end_y_m,
++      "model_path_end_heading_rad": model_path_end_heading_rad,
++      "model_path_end_speed_mps": model_path_end_speed_mps,
++      "model_valid": model_valid,
++      "model_frame_id": model_frame_id,
++      "model_frame_age": model_frame_age,
++      "model_frame_drop_perc": model_frame_drop_perc,
++      "model_execution_time_s": model_execution_time_s,
++      "calibration_roll_rad": calibration_rpy_rad[0],
++      "calibration_pitch_rad": calibration_rpy_rad[1],
++      "calibration_yaw_rad": calibration_rpy_rad[2],
++      "calibration_status": calibration_status,
++      "model_device_type": model_device_type,
++      "model_camera_sensor": model_camera_sensor,
++      "model_camera_width_px": model_camera_width_px,
++      "model_camera_height_px": model_camera_height_px,
++      "model_camera_focal_length_px": model_camera_focal_length_px,
++      "model_left_lane_prob": model_left_lane_prob,
++      "model_right_lane_prob": model_right_lane_prob,
++      "model_left_lane_y0_m": model_left_lane_y0_m,
++      "model_right_lane_y0_m": model_right_lane_y0_m,
++    }
+ 
+   def apply_controls(self, steer_angle, throttle_out, brake_out):
+     if (time.monotonic() - self.reset_time) > 2:
+@@ -92,6 +146,13 @@ class MetaDriveWorld(World):
+       state.valid = True
+ 
+       is_engaged = state.is_engaged
++
++      if md_vehicle.ground_truth is not None:
++        telemetry = dict(md_vehicle.ground_truth)
++        telemetry.update(self._control_telemetry)
++        telemetry["engaged"] = is_engaged
++        self.status_q.put(QueueMessage(QueueMessageType.TELEMETRY, telemetry))
++
+       if is_engaged and self.first_engage is None:
+         self.first_engage = time.monotonic()
+         self.op_engaged.set()
+diff --git a/openpilot/tools/sim/bridge/metadrive/specialist_replay.py b/openpilot/tools/sim/bridge/metadrive/specialist_replay.py
+new file mode 100644
+index 000000000..725d799a2
+--- /dev/null
++++ b/openpilot/tools/sim/bridge/metadrive/specialist_replay.py
+@@ -0,0 +1,47 @@
++from collections import deque
++
++import numpy as np
++
++
++FEATURE_HEIGHT = 24
++FEATURE_WIDTH = 32
++ARTIFACT_VERSION = 1
++TEMPORAL_ARTIFACT_VERSION = 2
++
++
++def image_features(image):
++  if image.ndim != 3 or image.shape[2] != 3:
++    raise ValueError("expected an RGB image")
++  y = np.linspace(0, image.shape[0] - 1, FEATURE_HEIGHT, dtype=np.intp)
++  x = np.linspace(0, image.shape[1] - 1, FEATURE_WIDTH, dtype=np.intp)
++  rgb = image[np.ix_(y, x)].astype(np.float64)
++  return (rgb[..., 0] * 0.299 + rgb[..., 1] * 0.587 + rgb[..., 2] * 0.114).reshape(-1) / 255.0
++
++
++class SpecialistReplay:
++  def __init__(self, artifact_path):
++    with np.load(artifact_path, allow_pickle=False) as artifact:
++      self.version = int(artifact["version"])
++      if self.version not in (ARTIFACT_VERSION, TEMPORAL_ARTIFACT_VERSION):
++        raise ValueError("unsupported specialist replay artifact")
++      self.mean = artifact["mean"]
++      self.scale = artifact["scale"]
++      self.weights = artifact["weights"]
++      self.frame_gap = int(artifact["frame_gap"]) if self.version == TEMPORAL_ARTIFACT_VERSION else 0
++    expected_feature_count = FEATURE_HEIGHT * FEATURE_WIDTH * (2 if self.version == TEMPORAL_ARTIFACT_VERSION else 1)
++    if self.mean.shape != (expected_feature_count,) or self.scale.shape != self.mean.shape or self.weights.shape != (len(self.mean) + 1,):
++      raise ValueError("invalid specialist replay artifact shape")
++    self.history = deque(maxlen=(self.frame_gap // 5) + 1) if self.version == TEMPORAL_ARTIFACT_VERSION else None
++
++  def predict(self, image):
++    current_features = image_features(image)
++    if self.history is not None:
++      self.history.append(current_features)
++      previous_features = self.history[0]
++      current_features = np.concatenate((current_features, current_features - previous_features))
++    features = (current_features - self.mean) / self.scale
++    return float(np.clip(np.append(features, 1.0) @ self.weights, -0.2, 0.2))
++
++  def reset(self):
++    if self.history is not None:
++      self.history.clear()
+diff --git a/openpilot/tools/sim/lib/camera_transport.py b/openpilot/tools/sim/lib/camera_transport.py
+new file mode 100644
+index 000000000..863858ce1
+--- /dev/null
++++ b/openpilot/tools/sim/lib/camera_transport.py
+@@ -0,0 +1,108 @@
++"""Non-blocking camera transport-delay support for simulator experiments.
++
++Frames are copied and converted by the producer before being queued. The
++publisher owns the delay schedule so a fault never stalls camera capture.
++"""
++from __future__ import annotations
++
++from dataclasses import dataclass
++import heapq
++import threading
++import time
++from collections.abc import Callable
++
++
++@dataclass(frozen=True, order=True)
++class QueuedCameraFrame:
++  release_mono_ns: int
++  sequence: int
++  camera: str
++  source_frame_id: int
++  capture_mono_ns: int
++  yuv: bytes
++
++
++class CameraTransportDelay:
++  """Schedules immutable camera frames without blocking the capture thread."""
++
++  def __init__(self, publisher: Callable[[QueuedCameraFrame], None], telemetry: Callable[[dict], None] | None = None,
++               *, target_delay_ms: int = 0, capacity_frames: int = 8,
++               clock: Callable[[], int] = time.monotonic_ns):
++    if target_delay_ms < 0 or capacity_frames < 1:
++      raise ValueError("delay must be non-negative and capacity must be positive")
++    self.publisher = publisher
++    self.telemetry = telemetry or (lambda _: None)
++    self.clock = clock
++    self.capacity_frames = capacity_frames
++    self.target_delay_ns = target_delay_ms * 1_000_000
++    self._queue: list[QueuedCameraFrame] = []
++    self._sequence = 0
++    self._closed = False
++    self._condition = threading.Condition()
++    self._thread = threading.Thread(target=self._run, name="camera-delay-publisher", daemon=True)
++    self._thread.start()
++
++  def set_target_delay_ms(self, delay_ms: int) -> None:
++    if delay_ms < 0:
++      raise ValueError("delay must be non-negative")
++    with self._condition:
++      self.target_delay_ns = delay_ms * 1_000_000
++      self._condition.notify_all()
++
++  def enqueue(self, *, camera: str, source_frame_id: int, capture_mono_ns: int, yuv: bytes) -> bool:
++    """Return false on overflow; the producer never waits for release time."""
++    with self._condition:
++      if self._closed:
++        return False
++      if len(self._queue) >= self.capacity_frames:
++        self.telemetry({
++          "type": "camera_frame", "camera": camera, "source_frame_id": source_frame_id,
++          "capture_mono_ns": capture_mono_ns, "dropped": True, "drop_reason": "queue_overflow",
++          "queue_depth": len(self._queue),
++        })
++        return False
++      frame = QueuedCameraFrame(
++        release_mono_ns=capture_mono_ns + self.target_delay_ns,
++        sequence=self._sequence,
++        camera=camera,
++        source_frame_id=source_frame_id,
++        capture_mono_ns=capture_mono_ns,
++        yuv=yuv,
++      )
++      self._sequence += 1
++      heapq.heappush(self._queue, frame)
++      self._condition.notify_all()
++      return True
++
++  def close(self) -> None:
++    with self._condition:
++      self._closed = True
++      self._queue.clear()
++      self._condition.notify_all()
++    self._thread.join(timeout=2)
++
++  def _run(self) -> None:
++    while True:
++      with self._condition:
++        while not self._closed and not self._queue:
++          self._condition.wait()
++        if self._closed:
++          return
++        frame = self._queue[0]
++        wait_ns = frame.release_mono_ns - self.clock()
++        if wait_ns > 0:
++          self._condition.wait(wait_ns / 1_000_000_000)
++          continue
++        frame = heapq.heappop(self._queue)
++        queue_depth = len(self._queue)
++
++      self.publisher(frame)
++      publish_mono_ns = self.clock()
++      self.telemetry({
++        "type": "camera_frame", "camera": frame.camera, "source_frame_id": frame.source_frame_id,
++        "capture_mono_ns": frame.capture_mono_ns, "scheduled_publish_mono_ns": frame.release_mono_ns,
++        "actual_publish_mono_ns": publish_mono_ns,
++        "target_delay_ms": (frame.release_mono_ns - frame.capture_mono_ns) / 1_000_000,
++        "actual_delay_ms": (publish_mono_ns - frame.capture_mono_ns) / 1_000_000,
++        "queue_depth": queue_depth, "dropped": False,
++      })
+diff --git a/openpilot/tools/sim/lib/camerad.py b/openpilot/tools/sim/lib/camerad.py
+index 206e4fdf9..050aa346a 100644
+--- a/openpilot/tools/sim/lib/camerad.py
++++ b/openpilot/tools/sim/lib/camerad.py
+@@ -1,3 +1,5 @@
++import time
++
+ import numpy as np
+ 
+ from openpilot.cereal.visionipc import VisionStreamType
+@@ -50,13 +52,15 @@ class Camerad:
+ 
+     self.vipc_server.start_listener()
+ 
+-  def cam_send_yuv_road(self, yuv):
+-    self._send_yuv(yuv, self.frame_road_id, 'narrowRoadCameraState', VisionStreamType.VISION_STREAM_NARROW_ROAD)
+-    self.frame_road_id += 1
++  def cam_send_yuv_road(self, yuv, source_frame_id=None, capture_mono_ns=None):
++    frame_id = self.frame_road_id if source_frame_id is None else source_frame_id
++    self._send_yuv(yuv, frame_id, 'narrowRoadCameraState', VisionStreamType.VISION_STREAM_NARROW_ROAD, capture_mono_ns)
++    self.frame_road_id = max(self.frame_road_id, frame_id + 1)
+ 
+-  def cam_send_yuv_wide_road(self, yuv):
+-    self._send_yuv(yuv, self.frame_wide_id, 'wideRoadCameraState', VisionStreamType.VISION_STREAM_WIDE_ROAD)
+-    self.frame_wide_id += 1
++  def cam_send_yuv_wide_road(self, yuv, source_frame_id=None, capture_mono_ns=None):
++    frame_id = self.frame_wide_id if source_frame_id is None else source_frame_id
++    self._send_yuv(yuv, frame_id, 'wideRoadCameraState', VisionStreamType.VISION_STREAM_WIDE_ROAD, capture_mono_ns)
++    self.frame_wide_id = max(self.frame_wide_id, frame_id + 1)
+ 
+   def rgb_to_yuv(self, rgb):
+     """Convert RGB to NV12 YUV format."""
+@@ -64,8 +68,10 @@ class Camerad:
+     assert rgb.dtype == np.uint8
+     return rgb_to_nv12(rgb)
+ 
+-  def _send_yuv(self, yuv, frame_id, pub_type, yuv_type):
+-    eof = int(frame_id * 0.05 * 1e9)
++  def _send_yuv(self, yuv, frame_id, pub_type, yuv_type, capture_mono_ns=None):
++    # locationd compares cameraOdometry.timestampEof against IMU timestamps.
++    # Use the same monotonic clock rather than a frame counter relative to zero.
++    eof = time.monotonic_ns() if capture_mono_ns is None else capture_mono_ns
+     self.vipc_server.send(yuv_type, yuv, frame_id, eof, eof)
+ 
+     dat = messaging.new_message(pub_type, valid=True)
+diff --git a/openpilot/tools/sim/lib/simulated_car.py b/openpilot/tools/sim/lib/simulated_car.py
+index 4e04ecd51..f1350bd26 100644
+--- a/openpilot/tools/sim/lib/simulated_car.py
++++ b/openpilot/tools/sim/lib/simulated_car.py
+@@ -15,7 +15,7 @@ class SimulatedCar:
+ 
+   def __init__(self):
+     self.pm = messaging.PubMaster(['can', 'pandaStates'])
+-    self.sm = messaging.SubMaster(['carControl', 'controlsState', 'carParams', 'selfdriveState'])
++    self.sm = messaging.SubMaster(['carControl', 'controlsState', 'carParams', 'selfdriveState', 'onroadEvents', 'modelV2', 'lateralManeuverPlan', 'extrinsicsCalibration', 'deviceState', 'narrowRoadCameraState'])
+     self.cp = self.get_car_can_parser()
+     self.idx = 0
+     self.params = Params()
+diff --git a/openpilot/tools/sim/lib/simulated_sensors.py b/openpilot/tools/sim/lib/simulated_sensors.py
+index 63935d306..0fca7ee02 100644
+--- a/openpilot/tools/sim/lib/simulated_sensors.py
++++ b/openpilot/tools/sim/lib/simulated_sensors.py
+@@ -5,6 +5,7 @@ import openpilot.cereal.messaging as messaging
+ 
+ from openpilot.common.realtime import DT_DMON
+ from openpilot.tools.sim.lib.camerad import Camerad
++from openpilot.tools.sim.lib.camera_transport import CameraTransportDelay, QueuedCameraFrame
+ 
+ from typing import TYPE_CHECKING
+ if TYPE_CHECKING:
+@@ -14,11 +15,31 @@ if TYPE_CHECKING:
+ class SimulatedSensors:
+   """Simulates the C3 sensors (acc, gyro, gps, peripherals, dm state, cameras) to OpenPilot"""
+ 
+-  def __init__(self, dual_camera=False):
+-    self.pm = messaging.PubMaster(['accelerometer', 'gyroscope', 'gpsLocationExternal', 'driverStateV2', 'driverMonitoringState', 'peripheralState'])
++  def __init__(self, dual_camera=False, camera_transport_config=None, camera_telemetry=None):
++    self.pm = messaging.PubMaster(['accelerometer', 'gyroscope', 'gpsLocationExternal', 'driverStateV2', 'driverMonitoringState', 'peripheralState',
++                                  'deviceMotion'])
+     self.camerad = Camerad(dual_camera=dual_camera)
+     self.last_perp_update = 0
+     self.last_dmon_update = 0
++    config = camera_transport_config or {}
++    self._fault_delay_ms = int(config.get("target_delay_ms", 0))
++    self._camera_frame_ids = {"road": 0, "wide": 0}
++    self.camera_transport = CameraTransportDelay(
++      self._publish_camera_frame, camera_telemetry,
++      target_delay_ms=0, capacity_frames=int(config.get("queue_capacity_frames", 8)),
++    )
++
++  def enable_camera_transport_fault(self, enabled: bool):
++    self.camera_transport.set_target_delay_ms(self._fault_delay_ms if enabled else 0)
++
++  def close(self):
++    self.camera_transport.close()
++
++  def _publish_camera_frame(self, frame: QueuedCameraFrame):
++    if frame.camera == "road":
++      self.camerad.cam_send_yuv_road(frame.yuv, frame.source_frame_id, frame.capture_mono_ns)
++    else:
++      self.camerad.cam_send_yuv_wide_road(frame.yuv, frame.source_frame_id, frame.capture_mono_ns)
+ 
+   def send_imu_message(self, simulator_state: 'SimulatorState'):
+     for _ in range(5):
+@@ -54,6 +75,10 @@ class SimulatedSensors:
+         "verticalAccuracy": 1.0,
+         "speedAccuracy": 0.1,
+         "bearingAccuracyDeg": 0.1,
++        # locationd uses this explicit field; flags alone are not interpreted
++        # by the Python bridge like they are by the ublox decoder.
++        "hasFix": True,
++        "satelliteCount": 12,
+         "vNED": velNED,
+         "bearingDeg": simulator_state.imu.bearing,
+         "latitude": simulator_state.gps.latitude,
+@@ -65,6 +90,20 @@ class SimulatedSensors:
+ 
+       self.pm.send('gpsLocationExternal', dat)
+ 
++  def send_device_motion(self, simulator_state: 'SimulatorState'):
++    dat = messaging.new_message('deviceMotion', valid=True)
++    motion = dat.deviceMotion
++    motion.orientationNED = {'x': 0.0, 'y': 0.0, 'z': 0.0, 'valid': True}
++    motion.velocityDevice = {'x': simulator_state.velocity.x, 'y': simulator_state.velocity.y,
++                             'z': simulator_state.velocity.z, 'valid': True}
++    motion.angularVelocityDevice = {'x': simulator_state.imu.gyroscope.x, 'y': simulator_state.imu.gyroscope.y,
++                                    'z': simulator_state.imu.gyroscope.z, 'valid': True}
++    motion.accelerationDevice = {'x': simulator_state.imu.accelerometer.x, 'y': simulator_state.imu.accelerometer.y,
++                                 'z': simulator_state.imu.accelerometer.z, 'valid': True}
++    motion.inputsOK = motion.sensorsOK = motion.posenetOK = True
++    motion.timestamp = dat.logMonoTime
++    self.pm.send('deviceMotion', dat)
++
+   def send_peripheral_state(self):
+     dat = messaging.new_message('peripheralState')
+     dat.valid = True
+@@ -97,17 +136,27 @@ class SimulatedSensors:
+ 
+   def send_camera_images(self, world: 'World'):
+     world.image_lock.acquire()
+-    yuv = self.camerad.rgb_to_yuv(world.road_image)
+-    self.camerad.cam_send_yuv_road(yuv)
+-
+-    if world.dual_camera:
+-      yuv = self.camerad.rgb_to_yuv(world.wide_road_image)
+-      self.camerad.cam_send_yuv_wide_road(yuv)
++    # Copy immediately after the producer signal. Conversion and delay scheduling
++    # happen after the copy so a transport fault cannot hold simulator memory.
++    road_rgb = world.road_image.copy()
++    wide_rgb = world.wide_road_image.copy() if world.dual_camera else None
++    capture_mono_ns = time.monotonic_ns()
++
++    road_id = self._camera_frame_ids["road"]
++    self._camera_frame_ids["road"] += 1
++    self.camera_transport.enqueue(camera="road", source_frame_id=road_id, capture_mono_ns=capture_mono_ns,
++                                  yuv=self.camerad.rgb_to_yuv(road_rgb))
++    if wide_rgb is not None:
++      wide_id = self._camera_frame_ids["wide"]
++      self._camera_frame_ids["wide"] += 1
++      self.camera_transport.enqueue(camera="wide", source_frame_id=wide_id, capture_mono_ns=capture_mono_ns,
++                                    yuv=self.camerad.rgb_to_yuv(wide_rgb))
+ 
+   def update(self, simulator_state: 'SimulatorState', world: 'World'):
+     now = time.monotonic()
+     self.send_imu_message(simulator_state)
+     self.send_gps_message(simulator_state)
++    self.send_device_motion(simulator_state)
+ 
+     if (now - self.last_dmon_update) > DT_DMON/2:
+       self.send_fake_driver_monitoring()
+diff --git a/openpilot/tools/sim/run_bridge.py b/openpilot/tools/sim/run_bridge.py
+index b4da703da..c0cb665cd 100755
+--- a/openpilot/tools/sim/run_bridge.py
++++ b/openpilot/tools/sim/run_bridge.py
+@@ -1,15 +1,17 @@
+ #!/usr/bin/env python3
+ import argparse
++import math
++from pathlib import Path
+ 
+ from typing import Any
+ from multiprocessing import Queue
+ 
+ from openpilot.tools.sim.bridge.metadrive.metadrive_bridge import MetaDriveBridge
+ 
+-def create_bridge(dual_camera, high_quality):
++def create_bridge(dual_camera, high_quality, test_duration=math.inf, test_run=False, simlab_config=None):
+   queue: Any = Queue()
+ 
+-  simulator_bridge = MetaDriveBridge(dual_camera, high_quality)
++  simulator_bridge = MetaDriveBridge(dual_camera, high_quality, test_duration, test_run, simlab_config)
+   simulator_process = simulator_bridge.run(queue)
+ 
+   return queue, simulator_process, simulator_bridge
+@@ -23,13 +25,22 @@ def parse_args(add_args=None):
+   parser.add_argument('--joystick', action='store_true')
+   parser.add_argument('--high_quality', action='store_true')
+   parser.add_argument('--dual_camera', action='store_true')
++  parser.add_argument('--test-run', action='store_true')
++  parser.add_argument('--test-duration', type=float, default=math.inf)
++  parser.add_argument('--simlab-config', type=Path, help='YAML scenario generated by openpilot-sim-lab')
+ 
+   return parser.parse_args(add_args)
+ 
+ if __name__ == "__main__":
+   args = parse_args()
+ 
+-  queue, simulator_process, simulator_bridge = create_bridge(args.dual_camera, args.high_quality)
++  simlab_config = None
++  if args.simlab_config:
++    import yaml
++    with args.simlab_config.open() as f:
++      simlab_config = yaml.safe_load(f) or {}
++  queue, simulator_process, simulator_bridge = create_bridge(args.dual_camera, args.high_quality,
++                                                              args.test_duration, args.test_run, simlab_config)
+ 
+   if args.joystick:
+     # start input poll for joystick
+diff --git a/openpilot/tools/sim/tests/test_camerad.py b/openpilot/tools/sim/tests/test_camerad.py
+new file mode 100644
+index 000000000..59f85c1aa
+--- /dev/null
++++ b/openpilot/tools/sim/tests/test_camerad.py
+@@ -0,0 +1,29 @@
++import unittest
++
++import numpy as np
++
++from openpilot.tools.sim.lib.camerad import rgb_to_nv12
++
++
++class TestCamerad(unittest.TestCase):
++  def test_rgb_to_nv12_black_frame_has_limited_range_black_and_neutral_chroma(self):
++    nv12 = np.frombuffer(rgb_to_nv12(np.zeros((4, 4, 3), dtype=np.uint8)), dtype=np.uint8)
++
++    self.assertEqual(nv12.size, 4 * 4 * 3 // 2)
++    self.assertTrue(np.all(nv12[:16] == 16))
++    self.assertTrue(np.all(nv12[16:] == 128))
++
++  def test_rgb_to_nv12_preserves_bt601_rgb_channel_order(self):
++    expected = {
++      "white": ((255, 255, 255), 237, (128, 128)),
++      "red": ((255, 0, 0), 82, (109, 184)),
++      "green": ((0, 255, 0), 145, (91, 81)),
++      "blue": ((0, 0, 255), 42, (184, 119)),
++    }
++    for color, (rgb, y, uv) in expected.items():
++      with self.subTest(color=color):
++        frame = np.full((4, 4, 3), rgb, dtype=np.uint8)
++        nv12 = np.frombuffer(rgb_to_nv12(frame), dtype=np.uint8)
++        self.assertTrue(np.all(nv12[:16] == y))
++        self.assertTrue(np.all(nv12[16::2] == uv[0]))
++        self.assertTrue(np.all(nv12[17::2] == uv[1]))
+diff --git a/openpilot/tools/sim/tests/test_metadrive_geometry.py b/openpilot/tools/sim/tests/test_metadrive_geometry.py
+new file mode 100644
+index 000000000..d43939646
+--- /dev/null
++++ b/openpilot/tools/sim/tests/test_metadrive_geometry.py
+@@ -0,0 +1,15 @@
++import math
++import numpy as np
++import unittest
++
++from openpilot.tools.sim.bridge.metadrive.metadrive_process import world_signed_angle
++
++
++class TestMetaDriveGeometry(unittest.TestCase):
++  def test_world_signed_angle_uses_cross_product_sign(self):
++    forward = np.array([1.0, 0.0])
++    self.assertTrue(math.isclose(world_signed_angle(forward, np.array([1.0, 1.0])), math.pi / 4))
++    self.assertTrue(math.isclose(world_signed_angle(forward, np.array([1.0, -1.0])), -math.pi / 4))
++
++  def test_world_signed_angle_is_zero_for_aligned_vectors(self):
++    self.assertTrue(math.isclose(world_signed_angle(np.array([0.0, 1.0]), np.array([0.0, 12.0])), 0.0))
+diff --git a/openpilot/tools/sim/tests/test_specialist_replay.py b/openpilot/tools/sim/tests/test_specialist_replay.py
+new file mode 100644
+index 000000000..2dda8f24a
+--- /dev/null
++++ b/openpilot/tools/sim/tests/test_specialist_replay.py
+@@ -0,0 +1,26 @@
++import tempfile
++import unittest
++
++import numpy as np
++
++from openpilot.tools.sim.bridge.metadrive.specialist_replay import FEATURE_HEIGHT, FEATURE_WIDTH, SpecialistReplay
++
++
++class TestSpecialistReplay(unittest.TestCase):
++  def test_replay_uses_rgb_image_and_clips_output(self):
++    with tempfile.NamedTemporaryFile(suffix=".npz") as artifact:
++      np.savez(artifact.name, version=np.array(1), mean=np.zeros(FEATURE_HEIGHT * FEATURE_WIDTH),
++               scale=np.ones(FEATURE_HEIGHT * FEATURE_WIDTH), weights=np.r_[np.zeros(FEATURE_HEIGHT * FEATURE_WIDTH), 1.0])
++      replay = SpecialistReplay(artifact.name)
++      self.assertEqual(replay.predict(np.zeros((4, 4, 3), dtype=np.uint8)), 0.2)
++
++  def test_temporal_replay_uses_delayed_rgb_difference(self):
++    count = FEATURE_HEIGHT * FEATURE_WIDTH * 2
++    with tempfile.NamedTemporaryFile(suffix=".npz") as artifact:
++      weights = np.zeros(count + 1); weights[FEATURE_HEIGHT * FEATURE_WIDTH] = 1.0
++      np.savez(artifact.name, version=np.array(2), frame_gap=np.array(20), mean=np.zeros(count), scale=np.ones(count), weights=weights)
++      replay = SpecialistReplay(artifact.name)
++      replay.predict(np.zeros((4, 4, 3), dtype=np.uint8))
++      replay.predict(np.zeros((4, 4, 3), dtype=np.uint8))
++      replay.predict(np.zeros((4, 4, 3), dtype=np.uint8))
++      self.assertGreater(replay.predict(np.full((4, 4, 3), 255, dtype=np.uint8)), 0.2 - 1e-9)
