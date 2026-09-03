@@ -79,6 +79,14 @@ def test_host_stack_supports_structured_success_evidence():
   assert "HOST_STACK_OUTPUT=outputs/host-stack/host-stack.json" in host_stability
 
 
+def test_host_probe_preserves_pre_manifest_host_context():
+  script = (ROOT / "scripts/run_host_stability_probe.sh").read_text(encoding="utf-8")
+
+  assert '"schema_version": 2' in script
+  assert '"host_start": {"wsl_kernel": kernel, "uptime_s": float(uptime), "gpu": gpu or None}' in script
+  assert '"host_end": {"wsl_kernel": kernel, "uptime_s": float(uptime), "gpu": gpu or None}' in script
+
+
 def test_host_stack_artifact_verifier_rejects_inconsistent_pass(tmp_path):
   artifact = {
     "schema_version": 3, "status": "pass", "exit_code": 0, "failed_stage": None,

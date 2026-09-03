@@ -77,7 +77,7 @@ Compare two valid artifacts descriptively—without producing a host-stability o
 uv run python scripts/compare_host_stack_artifacts.py baseline/host-stack.json candidate/host-stack.json
 ```
 
-For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It copies the resolved scenario, records absolute source/snapshot paths and a hash in `attempt.json` before launching the runner, so recovery remains independent of its later working directory. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
+For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stability_probe.sh <scenario> <output-root>`. It copies the resolved scenario, records absolute source/snapshot paths and a hash in `attempt.json` before launching the runner, and preserves pre-launch WSL kernel, uptime, and raw GPU-state snapshot. On normal return it records matching post-run values. Thus a restart before a runner manifest can still be investigated from the durable attempt record. This wrapper is diagnostic-only and runs exactly one scenario; do not substitute it for the formal batch command.
 
 `scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It verifies the attempt's recorded scenario hash against the frozen snapshot, and skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
 
