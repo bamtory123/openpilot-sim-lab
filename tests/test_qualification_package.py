@@ -46,11 +46,16 @@ def test_portfolio_readiness_check_keeps_public_boundaries():
 
 def test_windows_collector_covers_wsl_vmswitch_operational_log():
   collector = (ROOT / "scripts/collect_windows_wsl_events.ps1").read_text(encoding="utf-8")
+  wrapper = (ROOT / "scripts/run_host_probe_with_events.ps1").read_text(encoding="utf-8")
   host_stability = (ROOT / "docs/host-stability.md").read_text(encoding="utf-8")
 
   assert "Microsoft-Windows-Hyper-V-VmSwitch-Operational" in collector
   assert "OID_GEN_STATISTICS" in collector
   assert "Windows `System` and Hyper-V `VmSwitch Operational`" in host_stability
+  assert "collect_windows_wsl_events.ps1" in wrapper
+  assert "finally" in wrapper
+  assert "bounded_host_probe_windows_event_correlation_only" in wrapper
+  assert "UTF8Encoding($false)" in wrapper
 
 
 def test_progress_does_not_claim_the_retained_carla_matrix_is_missing():

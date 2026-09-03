@@ -81,6 +81,12 @@ For one deliberately bounded end-to-end bridge probe, use `scripts/run_host_stab
 
 `scripts/recover_interrupted_runs.sh <output-root>` recovers both manifest-backed incomplete runs and pre-manifest probe attempts. It verifies the attempt's recorded scenario hash against the frozen snapshot, and skips an attempt whenever a nested runner `summary.json` already exists, so a completed probe is never reclassified as an interruption.
 
+From Windows, `run_host_probe_with_events.ps1` couples one bounded WSL host probe with Windows System/VmSwitch collection in `finally`. It writes both a wrapper result and the selected event JSON below the same WSL output root, including when the probe returns a nonzero exit. The output is temporal-correlation evidence only; it does not establish that a collected event caused a WSL interruption.
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File '\\wsl.localhost\Ubuntu-24.04\home\hyunsung\src\openpilot-sim-lab\scripts\run_host_probe_with_events.ps1'
+```
+
 `simlab.runner report --outputs <output-root>` recursively finds run summaries below a host-probe output root, so the same report includes successful probe results and any recovered nested run artifact. The outer `attempt.json` is infrastructure provenance, not a driving result, and is not counted as a run.
 
 If an `attempt.json` has neither its own recovered summary nor a nested runner summary, the report lists it under **Incomplete host probe attempts**. This is an evidence-gap warning, not a driving verdict; recover it before using the result root.
