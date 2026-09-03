@@ -25,3 +25,10 @@ The v0.1 bundle contains dormant experimental interfaces accumulated in the
 instrumented checkout. The formal v0.1 scenario never enables specialist or
 CARLA control; only the configuration and evidence boundaries in this
 repository define a formal result.
+
+To repeat the clean-base application check without changing the supplied
+checkout, run:
+
+```bash
+scripts/verify_openpilot_patch_bundles.sh --openpilot-root /path/to/openpilot
+```

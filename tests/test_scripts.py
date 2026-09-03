@@ -21,6 +21,13 @@ def test_shell_scripts_are_executable():
     assert path.stat().st_mode & stat.S_IXUSR, path
 
 
+def test_openpilot_patch_verifier_checks_both_bundle_hashes():
+  script = (ROOT / "scripts/verify_openpilot_patch_bundles.sh").read_text(encoding="utf-8")
+  assert "worktree add --detach" in script and "worktree remove --force" in script
+  assert "openpilot-v01-sim-instrumentation.patch" in script
+  assert "openpilot-v02-carla-adapter.patch" in script
+
+
 def test_python_scripts_compile_without_runtime_dependencies():
   for path in sorted((ROOT / "scripts").glob("*.py")):
     py_compile.compile(str(path), doraise=True)
