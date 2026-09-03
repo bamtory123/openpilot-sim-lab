@@ -32,6 +32,7 @@ def test_portfolio_snapshot_verifier_is_public_checkout_only():
   script = (ROOT / "scripts/verify_portfolio_snapshot.sh").read_text(encoding="utf-8")
   assert "verify_portfolio_readiness.py" in script
   assert "--verify-local-v01" not in script
+  assert '"$python_runner" -m pytest -q' in script
 
 
 def test_python_scripts_compile_without_runtime_dependencies():
