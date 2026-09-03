@@ -38,5 +38,6 @@ uv run python scripts/verify_portfolio_readiness.py \
   --verify-local-v01 \
   --repro-root outputs/reproducibility-package-20260903-portfolio \
   --host-stack outputs/host-stack-20260903-portfolio/host-stack.json \
-  --carla-result outputs/carla-smoke/20260902T103857Z/result.json
+  --carla-result outputs/carla-smoke/20260902T103857Z/result.json \
+  --carla-adapter-summary outputs/carla-adapter-pilot/formal-20260902T185916Z-summary.json
 ```

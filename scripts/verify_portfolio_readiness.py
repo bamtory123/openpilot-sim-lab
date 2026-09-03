@@ -22,6 +22,7 @@ def main() -> None:
   parser.add_argument("--repro-root", type=Path)
   parser.add_argument("--host-stack", type=Path)
   parser.add_argument("--carla-result", type=Path)
+  parser.add_argument("--carla-adapter-summary", type=Path)
   parser.add_argument("--verify-local-v01", action="store_true")
   args = parser.parse_args()
 
@@ -58,6 +59,11 @@ def main() -> None:
     run("verify_carla_smoke_public_evidence.py", str(args.carla_result), "--output-dir",
         str(ROOT / "examples/v0.2-carla-client-smoke"))
     checks["carla_retained_source"] = "pass"
+  if args.carla_adapter_summary is not None:
+    run("verify_carla_adapter_public_evidence.py", str(args.carla_adapter_summary), "--output-dir",
+        str(ROOT / "examples/v0.2-carla-adapter-pilot"), "--departure-contract",
+        "historical_lane_sensor_event_pre_route_ground_truth_threshold")
+    checks["carla_adapter_retained_source"] = "pass"
   print(json.dumps({"schema_version": 1, "scope": "portfolio_readiness_only", "status": "pass", "checks": checks},
                    sort_keys=True))
 
