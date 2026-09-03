@@ -170,6 +170,19 @@ def test_carla_pilot_verifier_requires_analysis_only_capture_contract(tmp_path):
   assert json.loads(result.stdout)["dataset"] == {"valid": True, "joined_samples": 1, "dropped_frames": 0}
 
 
+def test_carla_pilot_summary_tracks_dataset_and_after_filter(tmp_path):
+  for timestamp, joined in (("20260903T010000Z", 2), ("20260903T020000Z", 3)):
+    run = tmp_path / f"carla-city-mixed-pilot-{timestamp}-abc"; run.mkdir()
+    (run / "summary.json").write_text(json.dumps({"schema_version": 1, "pilot_status": "integrated-but-not-stable",
+      "reasons": ["lane_departure"], "dataset_summary": {"valid": True, "joined_samples": joined}}))
+
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/summarize_carla_adapter_pilot.py"), str(tmp_path),
+                           "--after", "20260903T010000Z"], check=True, capture_output=True, text=True)
+
+  summary = json.loads(result.stdout)
+  assert summary["run_count"] == 1 and summary["dataset_valid_count"] == 1 and summary["dataset_joined_samples"] == 3
+
+
 def test_carla_smoke_artifact_verifier_rejects_missing_log(tmp_path):
   result = {
     "schema_version": 1, "scope": "carla_client_or_connectivity_smoke_only", "status": "pass",
