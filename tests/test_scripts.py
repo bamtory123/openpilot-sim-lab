@@ -212,9 +212,11 @@ def test_carla_adapter_public_evidence_is_aggregate_and_source_bound(tmp_path):
   output = tmp_path / "public"
 
   subprocess.run([sys.executable, str(ROOT / "scripts/build_carla_adapter_public_evidence.py"), str(source),
-                  "--output-dir", str(output)], check=True)
+                  "--output-dir", str(output), "--departure-contract",
+                  "historical_lane_sensor_event_pre_route_ground_truth_threshold"], check=True)
   subprocess.run([sys.executable, str(ROOT / "scripts/verify_carla_adapter_public_evidence.py"), str(source),
-                  "--output-dir", str(output)], check=True)
+                  "--output-dir", str(output), "--departure-contract",
+                  "historical_lane_sensor_event_pre_route_ground_truth_threshold"], check=True)
 
   serialized = (output / "evidence.json").read_text(encoding="utf-8")
   assert "private" not in serialized and '"run_count": 2' in serialized
@@ -341,6 +343,7 @@ def test_committed_carla_adapter_public_sample_is_sanitized_and_scoped():
   readme = (sample_dir / "README.md").read_text(encoding="utf-8")
 
   assert evidence["scope"] == "carla_adapter_pilot_public_summary_only"
+  assert evidence["departure_contract"] == "historical_lane_sensor_event_pre_route_ground_truth_threshold"
   assert evidence["formal"] == {"run_count": 10, "status_counts": {"integrated-but-not-stable": 10},
                                  "reason_counts": {"lane_departure": 10}}
   assert all(token not in json.dumps(evidence) for token in ("172.28.", "C:\\", "run_id", "telemetry"))

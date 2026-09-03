@@ -9,7 +9,7 @@ from pathlib import Path
 SCOPE = "carla_adapter_pilot_public_summary_only"
 
 
-def build_evidence(summary_path: Path) -> dict:
+def build_evidence(summary_path: Path, departure_contract: str) -> dict:
   source = summary_path.read_bytes()
   summary = json.loads(source)
   if summary.get("schema_version") != 1 or summary.get("scope") != "carla_v02_adapter_pilot_not_road_qualification":
@@ -17,6 +17,7 @@ def build_evidence(summary_path: Path) -> dict:
   if not isinstance(summary.get("run_count"), int) or not isinstance(summary.get("status_counts"), dict):
     raise ValueError("source summary is incomplete")
   return {"schema_version": 1, "scope": SCOPE, "source_sha256": hashlib.sha256(source).hexdigest(),
+          "departure_contract": departure_contract,
           "formal": {"run_count": summary["run_count"], "status_counts": summary["status_counts"],
                      "reason_counts": summary.get("reason_counts", {})}}
 
@@ -36,8 +37,11 @@ This is a public-safe aggregate from a retained bounded CARLA v0.2 adapter-pilot
 | Retained pilot runs | {formal["run_count"]} |
 | Pilot status counts | {statuses} |
 | Termination reason counts | {reasons} |
+| Departure classification contract | {evidence["departure_contract"]} |
 
 All retained matrix runs were preserved as `integrated-but-not-stable: lane_departure`, rather than discarded as infrastructure failures or relabeled as a driving pass. The source SHA-256 is `{evidence["source_sha256"]}`. This public sample excludes local paths, host/IP data, raw RGB, telemetry, logs, route transforms, and individual run IDs.
+
+`historical_lane_sensor_event_pre_route_ground_truth_threshold` means this aggregate predates the adapter's later route-lateral-error departure threshold. It is retained lifecycle/failure evidence, not a route-geometric KPI comparison.
 """
 
 
@@ -45,8 +49,11 @@ def main() -> None:
   parser = argparse.ArgumentParser(description="Build a public-safe CARLA adapter-pilot aggregate")
   parser.add_argument("summary", type=Path)
   parser.add_argument("--output-dir", type=Path, required=True)
+  parser.add_argument("--departure-contract", required=True,
+                      choices=("historical_lane_sensor_event_pre_route_ground_truth_threshold",
+                               "route_lateral_error_threshold"))
   args = parser.parse_args()
-  evidence = build_evidence(args.summary)
+  evidence = build_evidence(args.summary, args.departure_contract)
   args.output_dir.mkdir(parents=True, exist_ok=True)
   (args.output_dir / "evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
   (args.output_dir / "README.md").write_text(render_summary(evidence), encoding="utf-8")
