@@ -50,7 +50,9 @@ def main() -> None:
   if performance_summary != render_performance_summary(performance) or any(token in json.dumps(performance) for token in PERFORMANCE_FORBIDDEN):
     raise SystemExit("public performance case-study evidence is missing, stale, or exposes a local detail")
 
-  checks = {"public_v01": "pass", "public_carla": "pass", "public_improvement_case_study": "pass"}
+  run("verify_real_camera_replay_evidence.py", str(ROOT / "examples/v0.2-real-camera-model-replay"))
+  checks = {"public_v01": "pass", "public_carla": "pass", "public_improvement_case_study": "pass",
+            "public_real_camera_replay": "pass"}
   if args.verify_local_v01:
     run("verify_v01_public_evidence.py")
     checks["v01_retained_source"] = "pass"

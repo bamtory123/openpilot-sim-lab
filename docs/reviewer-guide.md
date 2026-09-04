@@ -13,7 +13,7 @@ OpenPilot is the **System Under Test (SUT)**; MetaDrive is the **SIL simulator**
 | 1 min | This page and the [portfolio summary](portfolio-summary.md) | Scope, contribution, and non-claims |
 | 2 min | [Public v0.1 evidence summary](../examples/v0.1-portfolio-evidence/SUMMARY.md) | Formal matrix, baseline audit, candidate hard gate, host confirmation |
 | 1 min | [v0.2 improvement case study](performance-improvement-case-study.md) | Separate negative pretrained-calibration evidence from simulator-specialist positive controls |
-| 1 min | [Real-camera replay reference](real-camera-model-replay.md) | Why pretrained perception and MetaDrive closed loop are evaluated on separate evidence paths |
+| 1 min | [Real-camera replay reference](../examples/v0.2-real-camera-model-replay/README.md) | Why pretrained perception and MetaDrive closed loop are evaluated on separate evidence paths |
 | 1 min | [Architecture](architecture.md) and [OpenPilot patch boundary](openpilot-patch.md) | What was integrated and what was minimally instrumented |
 | 1 min | [Qualification report](qualification-report.md) and [limitations](limitations.md) | Why the result is `not_qualified_yet`, without hiding failure evidence |
 

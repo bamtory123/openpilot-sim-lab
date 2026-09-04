@@ -131,7 +131,7 @@ The pinned pretrained model now has a separate 60-frame control using OpenPilot'
 
 These are different scenes, so their ratio is not an accuracy metric and cannot identify one causal pixel feature. The result does establish a strong control: the pinned model/runtime is capable of producing confident, long-horizon output on the upstream real-camera route, while the MetaDrive transport is fresh but produces low-confidence, short-horizon output. The leading explanation is therefore the simulator input domain rather than queue staleness, first-order intrinsics, or a missing model process.
 
-The replay's host timing is intentionally separate. It is functionally complete but does not meet upstream device-oriented execution limits on this WSL host. See [real-camera model replay](real-camera-model-replay.md).
+The replay's host timing is intentionally separate. It is functionally complete but does not meet upstream device-oriented execution limits on this WSL host. See [real-camera model replay](real-camera-model-replay.md) and its [public-safe comparison](../examples/v0.2-real-camera-model-replay/README.md).
 
 ## Reference-bound color-match diagnostic
 

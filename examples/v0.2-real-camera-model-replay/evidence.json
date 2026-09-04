@@ -1,0 +1,135 @@
+{
+  "interpretation": "consistent_with_simulator_input_domain_mismatch_requires_matched_scene_for_causal_attribution",
+  "metadrive_closed_loop": {
+    "all": {
+      "left_lane_probability_mean": 0.011837711719997254,
+      "path_horizon_m_mean": 4.72592803119367,
+      "right_lane_probability_mean": 0.024083013888059075,
+      "samples": 2870
+    },
+    "curve": {
+      "left_lane_probability_mean": 0.013658473803478432,
+      "path_horizon_m_mean": 4.4122811846845735,
+      "right_lane_probability_mean": 0.027252504858738324,
+      "samples": 635
+    },
+    "outcome": "fail",
+    "scenario_id": "md_default_loop_lane0_frame_alignment_diagnostic_v1",
+    "straight": {
+      "left_lane_probability_mean": 0.011320403477039514,
+      "path_horizon_m_mean": 4.815040222483726,
+      "right_lane_probability_mean": 0.023182509742027162,
+      "samples": 2235
+    },
+    "summary_sha256": "ff424e6446227bd5e3998e45e850685d997a2ae6b7d4c1a11581c95d900ed047",
+    "telemetry_sha256": "ea68b313662a7bfade645b5a39eee6ba2558f057677892230dd406bab0077878",
+    "validity": "valid"
+  },
+  "real_camera_reference": {
+    "classification": "functional_pass_timing_not_qualified",
+    "driver_state_v2_count": 60,
+    "expected_frames": 60,
+    "functional_status": "pass",
+    "limitations": [
+      "prerecorded_frames_do_not_respond_to_model_or_control_output",
+      "functional_replay_does_not_measure_closed_loop_driving",
+      "lane_probability_is_model_output_not_ground_truth_accuracy",
+      "host_timing_is_not_device_timing"
+    ],
+    "model": {
+      "absolute_desired_curvature_1pm": {
+        "max": 0.0008723956416361034,
+        "mean": 0.00031066111420538316,
+        "p95": 0.0007505693036364389
+      },
+      "execution_time_s": {
+        "max": 0.28344476222991943,
+        "mean": 0.27482510572772917,
+        "p95": 0.2752000272274017
+      },
+      "frame_age": {
+        "max": 0.0,
+        "mean": 0.0,
+        "p95": 0.0
+      },
+      "frame_drop_pct": {
+        "max": 0.0,
+        "mean": 0.0,
+        "p95": 0.0
+      },
+      "left_lane_probability": {
+        "max": 0.9920312166213989,
+        "mean": 0.9231322210282087,
+        "p95": 0.9891960114240647
+      },
+      "path_horizon_m": {
+        "max": 258.88189697265625,
+        "mean": 244.4471466064453,
+        "p95": 256.12757263183596
+      },
+      "right_lane_probability": {
+        "max": 0.9882221817970276,
+        "mean": 0.909681047561268,
+        "p95": 0.9861242085695267
+      }
+    },
+    "model_frame_coverage": 1.0,
+    "model_v2_count": 60,
+    "route": {
+      "end_frame_exclusive": 60,
+      "remote_inputs": [
+        {
+          "content_length": 74996682,
+          "content_md5": "SJYh8G676mPRMvAGroI+hg==",
+          "etag": "0x8DD5B81F1EF0AAB",
+          "last_modified": "Wed, 05 Mar 2025 01:06:22 GMT"
+        },
+        {
+          "content_length": 74989556,
+          "content_md5": "YZzx2sBNkkwRHx5tpLg32Q==",
+          "etag": "0x8DD5B81F1E4DD08",
+          "last_modified": "Wed, 05 Mar 2025 01:06:22 GMT"
+        },
+        {
+          "content_length": 74915131,
+          "content_md5": "KffLTB73N2MsoJfFvLTAYg==",
+          "etag": "0x8DD5B81F1A1B718",
+          "last_modified": "Wed, 05 Mar 2025 01:06:21 GMT"
+        },
+        {
+          "content_length": 8273909,
+          "content_md5": "ohl7djQlTcTcSTFpD+QENg==",
+          "etag": "0x8DD5B81F1BE1FD0",
+          "last_modified": "Wed, 05 Mar 2025 01:06:22 GMT"
+        }
+      ],
+      "route_id": "8494c69d3c710e81|000001d4--2648a9a404",
+      "segment": 4,
+      "start_frame": 0
+    },
+    "source": {
+      "openpilot": {
+        "commit": "60f1c92a41a9b9713eb2dbee9838e0eb7dc1654d",
+        "dirty": false
+      },
+      "sim_lab": {
+        "commit": "64c3fb828204d510a7cfd3c6b70f08ade8ff2cdf",
+        "dirty": false
+      }
+    },
+    "summary_sha256": "21ac670cc092199b9b5be825d2e553fea8795bc7122e788e85f6b280f456386b",
+    "timing_contract_s": {
+      "driver_state_v2": {
+        "max": 0.05,
+        "mean": 0.018
+      },
+      "model_v2": {
+        "max": 0.05,
+        "mean": 0.028
+      }
+    },
+    "timing_status": "not_qualified"
+  },
+  "schema_version": 1,
+  "scope": "real_camera_replay_vs_metadrive_model_output_contrast_not_accuracy_or_road_performance"
+}
