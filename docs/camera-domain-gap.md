@@ -125,7 +125,13 @@ Disabling the MetaDrive navigation mark makes no material difference, and wideni
 
 The RGB-to-NV12 transport is additionally guarded by deterministic unit fixtures for black, white, red, green, and blue frames. They fix the BT.601 limited-range luma and interleaved U/V output, so an RGB/BGR channel swap or limited-range conversion regression is not an open explanation for these results.
 
-## Conclusion and boundary
+## Official real-camera replay control
+
+The pinned pretrained model now has a separate 60-frame control using OpenPilot's own `model_replay.py` route. It completed 60/60 `modelV2` and 60/60 `driverStateV2` outputs with zero reported model frame age/drop. Mean left/right lane probabilities were about `0.923/0.910`, and mean path horizon was about `244.45 m`. The retained MetaDrive lane-semantic run reported about `0.012/0.024` and `4.73 m` over its measurement samples.
+
+These are different scenes, so their ratio is not an accuracy metric and cannot identify one causal pixel feature. The result does establish a strong control: the pinned model/runtime is capable of producing confident, long-horizon output on the upstream real-camera route, while the MetaDrive transport is fresh but produces low-confidence, short-horizon output. The leading explanation is therefore the simulator input domain rather than queue staleness, first-order intrinsics, or a missing model process.
+
+The replay's host timing is intentionally separate. It is functionally complete but does not meet upstream device-oriented execution limits on this WSL host. See [real-camera model replay](real-camera-model-replay.md).
 
 ## Reference-bound color-match diagnostic
 
@@ -137,4 +143,6 @@ No suitable real-road reference frame is retained in this workspace. Consequentl
 
 `scripts/run_pretrained_camera_color_evaluation.py` enforces that comparison. It source-hashes the audit, refuses an identity proposal as `retain_no_change_audit`, and otherwise runs identity baseline plus the derived affine candidate three times each on the fixed default loop and held-out serpentine contract. All six candidate runs must be `valid/pass`; only then is a delay matrix eligible. This does not alter the frozen v0.1 result.
 
-The evidence is sufficient to classify the present baseline as a **pretrained-model versus MetaDrive image-domain mismatch**, not an OpenPilot control-gain or transport-delay defect. The exact visual features responsible cannot be inferred from simulator-only data, and no camera pose, gamma, FOV, or overlay setting tested here yields an acceptable model path or closed-loop result. The appropriate next development path is a separately labeled simulator-specialist perception/replay experiment, evaluated with this fixed harness; it must not be represented as a real-road openpilot improvement.
+## Conclusion and boundary
+
+The evidence is sufficient to classify the present baseline as a **pretrained-model versus MetaDrive input-domain mismatch**, not an OpenPilot control-gain or transport-delay defect. The exact visual features responsible cannot be inferred without matched-scene data, and no camera pose, gamma, FOV, or overlay setting tested here yields an acceptable model path or closed-loop result. MetaDrive should remain the integration/fault/actuator environment; pretrained perception changes should use real-camera replay and a later permission-cleared matched-scene protocol. Simulator-specialist experiments remain a separate positive-control track and must not be represented as real-road OpenPilot improvement.

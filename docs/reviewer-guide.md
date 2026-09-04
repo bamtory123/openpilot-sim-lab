@@ -13,6 +13,7 @@ OpenPilot is the **System Under Test (SUT)**; MetaDrive is the **SIL simulator**
 | 1 min | This page and the [portfolio summary](portfolio-summary.md) | Scope, contribution, and non-claims |
 | 2 min | [Public v0.1 evidence summary](../examples/v0.1-portfolio-evidence/SUMMARY.md) | Formal matrix, baseline audit, candidate hard gate, host confirmation |
 | 1 min | [v0.2 improvement case study](performance-improvement-case-study.md) | Separate negative pretrained-calibration evidence from simulator-specialist positive controls |
+| 1 min | [Real-camera replay reference](real-camera-model-replay.md) | Why pretrained perception and MetaDrive closed loop are evaluated on separate evidence paths |
 | 1 min | [Architecture](architecture.md) and [OpenPilot patch boundary](openpilot-patch.md) | What was integrated and what was minimally instrumented |
 | 1 min | [Qualification report](qualification-report.md) and [limitations](limitations.md) | Why the result is `not_qualified_yet`, without hiding failure evidence |
 
@@ -32,6 +33,7 @@ OpenPilot (SUT) ← delayed camera / simulated sensors → MetaDrive
 | Verdicts | Data/infrastructure validity separated from SUT functional outcome; interruption recovery retained | [release process](release-process.md), [host stability](host-stability.md) |
 | Regression evidence | Frozen baseline audit, phased hard/provenance gates, public-safe evidence and CI snapshot verification | [traceability](traceability.md), [portfolio snapshot](portfolio-snapshot.md) |
 | Improvement loop | Bounded actuator-interface candidate gate plus source-bound specialist case studies | [v0.2 case study](performance-improvement-case-study.md) |
+| Input-domain isolation | Official 60-frame OpenPilot road-camera replay; functional and host-timing verdicts separated | [real-camera replay](real-camera-model-replay.md) |
 
 ## Result scorecard
 
@@ -40,6 +42,7 @@ OpenPilot (SUT) ← delayed camera / simulated sensors → MetaDrive
 | Did the validation framework collect and classify the formal delay study? | Yes | The retained 12-run v0.1 matrix has complete timing/data evidence and repeatable `valid/fail: lane_departure` results. |
 | Does the current host support the bounded integration path? | Yes, bounded | Two retained 200-frame probes passed their engagement/transport/artifact contract. This is not long-run clearance. |
 | Did pretrained OpenPilot pass this MetaDrive driving contract? | No | The independent candidate set hit a Phase 1 coverage hard gate after known early departure. v0.1 remains `not_qualified_yet`. |
+| Does the same pretrained model produce healthy outputs on a fixed real-camera replay? | Functionally yes | 60/60 model outputs, zero reported frame age/drop, high lane confidence, and long path horizon; this is offline input evidence, not a driving pass. |
 | Is this real-road, HIL, CAN-actuation, or CARLA closed-loop validation? | No | Those are explicitly outside the v0.1 claim boundary. |
 
 The negative SUT result is deliberate portfolio evidence: the framework preserves it as a valid functional failure or invalid coverage result instead of converting it into a passing claim.

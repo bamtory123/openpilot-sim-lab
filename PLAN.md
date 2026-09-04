@@ -50,6 +50,10 @@ v0.1 pretrained qualification is frozen. The new actuator-calibration track chan
 
 The simulator-specialist track remains a separately source-hash-bound positive control. Neither track changes v0.1 evidence, pretrained model weights/planner, CAN/Panda, or any real-road claim. See [the case study](docs/performance-improvement-case-study.md).
 
+## v0.2 pretrained perception reference
+
+MetaDrive remains the closed-loop integration, timing/fault, and actuator-regression environment. Pretrained perception health is now isolated with OpenPilot's fixed official real-camera process replay: 60 frames, full model-output coverage, route/input provenance, lane/path/curvature aggregates, and separate functional/timing verdicts. This is an offline replay—not closed loop, matched-scene accuracy, or road validation. The public contrast is used to stop speculative MetaDrive photometric tuning and to keep simulator-specialist learning results in their existing separate track. See [real-camera model replay](docs/real-camera-model-replay.md).
+
 ## 한계
 
 모든 threshold는 자동차/OEM 기준이 아닌 `project_defined` 기준이어야 하며 baseline 측정 전 performance threshold를 확정하지 않는다. 상세 한계는 [limitations](docs/limitations.md)를 따른다.

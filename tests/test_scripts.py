@@ -40,6 +40,17 @@ def test_python_scripts_compile_without_runtime_dependencies():
     py_compile.compile(str(path), doraise=True)
 
 
+def test_real_camera_replay_setup_pins_compatible_ffmpeg():
+  setup = (ROOT / "scripts/setup_real_camera_replay.sh").read_text(encoding="utf-8")
+  runner = (ROOT / "scripts/run_real_camera_model_replay.py").read_text(encoding="utf-8")
+
+  assert "ffmpeg-n7.1.5-12-g1fdbca85aa-linux64-gpl-7.1.tar.xz" in setup
+  assert "c1e6caf48923dd8e6bc5e54d51ba70c321175b8162ae9c414c392990e72f0e79" in setup
+  assert "sha256sum -c" in setup
+  assert 'ffmpeg["major"] > 7' in runner
+  assert "functional_status" in runner and "timing_status" in runner
+
+
 def test_local_documentation_links_exist():
   documents = sorted([ROOT / "README.md", *ROOT.glob("docs/**/*.md"), *ROOT.glob("examples/**/*.md")])
   for document in documents:

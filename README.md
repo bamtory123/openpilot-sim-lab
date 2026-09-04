@@ -8,12 +8,15 @@ Start with the [reviewer guide](docs/reviewer-guide.md). It separates this proje
 
 The [v0.2 SIL improvement loop](docs/performance-improvement-case-study.md) keeps pretrained actuator calibration separate from simulator-specialist positive controls; neither is a real-road performance claim.
 
+The [real-camera model replay reference](docs/real-camera-model-replay.md) now checks pretrained perception on OpenPilot's own fixed road-camera route. It is deliberately separate from MetaDrive closed loop and exposes functional replay versus host timing as two verdicts.
+
 ## What this repository adds
 
 - deterministic scenario validation and environment manifests
 - MetaDrive ground-truth telemetry against a fixed reference lane
 - non-blocking 0/50/100/150 ms camera transport-delay experiments
 - valid/pass/fail separation, KPI calculation, batch orchestration, and Markdown/SVG reporting
+- bounded official real-camera model replay for input-domain isolation
 
 The environment uses openpilot's existing synthetic Honda Civic CAN/Panda emulation. It does **not** implement SocketCAN, reverse engineer a vehicle CAN bus, validate real EPS/actuator dynamics, train an AI model, perform HIL, or prove real-road performance. Its opt-in low-density traffic probe records actor presence only; it is not an obstacle-avoidance evaluation.
 

@@ -11,6 +11,16 @@ The bridge receives camera frames through the non-blocking delay queue. MetaDriv
 
 The manifest records actual source/runtime state. Before each run, `configs/compatibility.yaml` is enforced: the configured OpenPilot base and instrumentation commits must be ancestors of the checkout, and the Python major version must match.
 
+Pretrained perception diagnosis uses a separate observation path:
+
+```text
+OpenPilot CI road-camera route → upstream model/process replay → lane/path/timing aggregate
+MetaDrive RGB                 → closed-loop bridge          → ground truth/control/fault verdict
+simulator-specialist RGB      → separate local model        → simulator-only positive control
+```
+
+Only the second path is MetaDrive closed loop. The first proves that the pinned pretrained model can produce complete outputs on a fixed real-camera input and separates that functional result from host timing. The third never changes or qualifies pretrained OpenPilot. Keeping the three paths separate prevents a synthetic-rendering domain gap from being misdiagnosed as an actuator or transport failure.
+
 The v0.2 actuator-calibration path is intentionally narrower than a controller replacement:
 
 ```text
