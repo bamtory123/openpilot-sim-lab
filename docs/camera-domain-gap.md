@@ -127,4 +127,12 @@ The RGB-to-NV12 transport is additionally guarded by deterministic unit fixtures
 
 ## Conclusion and boundary
 
+## Reference-bound color-match diagnostic
+
+The harness now has a bounded `camera_color_affine` input contract for a new diagnostic only. It applies a per-channel RGB gain and bias after the existing optional gamma transform, before NV12 conversion. Values are explicit and bounded (`gain_rgb` 0.5–2.0; `bias_rgb` −64–64); the default identity `[1, 1, 1]` / `[0, 0, 0]` leaves every established v0.1 and v0.2 scenario unchanged.
+
+`scripts/audit_camera_domain.py` accepts matched simulator and road-camera reference frames, hashes every input, computes lower-half RGB/luma/saturation/edge statistics, and produces a moment-matching affine proposal. This proposal is not a lane-semantic metric, a perception calibration, or a driving candidate. It may be copied into the separate `md_default_loop_lane0_color_match_diagnostic_v2` scenario only after the reference frames' camera geometry and provenance are documented.
+
+No suitable real-road reference frame is retained in this workspace. Consequently the first tool smoke uses an identical MetaDrive frame as both inputs and returns exactly the identity transform. The next legitimate experiment requires a versioned, permission-cleared road-camera reference set; it must compare the identity and derived-affine conditions with the fixed frame-alignment fixture before any closed-loop candidate claim.
+
 The evidence is sufficient to classify the present baseline as a **pretrained-model versus MetaDrive image-domain mismatch**, not an OpenPilot control-gain or transport-delay defect. The exact visual features responsible cannot be inferred from simulator-only data, and no camera pose, gamma, FOV, or overlay setting tested here yields an acceptable model path or closed-loop result. The appropriate next development path is a separately labeled simulator-specialist perception/replay experiment, evaluated with this fixed harness; it must not be represented as a real-road openpilot improvement.

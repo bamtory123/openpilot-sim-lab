@@ -52,6 +52,14 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   if "camera_gamma" in env and (not isinstance(env["camera_gamma"], (int, float)) or not 0.8 <= float(env["camera_gamma"]) <= 1.2):
     raise ScenarioError("camera_gamma must be between 0.8 and 1.2")
+  camera_affine = env.get("camera_color_affine")
+  if camera_affine is not None:
+    if not isinstance(camera_affine, dict) or set(camera_affine) != {"gain_rgb", "bias_rgb"}:
+      raise ScenarioError("camera_color_affine must contain gain_rgb and bias_rgb only")
+    for key, lower, upper in (("gain_rgb", 0.5, 2.0), ("bias_rgb", -64.0, 64.0)):
+      values = camera_affine.get(key)
+      if not isinstance(values, list) or len(values) != 3 or not all(isinstance(value, (int, float)) and lower <= float(value) <= upper for value in values):
+        raise ScenarioError(f"camera_color_affine.{key} must contain three values in [{lower}, {upper}]")
   if "traffic_density" in env and (not isinstance(env["traffic_density"], (int, float)) or not 0.0 <= float(env["traffic_density"]) <= 0.05):
     raise ScenarioError("traffic_density must be between 0.0 and 0.05")
   if "traffic_mode" in env and env["traffic_mode"] not in ("trigger", "respawn"):

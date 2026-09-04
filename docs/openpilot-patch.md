@@ -19,6 +19,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Actuation calibration | scenario `actuation.steer_ratio` (default 8.0) applied only to OpenPilot `steeringAngleDeg` | records configured ratio and command-to-response data without changing model, planner, CAN/Panda, or ground-truth control |
 | Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
+| Camera-domain color match | bounded scenario RGB gain/bias after optional gamma and before NV12 conversion | permits a reference-hash-bound image diagnostic without changing model, planner, or control authority |
 | MetaDrive map profile | opt-in `openpilot_serpentine_v1` left/right alternating route | provides a versioned v0.2 held-out topology without changing `openpilot_default_loop_v1` |
 | MetaDrive traffic probe | scenario `traffic_density` plus per-frame traffic-actor count | enables fixed-seed, low-density synthetic-traffic instrumentation; it does not add an avoidance planner |
 | Calibration telemetry | modeld calibration RPY and status | exposes the image warp state before any calibration experiment |

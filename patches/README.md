@@ -21,7 +21,7 @@ git -C "$openpilot" apply "$simlab/patches/openpilot-v02-carla-adapter.patch"
 | Bundle | SHA-256 | Scope |
 |---|---|---|
 | `openpilot-v01-sim-instrumentation.patch` | `959e1846cd9b1a0111de346befcf749218f70ad74e06af574f284d687e6661c4` | MetaDrive instrumentation, non-blocking transport, telemetry, diagnostics |
-| `openpilot-v02-carla-adapter.patch` | `5f6d2a64e89a53f71834f51fb89b43b6a6aaa4c63a620aa194c5fe0a6c10efee` | Optional CARLA adapter/capture and MetaDrive actuator-ratio interface only |
+| `openpilot-v02-carla-adapter.patch` | `9f1a70e7ff5aee6c08f5a131b27695606577b28cca02985ec7ec89d85a088df4` | Optional CARLA adapter/capture, actuator-ratio, and camera-domain diagnostics only |
 
 The v0.1 bundle contains dormant experimental interfaces accumulated in the
 instrumented checkout. The formal v0.1 scenario never enables specialist or

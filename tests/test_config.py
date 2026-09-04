@@ -25,6 +25,15 @@ def test_actuation_ratio_is_bounded_and_excluded_from_non_openpilot_controls(tmp
   assert load_scenario(path).data["actuation"]["steer_ratio"] == 4
   path.write_text(base + "\nactuation:\n  steer_ratio: 3\n")
   with pytest.raises(ScenarioError): load_scenario(path)
+
+
+def test_camera_color_affine_is_bounded_and_explicit(tmp_path):
+  path = tmp_path / "camera-affine.yaml"
+  base = (ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text()
+  path.write_text(base + "\nenvironment:\n  map_id: openpilot_default_loop_v1\n  seed: 20260827\n  reference_lane_index: 0\n  camera_color_affine:\n    gain_rgb: [1.1, 1.0, 0.9]\n    bias_rgb: [5, 0, -5]\n")
+  assert load_scenario(path).data["environment"]["camera_color_affine"]["gain_rgb"] == [1.1, 1.0, 0.9]
+  path.write_text(path.read_text().replace("gain_rgb: [1.1, 1.0, 0.9]", "gain_rgb: [2.1, 1.0, 0.9]"))
+  with pytest.raises(ScenarioError): load_scenario(path)
   path.write_text(base + "\nsimulator_control:\n  mode: pure_pursuit\n  target_speed_mps: 3\n  lookahead_m: 12\n  curvature_to_steer_gain: 1\nactuation:\n  steer_ratio: 4\n")
   with pytest.raises(ScenarioError): load_scenario(path)
 
