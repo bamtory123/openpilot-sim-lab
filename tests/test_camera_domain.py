@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 
 from simlab.camera_domain import aggregate_statistics, color_affine, image_statistics
+from simlab.config import load_scenario, scenario_with_camera_color_affine
 
 
 def _image(path: Path, values: tuple[int, int, int]) -> Path:
@@ -27,3 +28,12 @@ def test_camera_domain_color_affine_is_bounded_moment_match(tmp_path):
 
   assert affine["gain_rgb"] == [0.5, 0.5, 0.5]
   assert affine["bias_rgb"] == [60.0, 64.0, 64.0]
+
+
+def test_camera_color_affine_scenario_remains_openpilot_only():
+  root = Path(__file__).resolve().parents[1]
+  scenario = load_scenario(root / "configs/scenarios/md_default_loop_lane0_color_match_diagnostic_v2.yaml")
+  candidate = scenario_with_camera_color_affine(scenario, {"gain_rgb": [1.1, 1.0, 0.9], "bias_rgb": [5.0, 0.0, -5.0]})
+
+  assert candidate.data.get("simulator_control") is None and candidate.data.get("specialist_replay") is None
+  assert candidate.data["environment"]["camera_color_affine"]["bias_rgb"] == [5.0, 0.0, -5.0]

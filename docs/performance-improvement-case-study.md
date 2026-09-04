@@ -40,6 +40,10 @@ OPENPILOT_ROOT=/home/hyunsung/src/openpilot \
 
 If `evaluation.json` has `candidate_success: true`, run `scripts/run_pretrained_actuation_delay_matrix.py` with the same selection scenarios and an empty output root. All long attempts must retain their attempt/manifest, WSL boot ID, GPU before/after snapshot, and Windows System/VmSwitch event correlation. An interruption is `invalid/not_evaluated`, not a functional failure.
 
+## Pretrained camera-domain candidate protocol
+
+The separate color-match diagnostic requires permission-cleared road-camera reference frames. It hashes inputs and produces only a bounded RGB affine proposal; it does not use route/lane ground truth at runtime. An identity proposal is retained as no change. A non-identity proposal follows the same fixed/held-out three-run candidate gate as actuator calibration, then may enter a delay matrix only after all six candidate runs pass. See [camera-domain gap](camera-domain-gap.md) for the command boundary and limitations.
+
 ## Simulator-specialist positive controls
 
 The public-safe [aggregate bundle](../examples/v0.2-performance-improvement-case-study/SUMMARY.md) is source-hash bound to retained local summaries and contains no raw frame, telemetry, local path, process log, or model artifact.

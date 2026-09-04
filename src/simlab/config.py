@@ -191,3 +191,10 @@ def scenario_with_actuation_ratio(scenario: Scenario, steer_ratio: float) -> Sce
   data["actuation"] = {"steer_ratio": steer_ratio}
   validate_scenario(data)
   return Scenario(data=data, source=scenario.source)
+
+
+def scenario_with_camera_color_affine(scenario: Scenario, affine: dict[str, list[float]]) -> Scenario:
+  data = json.loads(json.dumps(scenario.data))
+  data["environment"]["camera_color_affine"] = affine
+  validate_scenario(data)
+  return Scenario(data=data, source=scenario.source)

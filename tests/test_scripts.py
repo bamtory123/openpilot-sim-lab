@@ -279,6 +279,18 @@ def test_performance_case_study_is_source_bound_and_public_safe(tmp_path):
   assert str(tmp_path) not in evidence and "telemetry.csv" not in evidence
 
 
+def test_camera_color_evaluation_retains_identity_audit_without_launching_runs(tmp_path):
+  audit = tmp_path / "audit.json"
+  audit.write_text(json.dumps({"scope": "camera_domain_moment_match_diagnostic_not_perception_or_road_performance",
+                                "recommended_environment_overlay": {"camera_color_affine": {
+                                  "gain_rgb": [1.0, 1.0, 1.0], "bias_rgb": [0.0, 0.0, 0.0]}}}), encoding="utf-8")
+  output = tmp_path / "evaluation"
+  subprocess.run([sys.executable, str(ROOT / "scripts/run_pretrained_camera_color_evaluation.py"), "--audit", str(audit),
+                  "--fixed-scenario", "unused.yaml", "--heldout-scenario", "unused.yaml", "--output-root", str(output)], check=True)
+  result = json.loads((output / "evaluation.json").read_text(encoding="utf-8"))
+  assert result["candidate_success"] is False and result["reason"] == "identity_color_affine"
+
+
 def test_portfolio_readiness_exposes_optional_carla_adapter_source_check():
   script = (ROOT / "scripts/verify_portfolio_readiness.py").read_text(encoding="utf-8")
   assert 'parser.add_argument("--carla-adapter-summary", type=Path)' in script
