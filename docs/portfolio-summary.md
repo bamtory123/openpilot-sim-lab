@@ -10,6 +10,7 @@ This project treats OpenPilot as a System Under Test and MetaDrive as a determin
 - frozen baseline audit with complete-file SHA-256 evidence
 - phased regression review: data/new-event hard gates, provenance compatibility, and KPI delta review
 - bounded and full-run WSL/GPU host-stability evidence with boot-ID and Windows-event correlation
+- an upstream real-camera model replay control that separates pretrained input health from MetaDrive closed-loop behavior
 
 ## Evidence retained
 
@@ -19,6 +20,6 @@ The frozen v0.1 historical delay matrix records 0/50/100/150 ms conditions with 
 
 The pretrained OpenPilot model-driven candidate set cannot satisfy the current 55-second/1,200-frame formal coverage contract because its known lane departure occurs earlier. The resulting candidate comparison is a Phase 1 hard-gate failure. Therefore v0.1 is closed as `not_qualified_yet` for pretrained-driving qualification.
 
-This project does not claim successful OpenPilot driving, real-road validation, HIL, vehicle-CAN actuation validation, CARLA closed-loop qualification, obstacle avoidance, or statistical/general driving generalization. Simulator-specialist experiments are separately scoped and never replace the pretrained OpenPilot baseline.
+This project does not claim successful OpenPilot driving, real-road validation, HIL, vehicle-CAN actuation validation, CARLA closed-loop qualification, obstacle avoidance, or statistical/general driving generalization. Simulator-specialist experiments are separately scoped and never replace the pretrained OpenPilot baseline. The 60-frame real-camera replay is a functional model-input reference, not closed-loop or road-performance evidence.
 
-Start with the [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md): it is the small, public-safe entry point and preserves the distinction between the formal lane-departure failure and host compatibility probes. The retained local artifacts and final disposition are documented in the [qualification report](qualification-report.md), [decision log](decisions.md), and [limitations](limitations.md).
+Start with the [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md): it is the small, public-safe entry point and preserves the distinction between the formal lane-departure failure and host compatibility probes. The separate [real-camera replay contrast](../examples/v0.2-real-camera-model-replay/README.md) explains why pretrained perception and MetaDrive integration use different evidence paths. The retained local artifacts and final disposition are documented in the [qualification report](qualification-report.md), [decision log](decisions.md), and [limitations](limitations.md).

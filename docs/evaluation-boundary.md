@@ -7,6 +7,7 @@ This page is the decision record for what the repository's results do and do not
 | Path | Input used for actuation | Result boundary |
 |---|---|---|
 | Pretrained openpilot baseline | Normal openpilot model/planner/control path | Reproducible MetaDrive `valid/fail` lane departure. Camera/transport diagnostics point to a rendering-domain mismatch, not a proven controller defect. |
+| Pretrained real-camera replay | Upstream prerecorded road-camera route; no simulator actuation | 60-frame functional model-input reference only. It cannot measure closed-loop control, matched-scene accuracy, or road performance. |
 | Simulator-specialist replay | Local RGB temporal ridge artifact, road camera only | Opt-in MetaDrive experiment. It does not modify the pretrained model, openpilot control gains, CAN, or Panda behavior. |
 | Ground-truth teacher | Reference-lane geometry | Dataset-label and instrumentation validation only; never used by specialist replay at runtime. |
 
@@ -66,6 +67,7 @@ These are valid measurements, not invalid infrastructure runs. Their failure is 
 
 - Deterministic MetaDrive orchestration, provenance, telemetry, actual-delay measurement, and valid/pass/fail classification work as documented.
 - The model-driven baseline has a repeatable simulator camera-domain failure under the fixed scenario.
+- The pinned model produces complete, fresh outputs on the fixed upstream real-camera replay; this isolates input-domain health but does not qualify driving.
 - The local specialist artifact meets the KPI only under its explicitly documented fixed 2.0 m/s simulator contract.
 
 ## Claims excluded
