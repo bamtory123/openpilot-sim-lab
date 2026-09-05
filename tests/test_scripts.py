@@ -323,6 +323,40 @@ def test_camera_structure_audit_is_hash_bound_and_non_semantic(tmp_path):
                                   "ratios_identify_domain_shift_but_not_model_causality"]
 
 
+def test_fixed_repeat_gate_requires_three_complete_host_stable_passes(tmp_path):
+  summaries, attempts = [], []
+  for index in range(3):
+    summary = tmp_path / f"summary-{index}.json"
+    attempt = tmp_path / f"attempt-{index}.json"
+    summary.write_text(json.dumps({
+      "run_id": f"run-{index}", "target_delay_ms": 0, "validity": "valid", "outcome": "pass",
+      "metrics": {"lateral_rmse_m": 0.4 + index / 100, "heading_rmse_rad": 0.02,
+                  "camera_frames_published": 1200, "camera_frames_dropped": 0,
+                  "lane_departure_occurred": False, "collision_occurred": False},
+    }), encoding="utf-8")
+    attempt.write_text(json.dumps({"scenario_hash": "a" * 64, "runner_exit_code": 0, "wsl_boot_changed": False}),
+                       encoding="utf-8")
+    summaries.append(summary)
+    attempts.append(attempt)
+  output = tmp_path / "gate.json"
+
+  subprocess.run([sys.executable, str(ROOT / "scripts/summarize_fixed_repeat_gate.py"),
+                  "--summary", *(str(path) for path in summaries), "--attempt", *(str(path) for path in attempts),
+                  "--output", str(output)], check=True)
+  result = json.loads(output.read_text(encoding="utf-8"))
+
+  assert result["status"] == "pass" and result["aggregate"]["run_count"] == 3
+  assert len(result["runs"][0]["summary_sha256"]) == 64
+
+  failed = json.loads(summaries[2].read_text(encoding="utf-8"))
+  failed["outcome"] = "fail"
+  summaries[2].write_text(json.dumps(failed), encoding="utf-8")
+  subprocess.run([sys.executable, str(ROOT / "scripts/summarize_fixed_repeat_gate.py"),
+                  "--summary", *(str(path) for path in summaries), "--attempt", *(str(path) for path in attempts),
+                  "--output", str(output)], check=True)
+  assert json.loads(output.read_text(encoding="utf-8"))["status"] == "fail"
+
+
 def test_portfolio_readiness_exposes_optional_carla_adapter_source_check():
   script = (ROOT / "scripts/verify_portfolio_readiness.py").read_text(encoding="utf-8")
   assert 'parser.add_argument("--carla-adapter-summary", type=Path)' in script

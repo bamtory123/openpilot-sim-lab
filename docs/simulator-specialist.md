@@ -88,6 +88,8 @@ The speed scenarios change only the simulator-specialist target speed; the map, 
 | 3.0 m/s | 3 | 3 × `valid/fail` | 0.48694–0.49146 m | 882–883 | Fixed-condition failure baseline. |
 | 4.0 m/s | 1 | `valid/fail` | 0.49527 m | 653 | Higher-speed sensitivity evidence; a single run. |
 
+A later v0.6 artifact-specific interpolation probe fixed the default loop, gamma 0.8, seed, direction, camera, and 0 ms transport contract while changing only target speed from the established 3.0 m/s scenario to 2.5 m/s. Three independent durable attempts completed as `valid/pass`, each with 1,200 camera frames and no lane departure, collision, or drop. Lateral RMSE was `0.47016`, `0.48233`, and `0.47016 m` (mean `0.47422 m`, population standard deviation `0.00574 m`); all attempts retained the same WSL boot ID and NVIDIA driver 616.56. This adds one fixed interpolation point only. It does not establish continuous speed robustness or change the older artifact comparison in the table above.
+
 The 2.0 m/s repeats have a lateral-RMSE sample standard deviation of 0.000095 m, no lane departures, collisions, or camera drops, and valid timestamps. This does not modify openpilot or establish a usable road controller: it is a camera-only simulator artifact satisfying this particular 60 m loop, 2.0 m/s, 0 ms condition. The 4.0 m/s failure and existing appearance/geometry failures show that the artifact is still speed/dynamics- and domain-sensitive; it is not promoted beyond the documented contract.
 
 ## v0.6 targeted data expansion
