@@ -27,6 +27,7 @@ The delay matrix proves that the non-blocking delay injector delivered its confi
 | 2.5 m/s | v0.6 gamma-0.8, fixed 0 ms contract | 3 × `valid/pass`; mean 0.47422 m lateral RMSE | One measured interpolation point; not continuous speed robustness. |
 | 3.0 m/s | v0.6 gamma-0.8, fixed contract | 0/50/100/150 ms matrix: 3 × `valid/pass` per delay | A second fixed speed contract; not interpolation or general speed robustness. |
 | 3.5 m/s | v0.6 gamma-0.8, fixed 0 ms contract | 3 × `invalid/not_evaluated`; 1,141–1,152 frames, 0.9508–0.9600 coverage, lane departure observed | Repeatable incomplete upper boundary; no performance verdict or delay matrix. |
+| 3.5 m/s anchored targeted candidate | Fresh-seed, fixed 0 ms contract | 2 × `valid/pass`, 1 × `valid/fail`; 0.49987/0.53219/0.70821 m RMSE | Fails the 3/3 repeatability gate; candidate unadopted and no downstream matrix. |
 | 4.0 m/s | v0.6 gamma-0.8, single diagnostic | `invalid/not_evaluated` after 50.44 s; lane departure observed | Coverage was 0.841, so no 4.0 m/s driving verdict is permitted. |
 
 The 2.0 and 3.0 m/s matrices are separate experiments, and 2.5/3.5 m/s are three-repeat 0 ms probes rather than additional matrices. Do not combine them into a continuous speed-robustness claim or infer behavior above or below the measured points.

@@ -104,18 +104,25 @@ def test_speed_boundary_case_is_source_bound_and_public_safe(tmp_path):
   candidate_analysis = write("candidate-analysis.json", {"runs": [{"first_lane_departure": {
     "simulation_frame": 4500, "route_progress_m": 49.5}}]})
   attempt = write("attempt.json", {"wsl_boot_changed": False})
+  anchored_selection = write("anchored-selection.json", {"selected": {"alpha": 0.5,
+    "original_relative_change": 0.01, "targeted_relative_improvement": 0.4}})
+  anchored_gate = write("anchored-gate.json", {"status": "fail", "aggregate": {"performance_eligible": False},
+    "runs": [{"validity": "valid", "outcome": outcome, "lateral_rmse_m": rmse}
+             for outcome, rmse in (("pass", 0.5), ("pass", 0.53), ("fail", 0.7))]})
   output = tmp_path / "public"
   subprocess.run([sys.executable, str(ROOT / "scripts/build_speed_boundary_case.py"),
     "--baseline-gate", str(gate), "--departure-analysis", str(localization),
     "--targeted-manifest", *(str(path) for path in manifests), "--training-metrics", str(training),
     "--artifact", str(artifact), "--candidate-summary", str(summary),
     "--candidate-analysis", str(candidate_analysis), "--candidate-attempt", str(attempt),
+    "--anchored-selection", str(anchored_selection), "--anchored-gate", str(anchored_gate),
     "--output-dir", str(output)], check=True)
   subprocess.run([sys.executable, str(ROOT / "scripts/verify_speed_boundary_case.py"), str(output)], check=True)
 
   evidence = json.loads((output / "evidence.json").read_text(encoding="utf-8"))
   assert evidence["decision"] == "reject_candidate_stop_before_repeat_and_delay_matrix"
   assert evidence["training"]["train_samples"] == 2
+  assert evidence["anchored_followup"]["pass_count"] == 2
   assert len(evidence["training"]["artifact_sha256"]) == 64
   assert str(tmp_path) not in json.dumps(evidence)
 

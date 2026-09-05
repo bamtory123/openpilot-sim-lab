@@ -27,10 +27,15 @@ def main() -> int:
     raise SystemExit("candidate verdict drifted")
   if evidence["candidate"]["observed_lateral_rmse_m"] <= evidence["baseline"]["observed_mean_lateral_rmse_m"]:
     raise SystemExit("retained rejection no longer shows the documented RMSE regression")
+  anchored = evidence.get("anchored_followup", {})
+  if (anchored.get("gate_status"), anchored.get("performance_eligible"), anchored.get("pass_count"),
+      anchored.get("fail_count")) != ("fail", False, 2, 1):
+    raise SystemExit("anchored repeatability gate drifted")
   hashes = [evidence["baseline"]["gate_sha256"], evidence["localization"]["analysis_sha256"],
             evidence["training"]["metrics_sha256"], evidence["training"]["artifact_sha256"],
             *evidence["training"]["manifest_sha256"], evidence["candidate"]["summary_sha256"],
             evidence["candidate"]["analysis_sha256"], evidence["candidate"]["attempt_sha256"]]
+  hashes.extend((anchored["selection_sha256"], anchored["gate_sha256"]))
   if any(re.fullmatch(r"[0-9a-f]{64}", value) is None for value in hashes):
     raise SystemExit("invalid source hash")
   if any(token in evidence_text for token in FORBIDDEN):

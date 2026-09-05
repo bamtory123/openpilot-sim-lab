@@ -16,6 +16,7 @@ def digest(path: Path) -> str:
 
 def render_summary(evidence: dict) -> str:
   baseline, candidate = evidence["baseline"], evidence["candidate"]
+  anchored = evidence["anchored_followup"]
   return f"""# 3.5 m/s targeted-DAgger boundary case
 
 ## Decision
@@ -31,6 +32,10 @@ The targeted candidate was rejected after one held-out diagnostic. It departed a
 | Gate action | `{evidence['decision']}` |
 
 Both RMSE values are incomplete-run diagnostics and are performance-ineligible. No repeated candidate evaluation or delay matrix was run. This simulator-only negative case demonstrates rejection by the SIL improvement gate; it is not road-performance evidence.
+
+## Anchored follow-up
+
+An offline trust-region gate selected the minimum blend alpha `{anchored['selected_alpha']}` that improved targeted validation by {anchored['targeted_relative_improvement']:.2%} while limiting original-validation RMSE increase to {anchored['original_relative_change']:.2%}. Three fresh-seed closed-loop repeats produced `{anchored['pass_count']} pass / {anchored['fail_count']} fail`; lateral RMSE was {', '.join(f'{value:.5f}' for value in anchored['lateral_rmse_m'])} m. The failed repeat departed at 49.85 m despite unchanged source and host contracts. The candidate is therefore rejected for insufficient repeatability margin, and no regression or delay matrix follows.
 """
 
 
@@ -61,6 +66,8 @@ def build(args: argparse.Namespace) -> dict:
   candidate_analysis = json.loads(args.candidate_analysis.read_text(encoding="utf-8"))
   attempt = json.loads(args.candidate_attempt.read_text(encoding="utf-8"))
   training = json.loads(args.training_metrics.read_text(encoding="utf-8"))
+  anchored_selection = json.loads(args.anchored_selection.read_text(encoding="utf-8"))
+  anchored_gate = json.loads(args.anchored_gate.read_text(encoding="utf-8"))
   manifests = [path.read_text(encoding="utf-8").splitlines() for path in args.targeted_manifest]
   candidate_departure = candidate_analysis["runs"][0]["first_lane_departure"]
   metrics = candidate_summary["metrics"]
@@ -98,6 +105,18 @@ def build(args: argparse.Namespace) -> dict:
       "camera_frames_dropped": metrics["camera_frames_dropped"],
       "wsl_boot_changed": attempt["wsl_boot_changed"],
     },
+    "anchored_followup": {
+      "selection_sha256": digest(args.anchored_selection), "gate_sha256": digest(args.anchored_gate),
+      "selected_alpha": anchored_selection["selected"]["alpha"],
+      "original_relative_change": anchored_selection["selected"]["original_relative_change"],
+      "targeted_relative_improvement": anchored_selection["selected"]["targeted_relative_improvement"],
+      "gate_status": anchored_gate["status"],
+      "performance_eligible": anchored_gate["aggregate"]["performance_eligible"],
+      "pass_count": sum(run["validity"] == "valid" and run["outcome"] == "pass" for run in anchored_gate["runs"]),
+      "fail_count": sum(run["validity"] == "valid" and run["outcome"] == "fail" for run in anchored_gate["runs"]),
+      "lateral_rmse_m": [run["lateral_rmse_m"] for run in anchored_gate["runs"]],
+      "decision": "reject_for_insufficient_repeatability_margin",
+    },
     "decision": "reject_candidate_stop_before_repeat_and_delay_matrix",
   }
   serialized = json.dumps(evidence, indent=2, sort_keys=True) + "\n"
@@ -120,6 +139,8 @@ def parser() -> argparse.ArgumentParser:
   result.add_argument("--candidate-summary", type=Path, required=True)
   result.add_argument("--candidate-analysis", type=Path, required=True)
   result.add_argument("--candidate-attempt", type=Path, required=True)
+  result.add_argument("--anchored-selection", type=Path, required=True)
+  result.add_argument("--anchored-gate", type=Path, required=True)
   result.add_argument("--output-dir", type=Path, required=True)
   return result
 

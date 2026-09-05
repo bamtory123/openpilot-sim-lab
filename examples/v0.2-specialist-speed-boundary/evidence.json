@@ -1,4 +1,21 @@
 {
+  "anchored_followup": {
+    "decision": "reject_for_insufficient_repeatability_margin",
+    "fail_count": 1,
+    "gate_sha256": "eaaf4ae15776f7678a2851bf1b65e3cf625bb579a1928f92a254042bb76e091a",
+    "gate_status": "fail",
+    "lateral_rmse_m": [
+      0.4998703694605074,
+      0.5321856172172401,
+      0.7082127191338646
+    ],
+    "original_relative_change": 0.010777883185399984,
+    "pass_count": 2,
+    "performance_eligible": false,
+    "selected_alpha": 0.5,
+    "selection_sha256": "96a173e8e313b2bb8115fb34d0c8c402c12d73c719eaac04556372bcd2f2729e",
+    "targeted_relative_improvement": 0.41771013707621857
+  },
   "baseline": {
     "departure_progress_m_range": [
       87.86284253897182,

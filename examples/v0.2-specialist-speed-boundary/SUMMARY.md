@@ -13,3 +13,7 @@ The targeted candidate was rejected after one held-out diagnostic. It departed a
 | Gate action | `reject_candidate_stop_before_repeat_and_delay_matrix` |
 
 Both RMSE values are incomplete-run diagnostics and are performance-ineligible. No repeated candidate evaluation or delay matrix was run. This simulator-only negative case demonstrates rejection by the SIL improvement gate; it is not road-performance evidence.
+
+## Anchored follow-up
+
+An offline trust-region gate selected the minimum blend alpha `0.5` that improved targeted validation by 41.77% while limiting original-validation RMSE increase to 1.08%. Three fresh-seed closed-loop repeats produced `2 pass / 1 fail`; lateral RMSE was 0.49987, 0.53219, 0.70821 m. The failed repeat departed at 49.85 m despite unchanged source and host contracts. The candidate is therefore rejected for insufficient repeatability margin, and no regression or delay matrix follows.
