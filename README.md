@@ -85,5 +85,6 @@ The v0.2 serpentine delay sample is in [examples/v0.2-specialist-serpentine-dela
 The separate low-traffic serpentine delay sample is in [examples/v0.2-specialist-serpentine-low-traffic-delay-matrix](examples/v0.2-specialist-serpentine-low-traffic-delay-matrix/README.md); it records actor presence but is not a traffic-interaction or avoidance result.
 The planned public release boundary is recorded in the [release checklist](docs/release-checklist.md).
 Camera input diagnostics and their limits are documented in [camera-domain-gap](docs/camera-domain-gap.md).
+Exact camera-frame/model-geometry visualization and the rejected lane-width/dual-camera candidates are documented in [source-aligned model overlay diagnostic](docs/model-overlay-diagnostic.md).
 The public-safe real-camera versus MetaDrive model-output contrast is in [examples/v0.2-real-camera-model-replay](examples/v0.2-real-camera-model-replay/README.md).
 The consolidated scope of every positive and negative evaluation result is in [evaluation boundary](docs/evaluation-boundary.md).

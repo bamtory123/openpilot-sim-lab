@@ -34,6 +34,7 @@ OpenPilot (SUT) ← delayed camera / simulated sensors → MetaDrive
 | Regression evidence | Frozen baseline audit, phased hard/provenance gates, public-safe evidence and CI snapshot verification | [traceability](traceability.md), [portfolio snapshot](portfolio-snapshot.md) |
 | Improvement loop | Bounded actuator-interface candidate gate plus source-bound specialist case studies | [v0.2 case study](performance-improvement-case-study.md) |
 | Input-domain isolation | Official 60-frame OpenPilot road-camera replay; functional and host-timing verdicts separated | [real-camera replay](real-camera-model-replay.md) |
+| Model-input diagnosis | Exact camera source-frame/model-frame overlay; rejected lane-width and dual-camera candidates | [source-aligned overlay](model-overlay-diagnostic.md) |
 
 ## Result scorecard
 

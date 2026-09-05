@@ -169,6 +169,30 @@ def test_unsupported_camera_fov_is_rejected(tmp_path):
   with pytest.raises(ScenarioError): load_scenario(path)
 
 
+def test_lane_width_diagnostic_is_bounded(tmp_path):
+  base = (ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text()
+  approved = tmp_path / "approved.yaml"
+  approved.write_text(base.replace("reference_lane_index: 0", "reference_lane_index: 0\n  map_lane_width_m: 3.7"))
+  assert load_scenario(approved).data["environment"]["map_lane_width_m"] == 3.7
+
+  rejected = tmp_path / "rejected.yaml"
+  rejected.write_text(base.replace("reference_lane_index: 0", "reference_lane_index: 0\n  map_lane_width_m: 4.0"))
+  with pytest.raises(ScenarioError):
+    load_scenario(rejected)
+
+
+def test_dual_camera_must_be_boolean(tmp_path):
+  base = (ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text()
+  approved = tmp_path / "approved.yaml"
+  approved.write_text(base.replace("reference_lane_index: 0", "reference_lane_index: 0\n  dual_camera: true"))
+  assert load_scenario(approved).data["environment"]["dual_camera"] is True
+
+  rejected = tmp_path / "rejected.yaml"
+  rejected.write_text(base.replace("reference_lane_index: 0", "reference_lane_index: 0\n  dual_camera: both"))
+  with pytest.raises(ScenarioError):
+    load_scenario(rejected)
+
+
 def test_invalid_camera_pose_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_hpr_deg: [0, 1]"))

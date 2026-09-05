@@ -1,10 +1,11 @@
 schema_version: 1
-scenario_id: md_default_loop_lane0_frame_alignment_diagnostic_v1
+scenario_id: md_default_loop_lane0_dual_camera_diagnostic_v1
 
 environment:
   map_id: openpilot_default_loop_v1
   seed: 20260827
   reference_lane_index: 0
+  dual_camera: true
 
 run:
   wait_ready_timeout_s: 60

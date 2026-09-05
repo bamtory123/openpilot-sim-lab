@@ -13,6 +13,10 @@ import subprocess
 import sys
 import urllib.request
 
+import numpy as np
+from PIL import Image
+
+from simlab.model_overlay import nv12_to_rgb, render_overlay, save_contact_sheet
 from simlab.model_replay import summarize_replay
 
 
@@ -61,6 +65,24 @@ def _driver_record(message) -> dict:
   return {"model_execution_time_s": float(message.driverStateV2.modelExecutionTime)}
 
 
+def _model_snapshot(message, projection: dict, source_frame_index: int) -> dict:
+  model = message.modelV2
+
+  def points(value) -> list[list[float]]:
+    return [[float(x), float(y), float(z)] for x, y, z in zip(value.x, value.y, value.z, strict=True)]
+
+  return {
+    "schema_version": 1,
+    "scope": "analysis_only_model_projection_not_control_or_accuracy",
+    "source_frame_index": source_frame_index,
+    "model_frame_id": int(model.frameId),
+    "projection": projection,
+    "path": points(model.position),
+    "lane_lines": [points(lane) for lane in model.laneLines],
+    "lane_line_probabilities": [float(value) for value in model.laneLineProbs],
+  }
+
+
 def _write_json(path: Path, value: dict) -> None:
   path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -84,6 +106,7 @@ def main() -> None:
 
   sys.path.insert(0, str(openpilot_root))
   from openpilot.selfdrive.test.process_replay.model_replay import END_FRAME, SEGMENT, START_FRAME, TEST_ROUTE, get_frames, model_replay
+  from openpilot.common.transformations.camera import DEVICE_CAMERAS, get_view_frame_from_calib_frame
   from openpilot.tools.lib.logreader import LogReader
   from openpilot.tools.lib.openpilotci import get_url
 
@@ -103,8 +126,10 @@ def main() -> None:
 
   try:
     log_messages = list(LogReader(get_url(TEST_ROUTE, SEGMENT, "rlog.zst")))
-    messages = model_replay(log_messages, get_frames())
-    model_records = [_model_record(message) for message in messages if message.which() == "modelV2"]
+    frames = get_frames()
+    messages = model_replay(log_messages, frames)
+    model_messages = [message for message in messages if message.which() == "modelV2"]
+    model_records = [_model_record(message) for message in model_messages]
     driver_records = [_driver_record(message) for message in messages if message.which() == "driverStateV2"]
     summary = summarize_replay(model_records, driver_records, END_FRAME - START_FRAME)
     summary["source"] = source
@@ -115,6 +140,27 @@ def main() -> None:
       writer = csv.DictWriter(stream, fieldnames=list(model_records[0]))
       writer.writeheader()
       writer.writerows(model_records)
+
+    calibration = next(message.extrinsicsCalibration for message in log_messages if message.which() == "extrinsicsCalibration")
+    rpy = list(calibration.rpyCalib)
+    camera = DEVICE_CAMERAS[("tici", "unknown")].narrow_road
+    projection = {"intrinsic": camera.intrinsics.tolist(),
+                  "view_from_calib": get_view_frame_from_calib_frame(*rpy, 0.0)[:, :3].tolist(),
+                  "camera_height_m": float(calibration.height[0]), "calibration_rpy_rad": [float(value) for value in rpy]}
+    diagnostic_dir = args.output / "diagnostics"
+    diagnostic_dir.mkdir()
+    overlay_paths = []
+    for index in (0, 20, 40, 59):
+      snapshot = _model_snapshot(model_messages[index], projection, index)
+      snapshot_path = diagnostic_dir / f"model-frame-{index:03d}.json"
+      overlay_path = diagnostic_dir / f"overlay-frame-{index:03d}.png"
+      _write_json(snapshot_path, snapshot)
+      rgb = nv12_to_rgb(np.asarray(frames["narrowRoadCameraState"].get(index)), camera.width, camera.height)
+      render_overlay(Image.fromarray(rgb), snapshot).save(overlay_path)
+      overlay_paths.append(overlay_path)
+    save_contact_sheet(overlay_paths, diagnostic_dir / "contact-sheet.png")
+    summary["diagnostic_overlays"] = {"scope": "local_analysis_only_not_public_evidence",
+                                      "frames": [path.name for path in overlay_paths], "contact_sheet": "contact-sheet.png"}
     _write_json(args.output / "summary.json", summary)
   except Exception as error:
     _write_json(args.output / "summary.json", {

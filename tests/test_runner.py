@@ -7,7 +7,7 @@ from pathlib import Path
 
 from simlab.config import Scenario, load_scenario
 from simlab.manifest import build_manifest, gpu_runtime_snapshot
-from simlab.runner import RunData, _classify, _coverage_ratios, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_specialist_manifest, preflight, recover_incomplete_run
+from simlab.runner import RunData, _classify, _coverage_ratios, _stop_process_group, _write_camera_alignment, _write_csv, _write_dataset_manifest, _write_model_overlay_alignment, _write_specialist_manifest, preflight, recover_incomplete_run
 
 
 def test_stops_the_manager_process_group():
@@ -265,6 +265,29 @@ def test_camera_alignment_preserves_static_obstacle_bbox_metadata(tmp_path):
 
   capture = __import__("json").loads((tmp_path / "camera_alignment.json").read_text())["captures"][0]
   assert capture["metadata"]["static_obstacle_bbox_xyxy_px"] == [1, 2, 3, 4]
+
+
+def test_model_overlay_alignment_joins_exact_camera_source_frame_id(tmp_path):
+  from PIL import Image
+
+  debug = tmp_path / "debug"
+  debug.mkdir()
+  Image.new("RGB", (100, 60), "black").save(debug / "camera-source-frame-000100.png")
+  (debug / "camera-source-frame-000100.png.json").write_text('{"source_frame_id":100}')
+  snapshot = {"projection": {"intrinsic": [[100, 0, 50], [0, 100, 30], [0, 0, 1]],
+                              "view_from_calib": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
+                              "camera_height_m": 1.2},
+              "path": [[5, 0, -1.2], [20, 0, -1.2]],
+              "lane_lines": [[[5, -1, 0], [20, -1, 0]]] * 4,
+              "lane_line_probabilities": [0.1, 0.8, 0.7, 0.1]}
+  (debug / "model-source-frame-000100.json").write_text(__import__("json").dumps(snapshot))
+
+  _write_model_overlay_alignment(tmp_path)
+
+  capture = __import__("json").loads((tmp_path / "model_overlay_alignment.json").read_text())["captures"][0]
+  assert capture["model_snapshot"] == "model-source-frame-000100.json"
+  assert capture["model_overlay"] == "model-overlay-source-frame-000100.png"
+  assert (debug / "model-overlay-source-contact-sheet.png").is_file()
 
 
 def test_dataset_manifest_uses_run_relative_image_paths(tmp_path):

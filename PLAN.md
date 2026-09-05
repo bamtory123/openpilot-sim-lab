@@ -54,6 +54,8 @@ The simulator-specialist track remains a separately source-hash-bound positive c
 
 MetaDrive remains the closed-loop integration, timing/fault, and actuator-regression environment. Pretrained perception health is now isolated with OpenPilot's fixed official real-camera process replay: 60 frames, full model-output coverage, route/input provenance, lane/path/curvature aggregates, and separate functional/timing verdicts. This is an offline replay—not closed loop, matched-scene accuracy, or road validation. The public contrast is used to stop speculative MetaDrive photometric tuning and to keep simulator-specialist learning results in their existing separate track. See [real-camera model replay](docs/real-camera-model-replay.md).
 
+The next local-only diagnostic layer binds immutable MetaDrive RGB inputs to full model geometry by exact camera source frame ID. It has rejected narrower lanes and dual-camera input as pretrained driving candidates while preserving both as negative diagnostic evidence. Future rendering changes must use this exact join and remain outside v0.1 qualification; see [model overlay diagnostic](docs/model-overlay-diagnostic.md).
+
 ## 한계
 
 모든 threshold는 자동차/OEM 기준이 아닌 `project_defined` 기준이어야 하며 baseline 측정 전 performance threshold를 확정하지 않는다. 상세 한계는 [limitations](docs/limitations.md)를 따른다.

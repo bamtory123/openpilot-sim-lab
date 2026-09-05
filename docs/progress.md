@@ -258,6 +258,8 @@ At 4.0 m/s, the same artifact reached 3.981 m/s mean speed but terminated after 
 
 ## Next
 
+On 2026-09-05, an analysis-only model overlay path was added for both official real-camera replay and MetaDrive. The MetaDrive implementation initially exposed that simulation and bridge loop counters are independent clocks; it was corrected to save the immutable pre-NV12 RGB buffer and full model geometry under the same camera source frame ID. Exact joins at IDs 30/45/60 now generate run-local overlays and a contact sheet. A 3.7 m lane-width candidate lowered confidence and a true narrow+wide camera candidate produced a false-left path, 106.96° steering-command RMS, and an invalid 3.29 s run. Both are rejected without changing the frozen 4.5 m/narrow-only baseline. The next perception candidate must target rendered marking/road appearance and use source-aligned overlays as its gate.
+
 1. Keep v0.1 release qualification at `not_qualified_yet`: the same-provenance candidate set is a Phase 1 hard-gate failure under the current active-time contract.
 2. The v0.1 pretrained-driving disposition is closed as `not_qualified_yet`; before a future comparison, explicitly approve a replacement baseline/candidate policy and do not weaken or relabel the current invalid evidence.
 3. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.

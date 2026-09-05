@@ -48,6 +48,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("map_curve_direction must be 0 or 1")
   if not isinstance(env.get("map_track_size_m", 60), int) or env.get("map_track_size_m", 60) < 30:
     raise ScenarioError("map_track_size_m must be an integer of at least 30")
+  if "map_lane_width_m" in env and (not isinstance(env["map_lane_width_m"], (int, float)) or float(env["map_lane_width_m"]) not in (3.7, 4.5)):
+    raise ScenarioError("map_lane_width_m must be the 4.5 m baseline or approved 3.7 m diagnostic")
   if "camera_fov_deg" in env and env["camera_fov_deg"] not in (40, 60):
     raise ScenarioError("camera_fov_deg must be an approved diagnostic value")
   if "camera_gamma" in env and (not isinstance(env["camera_gamma"], (int, float)) or not 0.8 <= float(env["camera_gamma"]) <= 1.2):
@@ -74,6 +76,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
       raise ScenarioError("lead_vehicle.render_vehicle must be boolean")
   if "show_navi_mark" in env and not isinstance(env["show_navi_mark"], bool):
     raise ScenarioError("show_navi_mark must be boolean")
+  if "dual_camera" in env and not isinstance(env["dual_camera"], bool):
+    raise ScenarioError("dual_camera must be boolean")
   for key in ("camera_position_m", "camera_hpr_deg"):
     if key in env and (not isinstance(env[key], list) or len(env[key]) != 3 or not all(isinstance(value, (int, float)) for value in env[key])):
       raise ScenarioError(f"{key} must be a three-value numeric vector")
@@ -112,6 +116,11 @@ def validate_scenario(data: dict[str, Any]) -> None:
       raise ScenarioError("diagnostics.dataset_collection must be true when specified")
     if "require_visible_lead" in diagnostics and not isinstance(diagnostics["require_visible_lead"], bool):
       raise ScenarioError("diagnostics.require_visible_lead must be boolean")
+    model_frames = diagnostics.get("model_overlay_source_frame_ids")
+    if model_frames is not None and (not isinstance(model_frames, list) or not model_frames or
+                                     not all(isinstance(frame, int) and frame >= 0 for frame in model_frames) or
+                                     model_frames != sorted(set(model_frames))):
+      raise ScenarioError("diagnostics.model_overlay_source_frame_ids must be unique and increasing non-negative integers")
   dataset = data.get("dataset")
   if dataset is not None:
     seeds = dataset.get("seeds") if isinstance(dataset, dict) else None

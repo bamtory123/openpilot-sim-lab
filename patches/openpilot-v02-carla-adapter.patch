@@ -457,16 +457,96 @@ index 000000000..4f556bfba
 +  if not isinstance(turn_plan, list) or any(turn not in {"straight", "left", "right", "u_turn"} for turn in turn_plan):
 +    raise RuntimeError("route asset has invalid turn_plan")
 +  return RouteAsset(expected_town, tuple(normalized), tuple(turn_plan), hashlib.sha256(raw).hexdigest())
+diff --git a/openpilot/tools/sim/bridge/common.py b/openpilot/tools/sim/bridge/common.py
+index 8f0c8d1c6..618b9dff6 100644
+--- a/openpilot/tools/sim/bridge/common.py
++++ b/openpilot/tools/sim/bridge/common.py
+@@ -1,9 +1,11 @@
++import json
++import os
+ import signal
+ import threading
+ import functools
+ import time
+ import numpy as np
+-from openpilot.common.transformations.camera import DEVICE_CAMERAS
++from openpilot.common.transformations.camera import DEVICE_CAMERAS, get_view_frame_from_calib_frame
+
+ from collections import namedtuple
+ from enum import Enum
+@@ -36,6 +38,32 @@ def rk_loop(function, hz, exit_event: threading.Event):
+     rk.keep_time()
+
+
++def build_model_debug_snapshot(model, calibration, camera_config, requested_camera_source_frame_id: int,
++                               bridge_frame: int) -> dict:
++  def points(value):
++    return [[float(x), float(y), float(z)] for x, y, z in zip(value.x, value.y, value.z, strict=True)]
++
++  rpy = list(calibration.rpyCalib) if len(calibration.rpyCalib) == 3 else [0.0, 0.0, 0.0]
++  height = list(calibration.height)
++  camera = camera_config.narrow_road
++  return {
++    "schema_version": 1,
++    "scope": "analysis_only_model_projection_not_runtime_control_or_accuracy",
++    "requested_camera_source_frame_id": requested_camera_source_frame_id,
++    "bridge_frame": bridge_frame,
++    "model_frame_id": int(model.frameId),
++    "projection": {
++      "intrinsic": camera.intrinsics.tolist(),
++      "view_from_calib": get_view_frame_from_calib_frame(*rpy, 0.0)[:, :3].tolist(),
++      "camera_height_m": float(height[0]) if height else 1.22,
++      "calibration_rpy_rad": [float(value) for value in rpy],
++    },
++    "path": points(model.position),
++    "lane_lines": [points(lane) for lane in model.laneLines],
++    "lane_line_probabilities": [float(value) for value in model.laneLineProbs],
++  }
++
++
+ class SimulatorBridge(ABC):
+   TICKS_PER_FRAME = 5
+
+@@ -49,6 +77,12 @@ class SimulatorBridge(ABC):
+     self.dual_camera = dual_camera
+     self.high_quality = high_quality
+     self.simlab_config = simlab_config or {}
++    capture_frames = os.environ.get("SIMLAB_MODEL_DEBUG_SOURCE_FRAME_IDS", "")
++    self.model_debug_capture_frames = [int(value) for value in capture_frames.split(",") if value]
++    self.model_debug_capture_dir = os.environ.get("SIMLAB_MODEL_DEBUG_CAPTURE_DIR")
++    if self.model_debug_capture_frames and not self.model_debug_capture_dir:
++      raise ValueError("SIMLAB_MODEL_DEBUG_CAPTURE_DIR is required when model source frames are configured")
++    self.model_debug_capture_index = 0
+
+     self._exit_event: threading.Event | None = None
+     self._threads = []
+@@ -231,6 +265,16 @@ Ignition: {self.simulator_state.ignition} Engaged: {self.simulator_state.is_enga
+         device_type = str(self.simulated_car.sm['deviceState'].deviceType)
+         camera_sensor = str(self.simulated_car.sm['narrowRoadCameraState'].sensor)
+         camera_config = DEVICE_CAMERAS.get((device_type, camera_sensor))
++        if (camera_config is not None and self.model_debug_capture_index < len(self.model_debug_capture_frames)
++            and model.frameId >= self.model_debug_capture_frames[self.model_debug_capture_index]):
++          requested_frame_id = self.model_debug_capture_frames[self.model_debug_capture_index]
++          snapshot = build_model_debug_snapshot(model, calibration, camera_config, requested_frame_id, self.rk.frame)
++          capture_dir = os.path.abspath(self.model_debug_capture_dir)
++          os.makedirs(capture_dir, exist_ok=True)
++          with open(os.path.join(capture_dir, f"model-source-frame-{model.frameId:06d}.json"), "w", encoding="utf-8") as stream:
++            json.dump(snapshot, stream, indent=2, sort_keys=True)
++            stream.write("\n")
++          self.model_debug_capture_index += 1
+         left_lane = model.laneLines[1] if len(model.laneLines) > 1 else None
+         right_lane = model.laneLines[2] if len(model.laneLines) > 2 else None
+         left_lane_prob = model.laneLineProbs[1] if len(model.laneLineProbs) > 1 else None
 diff --git a/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py b/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py
-index 7b66ff59b..79d325109 100644
+index 7b66ff59b..ba4408ce9 100644
 --- a/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py
 +++ b/openpilot/tools/sim/bridge/metadrive/metadrive_bridge.py
-@@ -26,8 +26,14 @@ def curve_block(length, angle=45, direction=0):
+@@ -26,22 +26,28 @@ def curve_block(length, angle=45, direction=0):
      "dir": direction
    }
- 
+
 -def create_map(track_size=60, curve_direction=0):
-+def create_map(track_size=60, curve_direction=0, route_profile="loop"):
++def create_map(track_size=60, curve_direction=0, route_profile="loop", lane_width=4.5):
    curve_len = track_size * 2
 +  if route_profile == "serpentine":
 +    directions = (curve_direction, 1 - curve_direction, 1 - curve_direction, curve_direction)
@@ -477,7 +557,8 @@ index 7b66ff59b..79d325109 100644
    return {
      "type": MapGenerateMethod.PG_MAP_FILE,
      "lane_num": 2,
-@@ -35,13 +41,13 @@ def create_map(track_size=60, curve_direction=0):
+-    "lane_width": 4.5,
++    "lane_width": lane_width,
      "config": [
        None,
        straight_block(track_size),
@@ -494,8 +575,8 @@ index 7b66ff59b..79d325109 100644
 +      curve_block(curve_len, 90, directions[3]),
      ]
    }
- 
-@@ -83,10 +89,12 @@ class MetaDriveBridge(SimulatorBridge):
+
+@@ -83,10 +89,13 @@ class MetaDriveBridge(SimulatorBridge):
        "crash_vehicle_done": False,
        "crash_object_done": False,
        "arrive_dest_done": False,
@@ -506,7 +587,8 @@ index 7b66ff59b..79d325109 100644
        "map_config": create_map(track_size=int(self.simlab_config.get("environment", {}).get("map_track_size_m", 60)),
 -                               curve_direction=int(self.simlab_config.get("environment", {}).get("map_curve_direction", 0))),
 +                               curve_direction=int(self.simlab_config.get("environment", {}).get("map_curve_direction", 0)),
-+                               route_profile="serpentine" if self.simlab_config.get("environment", {}).get("map_id") == "openpilot_serpentine_v1" else "loop"),
++                               route_profile="serpentine" if self.simlab_config.get("environment", {}).get("map_id") == "openpilot_serpentine_v1" else "loop",
++                               lane_width=float(self.simlab_config.get("environment", {}).get("map_lane_width_m", 4.5))),
        "decision_repeat": 1,
        "physics_world_step_size": self.TICKS_PER_FRAME/100,
        "preload_models": False,
@@ -516,8 +598,8 @@ index 0106579b2..e8bdce557 100644
 +++ b/openpilot/tools/sim/bridge/metadrive/metadrive_common.py
 @@ -4,6 +4,15 @@ from metadrive.component.sensors.rgb_camera import RGBCamera
  from panda3d.core import Texture, GraphicsOutput
- 
- 
+
+
 +def apply_camera_color_affine(image: np.ndarray, affine: dict | None) -> np.ndarray:
 +  """Apply the bounded scenario RGB transform before camera transport."""
 +  if affine is None:
@@ -536,20 +618,20 @@ index 232832472..f12de19b5 100644
 +++ b/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
 @@ -5,7 +5,7 @@ import json
  import numpy as np
- 
+
  from collections import namedtuple
 -from panda3d.core import Vec3
 +from panda3d.core import Point2, Point3, Vec3
  from PIL import Image
  from multiprocessing.connection import Connection
- 
+
 @@ -18,6 +18,7 @@ from openpilot.common.realtime import Ratekeeper
- 
+
  from openpilot.tools.sim.lib.common import vec3
  from openpilot.tools.sim.lib.camerad import W, H
 +from openpilot.tools.sim.bridge.metadrive.metadrive_common import apply_camera_color_affine
  from openpilot.tools.sim.bridge.metadrive.specialist_replay import SpecialistReplay
- 
+
  C3_POSITION = Vec3(0.0, 0, 1.22)
 @@ -67,6 +68,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
    simulator_control = simlab_config.get("simulator_control")
@@ -572,15 +654,15 @@ index 232832472..f12de19b5 100644
    previous_simulation_time_s = None
    normalized_steer = 0.0
 +  configured_steer_ratio = float(actuation_config.get("steer_ratio", 8.0))
- 
+
    def get_current_lane_info(vehicle):
      _, lane_info, on_lane = vehicle.navigation._get_current_lane(vehicle)
 @@ -103,6 +107,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
      return lane_idx, on_lane
- 
+
    specialist_prediction = None
 +  lead_vehicle = lead_visual_proxy = None
- 
+
    def reference_lane_telemetry(vehicle, simulation_frame, simulation_time_s, acceleration_mps2):
      nonlocal previous_velocity_heading, previous_simulation_time_s
 @@ -124,6 +129,20 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
@@ -626,7 +708,7 @@ index 232832472..f12de19b5 100644
      }
 @@ -238,10 +263,29 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
      return specialist_prediction, float(np.clip(0.25 * speed_error, -1.0, 1.0))
- 
+
    def reset():
 -    nonlocal previous_velocity_heading, previous_simulation_time_s, specialist_last_image
 +    nonlocal previous_velocity_heading, previous_simulation_time_s, specialist_last_image, lead_vehicle, lead_visual_proxy
@@ -658,7 +740,7 @@ index 232832472..f12de19b5 100644
 @@ -264,6 +308,28 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
    start_time = None
    previous_speed = 0.0
- 
+
 +  def visual_proxy_bbox(camera):
 +    if lead_visual_proxy is None:
 +      return None
@@ -701,9 +783,9 @@ index 232832472..f12de19b5 100644
 +                       "camera_color_affine": camera_color_affine,
 +                       "static_obstacle_bbox_xyxy_px": visual_proxy_bbox(cam.get_cam())}, handle, sort_keys=True)
      return img
- 
+
    rk = Ratekeeper(100, None)
- 
+
 -  steer_ratio = 8
    vc = [0,0]
    steer_angle = gas = 0.0
@@ -716,15 +798,62 @@ index 232832472..f12de19b5 100644
 +      steer_metadrive = np.clip(steer_angle / (env.vehicle.MAX_STEERING * configured_steer_ratio), -1, 1)
      normalized_steer = float(steer_metadrive)
      vc = [steer_metadrive, gas]
- 
+
+diff --git a/openpilot/tools/sim/lib/simulated_sensors.py b/openpilot/tools/sim/lib/simulated_sensors.py
+index 0fca7ee02..363e6ca35 100644
+--- a/openpilot/tools/sim/lib/simulated_sensors.py
++++ b/openpilot/tools/sim/lib/simulated_sensors.py
+@@ -1,7 +1,11 @@
++import json
++import os
++from pathlib import Path
+ import time
+
+ from openpilot.cereal import log
+ import openpilot.cereal.messaging as messaging
++from PIL import Image
+
+ from openpilot.common.realtime import DT_DMON
+ from openpilot.tools.sim.lib.camerad import Camerad
+@@ -24,6 +28,11 @@ class SimulatedSensors:
+     config = camera_transport_config or {}
+     self._fault_delay_ms = int(config.get("target_delay_ms", 0))
+     self._camera_frame_ids = {"road": 0, "wide": 0}
++    source_frames = os.environ.get("SIMLAB_CAMERA_DEBUG_SOURCE_FRAME_IDS", "")
++    self._debug_source_frame_ids = {int(value) for value in source_frames.split(",") if value}
++    self._debug_capture_dir = os.environ.get("SIMLAB_CAMERA_DEBUG_SOURCE_DIR")
++    if self._debug_source_frame_ids and not self._debug_capture_dir:
++      raise ValueError("SIMLAB_CAMERA_DEBUG_SOURCE_DIR is required when camera source frames are configured")
+     self.camera_transport = CameraTransportDelay(
+       self._publish_camera_frame, camera_telemetry,
+       target_delay_ms=0, capacity_frames=int(config.get("queue_capacity_frames", 8)),
+@@ -144,6 +153,18 @@ class SimulatedSensors:
+
+     road_id = self._camera_frame_ids["road"]
+     self._camera_frame_ids["road"] += 1
++    if road_id in self._debug_source_frame_ids:
++      capture_dir = Path(self._debug_capture_dir)
++      capture_dir.mkdir(parents=True, exist_ok=True)
++      image_path = capture_dir / f"camera-source-frame-{road_id:06d}.png"
++      Image.fromarray(road_rgb).save(image_path)
++      (capture_dir / f"{image_path.name}.json").write_text(json.dumps({
++        "schema_version": 1,
++        "scope": "analysis_only_exact_pre_nv12_model_input",
++        "camera": "road",
++        "source_frame_id": road_id,
++        "capture_mono_ns": capture_mono_ns,
++      }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+     self.camera_transport.enqueue(camera="road", source_frame_id=road_id, capture_mono_ns=capture_mono_ns,
+                                   yuv=self.camerad.rgb_to_yuv(road_rgb))
+     if wide_rgb is not None:
 diff --git a/openpilot/tools/sim/run_bridge.py b/openpilot/tools/sim/run_bridge.py
 index c0cb665cd..df5f15b07 100755
 --- a/openpilot/tools/sim/run_bridge.py
 +++ b/openpilot/tools/sim/run_bridge.py
 @@ -8,10 +8,21 @@ from multiprocessing import Queue
- 
+
  from openpilot.tools.sim.bridge.metadrive.metadrive_bridge import MetaDriveBridge
- 
+
 -def create_bridge(dual_camera, high_quality, test_duration=math.inf, test_run=False, simlab_config=None):
 +def create_bridge(dual_camera, high_quality, test_duration=math.inf, test_run=False, simlab_config=None,
 +                  simulator="metadrive", carla_host="127.0.0.1", carla_port=2000, carla_town="Town04",
@@ -744,7 +873,7 @@ index c0cb665cd..df5f15b07 100755
 +  else:
 +    raise ValueError(f"unsupported simulator: {simulator}")
    simulator_process = simulator_bridge.run(queue)
- 
+
    return queue, simulator_process, simulator_bridge
 @@ -28,6 +39,11 @@ def parse_args(add_args=None):
    parser.add_argument('--test-run', action='store_true')
@@ -755,9 +884,9 @@ index c0cb665cd..df5f15b07 100755
 +  parser.add_argument('--carla-port', type=int, default=2000)
 +  parser.add_argument('--carla-town', default='Town04')
 +  parser.add_argument('--carla-route-asset', type=Path)
- 
+
    return parser.parse_args(add_args)
- 
+
 @@ -40,7 +56,9 @@ if __name__ == "__main__":
      with args.simlab_config.open() as f:
        simlab_config = yaml.safe_load(f) or {}
@@ -766,7 +895,7 @@ index c0cb665cd..df5f15b07 100755
 +                                                              args.test_duration, args.test_run, simlab_config,
 +                                                              args.simulator, args.carla_host, args.carla_port,
 +                                                              args.carla_town, args.carla_route_asset)
- 
+
    if args.joystick:
      # start input poll for joystick
 diff --git a/openpilot/tools/sim/tests/test_carla_adapter.py b/openpilot/tools/sim/tests/test_carla_adapter.py
@@ -854,12 +983,12 @@ index 000000000..830c91cfd
 +  assert writer.close() == 0
 +  assert not list(tmp_path.glob("*.png"))
 diff --git a/openpilot/tools/sim/tests/test_metadrive_bridge.py b/openpilot/tools/sim/tests/test_metadrive_bridge.py
-index 4e7560907..1efe60553 100644
+index 4e7560907..1695ceb60 100644
 --- a/openpilot/tools/sim/tests/test_metadrive_bridge.py
 +++ b/openpilot/tools/sim/tests/test_metadrive_bridge.py
 @@ -6,9 +6,12 @@ import importlib
  warnings.filterwarnings("ignore", category=DeprecationWarning)
- 
+
  try:
 -  MetaDriveBridge = importlib.import_module("openpilot.tools.sim.bridge.metadrive.metadrive_bridge").MetaDriveBridge
 +  bridge_module = importlib.import_module("openpilot.tools.sim.bridge.metadrive.metadrive_bridge")
@@ -869,9 +998,9 @@ index 4e7560907..1efe60553 100644
    MetaDriveBridge = None
 +  create_map = None
  from openpilot.tools.sim.tests.test_sim_bridge import TestSimBridgeBase
- 
+
  @unittest.skipIf(MetaDriveBridge is None, "metadrive is not installed")
-@@ -20,3 +23,13 @@ class TestMetaDriveBridge(TestSimBridgeBase):
+@@ -20,3 +23,18 @@ class TestMetaDriveBridge(TestSimBridgeBase):
    def create_bridge(self):
      assert MetaDriveBridge is not None
      return MetaDriveBridge(False, False, self.test_duration, True)
@@ -885,6 +1014,11 @@ index 4e7560907..1efe60553 100644
 +    assert create_map is not None
 +    curves = [block["dir"] for block in create_map(60, 1)["config"] if block and block["id"] == "C"]
 +    assert curves == [1, 1, 1, 1]
++
++  def test_lane_width_defaults_to_frozen_contract_and_accepts_diagnostic(self):
++    assert create_map is not None
++    assert create_map()["lane_width"] == 4.5
++    assert create_map(lane_width=3.7)["lane_width"] == 3.7
 diff --git a/openpilot/tools/sim/tests/test_metadrive_camera_color.py b/openpilot/tools/sim/tests/test_metadrive_camera_color.py
 new file mode 100644
 index 000000000..88377b277
@@ -902,3 +1036,35 @@ index 000000000..88377b277
 +  assert apply_camera_color_affine(image, None) is image
 +  transformed = apply_camera_color_affine(image, {"gain_rgb": [2.0, 1.0, 1.0], "bias_rgb": [0.0, -30.0, 20.0]})
 +  np.testing.assert_array_equal(transformed, np.asarray([[[20, 0, 255]]], dtype=np.uint8))
+diff --git a/openpilot/tools/sim/tests/test_model_debug_snapshot.py b/openpilot/tools/sim/tests/test_model_debug_snapshot.py
+new file mode 100644
+index 000000000..cd1b85b21
+--- /dev/null
++++ b/openpilot/tools/sim/tests/test_model_debug_snapshot.py
+@@ -0,0 +1,26 @@
++from types import SimpleNamespace
++
++import numpy as np
++
++from openpilot.tools.sim.bridge.common import build_model_debug_snapshot
++
++
++def _points():
++  return SimpleNamespace(x=[5.0, 20.0], y=[0.0, 0.1], z=[0.0, 0.0])
++
++
++def test_model_debug_snapshot_preserves_geometry_and_projection_contract():
++  model = SimpleNamespace(frameId=42, position=_points(), laneLines=[_points()] * 4,
++                          laneLineProbs=[0.1, 0.8, 0.7, 0.1])
++  calibration = SimpleNamespace(rpyCalib=[0.01, -0.02, 0.03], height=[1.22])
++  camera = SimpleNamespace(narrow_road=SimpleNamespace(intrinsics=np.eye(3)))
++
++  snapshot = build_model_debug_snapshot(model, calibration, camera, 100, 102)
++
++  assert snapshot["scope"] == "analysis_only_model_projection_not_runtime_control_or_accuracy"
++  assert snapshot["requested_camera_source_frame_id"] == 100
++  assert snapshot["bridge_frame"] == 102
++  assert snapshot["model_frame_id"] == 42
++  assert snapshot["path"][1] == [20.0, 0.1, 0.0]
++  assert snapshot["lane_line_probabilities"][1:3] == [0.8, 0.7]
++  assert snapshot["projection"]["camera_height_m"] == 1.22

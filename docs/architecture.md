@@ -21,6 +21,8 @@ simulator-specialist RGB      → separate local model        → simulator-only
 
 Only the second path is MetaDrive closed loop. The first proves that the pinned pretrained model can produce complete outputs on a fixed real-camera input and separates that functional result from host timing. The third never changes or qualifies pretrained OpenPilot. Keeping the three paths separate prevents a synthetic-rendering domain gap from being misdiagnosed as an actuator or transport failure.
 
+For camera-domain diagnosis, the runner can additionally retain an explicitly selected immutable pre-NV12 RGB frame and the `modelV2` geometry carrying the same camera `source_frame_id`. Only exact source-ID pairs are rendered. Simulator frame counters and bridge loop counters are never used as a cross-process join key. These overlays are local analysis artifacts and do not enter runtime control or public qualification evidence.
+
 The v0.2 actuator-calibration path is intentionally narrower than a controller replacement:
 
 ```text

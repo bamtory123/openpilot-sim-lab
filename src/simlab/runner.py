@@ -21,6 +21,7 @@ from .baseline import audit_historical_baseline
 from .dataset import audit_dataset
 from .manifest import build_manifest, git_metadata, metadrive_source_metadata, write_json, wsl_boot_id
 from .metrics import calculate_metrics, camera_timestamps_valid
+from .model_overlay import save_contact_sheet, save_overlay
 from .report import generate_report
 from .regression import review_regression
 from .specialist import train_specialist, train_temporal_specialist
@@ -69,6 +70,31 @@ def _write_camera_alignment(run_dir: Path, telemetry: list[dict]) -> None:
                      "traffic_nearest_closing_speed_mps", "traffic_nearest_ttc_s", "collision")}})
   if captures:
     write_json(run_dir / "camera_alignment.json", {"schema_version": 1, "captures": captures})
+
+
+def _write_model_overlay_alignment(run_dir: Path) -> None:
+  captures, overlays = [], []
+  for metadata_path in sorted((run_dir / "debug").glob("camera-source-frame-*.png.json")):
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    source_frame_id = int(metadata["source_frame_id"])
+    snapshot_path = run_dir / "debug" / f"model-source-frame-{source_frame_id:06d}.json"
+    capture = {"source_frame_id": source_frame_id, "image": metadata_path.with_suffix("").name,
+               "camera_metadata": metadata, "model_snapshot": None, "model_overlay": None}
+    if snapshot_path.exists():
+      snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+      overlay_path = run_dir / "debug" / f"model-overlay-source-frame-{source_frame_id:06d}.png"
+      save_overlay(metadata_path.with_suffix(""), snapshot, overlay_path)
+      capture.update({"model_snapshot": snapshot_path.name, "model_overlay": overlay_path.name})
+      overlays.append(overlay_path)
+    captures.append(capture)
+  if captures:
+    contact_sheet = None
+    if overlays:
+      contact_sheet = "model-overlay-source-contact-sheet.png"
+      save_contact_sheet(overlays, run_dir / "debug" / contact_sheet)
+    write_json(run_dir / "model_overlay_alignment.json", {"schema_version": 1,
+      "scope": "analysis_only_exact_camera_source_frame_to_model_frame_id", "contact_sheet": contact_sheet,
+      "captures": captures})
 
 
 def _write_dataset_manifest(run_dir: Path, scenario: Scenario) -> None:
@@ -279,14 +305,24 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   control_queue = status_queue = process = bridge = None
   data, stop_reason = RunData(), None
   diagnostic_frames = scenario.data.get("diagnostics", {}).get("camera_capture_frames", [])
-  debug_environment = {key: os.environ.get(key) for key in ("SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES", "SIMLAB_CAMERA_DEBUG_CAPTURE_DIR")}
+  debug_environment = {key: os.environ.get(key) for key in ("SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES", "SIMLAB_CAMERA_DEBUG_CAPTURE_DIR",
+                                                             "SIMLAB_CAMERA_DEBUG_SOURCE_FRAME_IDS", "SIMLAB_CAMERA_DEBUG_SOURCE_DIR",
+                                                             "SIMLAB_MODEL_DEBUG_SOURCE_FRAME_IDS", "SIMLAB_MODEL_DEBUG_CAPTURE_DIR")}
   if diagnostic_frames:
     os.environ["SIMLAB_CAMERA_DEBUG_CAPTURE_FRAMES"] = ",".join(map(str, diagnostic_frames))
     os.environ["SIMLAB_CAMERA_DEBUG_CAPTURE_DIR"] = str(run_dir / "debug")
+  model_overlay_source_frames = scenario.data.get("diagnostics", {}).get("model_overlay_source_frame_ids", [])
+  if model_overlay_source_frames:
+    source_frames = ",".join(map(str, model_overlay_source_frames))
+    os.environ["SIMLAB_CAMERA_DEBUG_SOURCE_FRAME_IDS"] = source_frames
+    os.environ["SIMLAB_CAMERA_DEBUG_SOURCE_DIR"] = str(run_dir / "debug")
+    os.environ["SIMLAB_MODEL_DEBUG_SOURCE_FRAME_IDS"] = source_frames
+    os.environ["SIMLAB_MODEL_DEBUG_CAPTURE_DIR"] = str(run_dir / "debug")
   deadline = time.monotonic() + scenario.data["run"]["wall_watchdog_s"]
   try:
     control_queue, status_queue = Queue(), Queue()
-    bridge = MetaDriveBridge(False, False, test_duration=float("inf"), test_run=True, simlab_config=runtime_scenario)
+    bridge = MetaDriveBridge(bool(runtime_scenario["environment"].get("dual_camera", False)), False,
+                             test_duration=float("inf"), test_run=True, simlab_config=runtime_scenario)
     process = bridge.run(control_queue, status_queue=status_queue)
     while time.monotonic() < deadline:
       if process.exitcode is not None:
@@ -337,6 +373,7 @@ def run_once(scenario: Scenario, *, output_root: Path = DEFAULT_OUTPUTS, allow_d
   _write_csv(run_dir / "telemetry.csv", data.telemetry)
   _write_csv(run_dir / "camera.csv", data.camera)
   _write_camera_alignment(run_dir, data.telemetry)
+  _write_model_overlay_alignment(run_dir)
   if scenario.data.get("diagnostics", {}).get("dataset_collection"):
     _write_dataset_manifest(run_dir, scenario)
   if scenario.data.get("specialist_dataset"):
