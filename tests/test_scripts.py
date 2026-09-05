@@ -76,6 +76,48 @@ def test_departure_window_analysis_finds_repeatable_curve_and_hashes_sources(tmp
   assert all(len(run["sha256"]) == 64 for run in analysis["runs"])
 
 
+def test_speed_boundary_case_is_source_bound_and_public_safe(tmp_path):
+  def write(name, payload):
+    path = tmp_path / name
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+  gate = write("gate.json", {"aggregate": {"performance_eligible": False,
+    "observed_mean_lateral_rmse_m": 0.62}})
+  localization = write("localization.json", {
+    "classification": "repeatable_common_curve_departure", "common_reference_curvature_1pm": -0.008,
+    "departure_progress_m_range": [88.0, 91.0],
+    "recommended_capture_window": {"start_frame": 4960, "end_frame": 5600}})
+  manifests = []
+  for name, split in (("train.jsonl", "train"), ("validation.jsonl", "validation")):
+    path = tmp_path / name
+    path.write_text("\n".join(json.dumps({"split": split, "sample": index}) for index in range(2)), encoding="utf-8")
+    manifests.append(path)
+  training = write("training.json", {"train_pairs": 10, "validation_pairs": 8,
+    "validation_rmse_normalized_steer": 0.01})
+  artifact = tmp_path / "candidate.npz"; artifact.write_bytes(b"model")
+  summary = write("summary.json", {"validity": "invalid", "outcome": "not_evaluated",
+    "reasons": ["camera_coverage"], "metrics": {"lateral_rmse_m": 0.98,
+    "collision_occurred": False, "camera_frames_dropped": 0}})
+  candidate_analysis = write("candidate-analysis.json", {"runs": [{"first_lane_departure": {
+    "simulation_frame": 4500, "route_progress_m": 49.5}}]})
+  attempt = write("attempt.json", {"wsl_boot_changed": False})
+  output = tmp_path / "public"
+  subprocess.run([sys.executable, str(ROOT / "scripts/build_speed_boundary_case.py"),
+    "--baseline-gate", str(gate), "--departure-analysis", str(localization),
+    "--targeted-manifest", *(str(path) for path in manifests), "--training-metrics", str(training),
+    "--artifact", str(artifact), "--candidate-summary", str(summary),
+    "--candidate-analysis", str(candidate_analysis), "--candidate-attempt", str(attempt),
+    "--output-dir", str(output)], check=True)
+  subprocess.run([sys.executable, str(ROOT / "scripts/verify_speed_boundary_case.py"), str(output)], check=True)
+
+  evidence = json.loads((output / "evidence.json").read_text(encoding="utf-8"))
+  assert evidence["decision"] == "reject_candidate_stop_before_repeat_and_delay_matrix"
+  assert evidence["training"]["train_samples"] == 2
+  assert len(evidence["training"]["artifact_sha256"]) == 64
+  assert str(tmp_path) not in json.dumps(evidence)
+
+
 def test_real_camera_replay_setup_pins_compatible_ffmpeg():
   setup = (ROOT / "scripts/setup_real_camera_replay.sh").read_text(encoding="utf-8")
   runner = (ROOT / "scripts/run_real_camera_model_replay.py").read_text(encoding="utf-8")

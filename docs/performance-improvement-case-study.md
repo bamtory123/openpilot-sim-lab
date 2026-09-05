@@ -52,3 +52,9 @@ The public-safe [aggregate bundle](../examples/v0.2-performance-improvement-case
 - Tight DAgger geometry: a 45 m baseline `valid/fail` is followed by three 45 m fixed `valid/pass` runs and three 52 m held-out `valid/pass` runs.
 
 These are simulator-specialist positive controls, not a replacement for the frozen pretrained result.
+
+## Simulator-specialist negative gate
+
+The retained v0.6 artifact produced three incomplete 3.5 m/s runs with observed departure on the same right curve at 87.86–91.42 m. A source-hashed localizer selected frames 4,960–5,600 before that common failure, and two durable runs added 33 train and 33 validation teacher-labelled samples. The resulting v0.7 candidate worsened offline validation RMSE (`0.00880 → 0.01027` normalized steer) and, in its single held-out diagnostic, departed at 49.48 m with observed partial-run lateral RMSE `0.98317 m` versus the v0.6 three-run observed mean `0.62414 m`.
+
+The candidate was therefore rejected before repeat or delay-matrix expansion. Both baseline and candidate runs were `invalid/not_evaluated` because departure caused incomplete coverage, so their RMSE values are explicitly performance-ineligible. The public-safe [negative case bundle](../examples/v0.2-specialist-speed-boundary/SUMMARY.md) preserves the data/model/result hashes and demonstrates that the improvement loop can reject a regression rather than only showcase positive results.

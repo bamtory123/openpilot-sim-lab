@@ -12,7 +12,7 @@ OpenPilot is the **System Under Test (SUT)**; MetaDrive is the **SIL simulator**
 |---:|---|---|
 | 1 min | This page and the [portfolio summary](portfolio-summary.md) | Scope, contribution, and non-claims |
 | 2 min | [Public v0.1 evidence summary](../examples/v0.1-portfolio-evidence/SUMMARY.md) | Formal matrix, baseline audit, candidate hard gate, host confirmation |
-| 1 min | [v0.2 improvement case study](performance-improvement-case-study.md) | Separate negative pretrained-calibration evidence from simulator-specialist positive controls |
+| 1 min | [v0.2 improvement case study](performance-improvement-case-study.md) | Separate pretrained calibration, specialist positive controls, and a source-bound rejected regression |
 | 1 min | [Real-camera replay reference](../examples/v0.2-real-camera-model-replay/README.md) | Why pretrained perception and MetaDrive closed loop are evaluated on separate evidence paths |
 | 1 min | [Architecture](architecture.md) and [OpenPilot patch boundary](openpilot-patch.md) | What was integrated and what was minimally instrumented |
 | 1 min | [Qualification report](qualification-report.md) and [limitations](limitations.md) | Why the result is `not_qualified_yet`, without hiding failure evidence |
@@ -32,7 +32,7 @@ OpenPilot (SUT) ← delayed camera / simulated sensors → MetaDrive
 | Fault injection | One non-blocking queue path for 0/50/100/150 ms; capture/publish timing and drops retained | [public evidence](../examples/v0.1-portfolio-evidence/SUMMARY.md) |
 | Verdicts | Data/infrastructure validity separated from SUT functional outcome; interruption recovery retained | [release process](release-process.md), [host stability](host-stability.md) |
 | Regression evidence | Frozen baseline audit, phased hard/provenance gates, public-safe evidence and CI snapshot verification | [traceability](traceability.md), [portfolio snapshot](portfolio-snapshot.md) |
-| Improvement loop | Bounded actuator-interface candidate gate plus source-bound specialist case studies | [v0.2 case study](performance-improvement-case-study.md) |
+| Improvement loop | Bounded actuator-interface gate plus source-bound specialist positive and rejected-regression cases | [v0.2 case study](performance-improvement-case-study.md), [3.5 m/s rejection](../examples/v0.2-specialist-speed-boundary/SUMMARY.md) |
 | Input-domain isolation | Official 60-frame OpenPilot road-camera replay; functional and host-timing verdicts separated | [real-camera replay](real-camera-model-replay.md) |
 | Model-input diagnosis | Exact camera source-frame/model-frame overlay; rejected lane-width/dual-camera/marking/contrast candidates; source-hashed unmatched-scene structure audit prevents another unsupported pixel tweak | [source-aligned overlay](model-overlay-diagnostic.md), [camera-domain gap](camera-domain-gap.md) |
 

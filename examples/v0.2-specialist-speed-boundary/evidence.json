@@ -1,0 +1,51 @@
+{
+  "baseline": {
+    "departure_progress_m_range": [
+      87.86284253897182,
+      91.41835997666035
+    ],
+    "gate_sha256": "b55e5a0749f7afc0e995bd5feca83dc5d00008fce563e4bd3ef798ea2a15550a",
+    "observed_mean_lateral_rmse_m": 0.624143588088268,
+    "performance_eligible": false
+  },
+  "candidate": {
+    "analysis_sha256": "85176038530a72108c434761b2dec7219a1275b0d62054e1bea5917c60ad3f57",
+    "attempt_sha256": "ac5520a2e1766ead72804375cd419cf5e988fb75406f67c50e519b3498dcb707",
+    "camera_frames_dropped": 0,
+    "collision_occurred": false,
+    "departure_frame": 4561,
+    "departure_progress_m": 49.48072145194191,
+    "observed_lateral_rmse_m": 0.9831744538632665,
+    "outcome": "not_evaluated",
+    "reasons": [
+      "telemetry_coverage",
+      "camera_coverage"
+    ],
+    "summary_sha256": "859c78f53d4e19698350c59748885ac80e61afbef64ae1affabc608ae763685a",
+    "validity": "invalid",
+    "wsl_boot_changed": false
+  },
+  "decision": "reject_candidate_stop_before_repeat_and_delay_matrix",
+  "localization": {
+    "analysis_sha256": "dd683dabefb76bc65c5e3d4a86db0e11d0a7a0697aa23920a18d54c8f2cecb1e",
+    "capture_end_frame": 5600,
+    "capture_start_frame": 4960,
+    "classification": "repeatable_common_curve_departure",
+    "common_reference_curvature_1pm": -0.008032128514056325
+  },
+  "schema_version": 1,
+  "scope": "simulator_specialist_speed_boundary_negative_case_not_road_performance",
+  "training": {
+    "artifact_sha256": "e95513b0ea8f956e2653a582e12b5fd6f45b9743c400f731a365f80c768d1ef8",
+    "manifest_sha256": [
+      "4c7337c71c51b6cf92d8d482e3f29039f0421b7eddc46254c6ffe60436dded43",
+      "05d88995f792eda4880d01c0168d11b676c3219acc28a71e59c2e1b2795845f0"
+    ],
+    "metrics_sha256": "b2f0958b471485f387e943ef4a24f544af05b74f703e94b811fca6507d15ba9d",
+    "train_pairs": 554,
+    "train_samples": 33,
+    "validation_pairs": 554,
+    "validation_rmse_normalized_steer": 0.01027491934001561,
+    "validation_samples": 33
+  }
+}
