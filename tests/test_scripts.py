@@ -8,6 +8,8 @@ import stat
 import subprocess
 import sys
 
+import numpy as np
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -116,6 +118,24 @@ def test_speed_boundary_case_is_source_bound_and_public_safe(tmp_path):
   assert evidence["training"]["train_samples"] == 2
   assert len(evidence["training"]["artifact_sha256"]) == 64
   assert str(tmp_path) not in json.dumps(evidence)
+
+
+def test_anchored_temporal_artifact_is_exact_prediction_blend():
+  import importlib.util
+  spec = importlib.util.spec_from_file_location("anchored", ROOT / "scripts/build_anchored_temporal_candidate.py")
+  anchored = importlib.util.module_from_spec(spec)
+  spec.loader.exec_module(anchored)
+
+  base = {"version": np.array(2), "frame_gap": np.array(20), "mean": np.array([1.0, 2.0]),
+          "scale": np.array([2.0, 4.0]), "weights": np.array([0.5, -0.2, 0.1])}
+  update = {"version": np.array(2), "frame_gap": np.array(20), "mean": np.array([0.0, 3.0]),
+            "scale": np.array([1.0, 2.0]), "weights": np.array([-0.3, 0.4, -0.2])}
+  features = np.array([[0.0, 1.0], [2.0, 5.0]])
+  alpha = 0.4
+  blended = anchored.blend_artifacts(base, update, alpha)
+
+  expected = (1 - alpha) * anchored.predict(base, features) + alpha * anchored.predict(update, features)
+  np.testing.assert_allclose(anchored.predict(blended, features), expected, atol=1e-12)
 
 
 def test_real_camera_replay_setup_pins_compatible_ffmpeg():
