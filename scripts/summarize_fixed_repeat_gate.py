@@ -59,8 +59,9 @@ def main() -> None:
     "runs": records,
     "aggregate": {
       "run_count": len(records),
-      "mean_lateral_rmse_m": fmean(lateral) if len(lateral) == 3 else None,
-      "population_std_lateral_rmse_m": pstdev(lateral) if len(lateral) == 3 else None,
+      "performance_eligible": eligible,
+      "observed_mean_lateral_rmse_m": fmean(lateral) if len(lateral) == 3 else None,
+      "observed_population_std_lateral_rmse_m": pstdev(lateral) if len(lateral) == 3 else None,
     },
   }
   args.output.parent.mkdir(parents=True, exist_ok=True)

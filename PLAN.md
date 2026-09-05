@@ -52,6 +52,8 @@ The simulator-specialist track remains a separately source-hash-bound positive c
 
 The v0.6 gamma-0.8 specialist now also has a three-repeat 2.5 m/s interpolation measurement between its retained 2.0 and 3.0 m/s fixed contracts. This is a third deterministic speed point only; it is not treated as continuous speed robustness and does not trigger a new delay matrix.
 
+A three-repeat 3.5 m/s upper-bound probe is retained as `invalid/not_evaluated`: all attempts departed after roughly 95–96% coverage. It bounds the current fixed-speed evidence without weakening the 1,200-frame contract; partial-run RMSE is diagnostic-only and no delay matrix is eligible.
+
 ## v0.2 pretrained perception reference
 
 MetaDrive remains the closed-loop integration, timing/fault, and actuator-regression environment. Pretrained perception health is now isolated with OpenPilot's fixed official real-camera process replay: 60 frames, full model-output coverage, route/input provenance, lane/path/curvature aggregates, and separate functional/timing verdicts. This is an offline replay—not closed loop, matched-scene accuracy, or road validation. The public contrast is used to stop speculative MetaDrive photometric tuning and to keep simulator-specialist learning results in their existing separate track. See [real-camera model replay](docs/real-camera-model-replay.md).

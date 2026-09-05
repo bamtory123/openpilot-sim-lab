@@ -268,6 +268,8 @@ The real-camera replay was then extended to retain four selected raw frames loca
 
 The next specialist generalization gate measured the previously untested 2.5 m/s midpoint under the v0.6 gamma-0.8/default-loop contract. Three independent durable 0 ms attempts were all `valid/pass` with 1,200 frames, no departure/collision/drop, and unchanged WSL boot IDs. Mean lateral RMSE was 0.47422 m with 0.00574 m population standard deviation. A source-hashed three-repeat gate artifact preserves the result. This is one additional deterministic speed point, not continuous dynamics robustness.
 
+The subsequent 3.5 m/s upper-bound probe repeated three `invalid/not_evaluated` results: lane departure at 1,141–1,152 frames left coverage at 0.9508–0.9600. Drops, collisions, process errors, WSL boot changes, and NVIDIA 616.56 driver changes were absent. Its source-hashed repeat gate correctly reports FAIL and marks the partial-run RMSE aggregate as performance-ineligible. The highest evaluated speed remains the existing fixed 3.0 m/s contract; no 3.5 m/s delay matrix is allowed.
+
 1. Keep v0.1 release qualification at `not_qualified_yet`: the same-provenance candidate set is a Phase 1 hard-gate failure under the current active-time contract.
 2. The v0.1 pretrained-driving disposition is closed as `not_qualified_yet`; before a future comparison, explicitly approve a replacement baseline/candidate policy and do not weaken or relabel the current invalid evidence.
 3. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.

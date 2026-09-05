@@ -346,6 +346,7 @@ def test_fixed_repeat_gate_requires_three_complete_host_stable_passes(tmp_path):
   result = json.loads(output.read_text(encoding="utf-8"))
 
   assert result["status"] == "pass" and result["aggregate"]["run_count"] == 3
+  assert result["aggregate"]["performance_eligible"] is True
   assert len(result["runs"][0]["summary_sha256"]) == 64
 
   failed = json.loads(summaries[2].read_text(encoding="utf-8"))
@@ -354,7 +355,8 @@ def test_fixed_repeat_gate_requires_three_complete_host_stable_passes(tmp_path):
   subprocess.run([sys.executable, str(ROOT / "scripts/summarize_fixed_repeat_gate.py"),
                   "--summary", *(str(path) for path in summaries), "--attempt", *(str(path) for path in attempts),
                   "--output", str(output)], check=True)
-  assert json.loads(output.read_text(encoding="utf-8"))["status"] == "fail"
+  result = json.loads(output.read_text(encoding="utf-8"))
+  assert result["status"] == "fail" and result["aggregate"]["performance_eligible"] is False
 
 
 def test_portfolio_readiness_exposes_optional_carla_adapter_source_check():
