@@ -153,14 +153,18 @@ def main() -> None:
     for index in (0, 20, 40, 59):
       snapshot = _model_snapshot(model_messages[index], projection, index)
       snapshot_path = diagnostic_dir / f"model-frame-{index:03d}.json"
+      image_path = diagnostic_dir / f"camera-frame-{index:03d}.png"
       overlay_path = diagnostic_dir / f"overlay-frame-{index:03d}.png"
       _write_json(snapshot_path, snapshot)
       rgb = nv12_to_rgb(np.asarray(frames["narrowRoadCameraState"].get(index)), camera.width, camera.height)
+      Image.fromarray(rgb).save(image_path)
       render_overlay(Image.fromarray(rgb), snapshot).save(overlay_path)
       overlay_paths.append(overlay_path)
     save_contact_sheet(overlay_paths, diagnostic_dir / "contact-sheet.png")
     summary["diagnostic_overlays"] = {"scope": "local_analysis_only_not_public_evidence",
-                                      "frames": [path.name for path in overlay_paths], "contact_sheet": "contact-sheet.png"}
+                                      "frames": [path.name for path in overlay_paths],
+                                      "raw_frames": [f"camera-frame-{index:03d}.png" for index in (0, 20, 40, 59)],
+                                      "contact_sheet": "contact-sheet.png"}
     _write_json(args.output / "summary.json", summary)
   except Exception as error:
     _write_json(args.output / "summary.json", {

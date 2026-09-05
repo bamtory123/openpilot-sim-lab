@@ -25,6 +25,8 @@ Mean left/right lane confidence changed from `0.00953/0.01467` to `0.01111/0.015
 
 An asphalt-only contrast diagnostic then set `road_texture_gain: 0.75` while leaving lane textures, camera output, map geometry, and image gamma unchanged. The source-aligned frame-30 lower-centre luma changed from `96.30` to `81.53`, confirming that the intended road region—not the full image—was darkened. Mean left/right lane confidence fell to `0.00922/0.01122`, mean path horizon fell to `3.26 m`, and lateral RMSE remained effectively unchanged at `0.852 m`. The run again ended `invalid/not_evaluated` after 24.39 s measured active time. Darker asphalt is rejected as a driving candidate.
 
+A subsequent source-hashed fixed-band structure audit found that MetaDrive has only 0.18× the real-replay upper-band gradient energy, while its lower-band gradient energy is 3.49× and its horizontal edge density is over two orders of magnitude higher. Because these are unmatched scenes and non-semantic bands, the comparison selects no rendering candidate. It instead closes the sequence of ungrounded single-pixel adjustments: the remaining gap is structural and requires matched-scene evidence or simulator-specialist training.
+
 ## Reproduction
 
 ```bash

@@ -152,3 +152,22 @@ The follow-up [source-aligned model overlay](model-overlay-diagnostic.md) now ve
 An FHWA-dimensioned 3.048 m line / 9.144 m gap diagnostic then produced a small relative lane-confidence increase but no path-horizon or closed-loop improvement. It remains an opt-in negative diagnostic and confirms that dash cadence alone does not close the domain gap.
 
 Darkening only the asphalt texture to 75% intensity was also ineffective. Captured lower-centre luma decreased from 96.30 to 81.53, but both lane confidence and path horizon fell and the early-departure validity failure was unchanged. This separates lane/road contrast from the previously rejected full-image gamma adjustment and rejects both as complete remedies.
+
+## Unmatched-scene structure audit
+
+The official 60-frame real-camera replay now retains four explicitly selected raw RGB frames locally. `scripts/audit_camera_structure.py` compares their source-hashed fixed vertical bands with the three exact-source-ID MetaDrive frames. The bands are deliberately non-semantic and the scenes are not matched, so the ratios measure domain shift—not segmentation accuracy, feature importance, or causal contribution to model output.
+
+| Fixed image band | MetaDrive / real gradient RMS | MetaDrive / real luma entropy | MetaDrive / real vertical edge density | MetaDrive / real horizontal edge density |
+|---|---:|---:|---:|---:|
+| Upper 0–40% | 0.18× | 0.70× | 0.00× | 0.00× |
+| Horizon 35–65% | 1.33× | 0.92× | 0.80× | 6.24× |
+| Lower 50–100% | 3.49× | 0.68× | 14.90× | 163.80× |
+
+The simulator frames have an almost structure-free upper band, a sharp horizontal horizon/road transition, and repetitive high-contrast road/curb/marking edges in the lower band. The real replay frames instead contain vehicles, signs, vegetation, shadows, and road texture distributed across the image. This explains why isolated gamma, asphalt darkness, or dash cadence is too narrow a remedy, but it does not prove which feature the model uses. No additional pixel-level candidate is promoted from this unmatched comparison. A causal pretrained-perception experiment now requires either permission-cleared matched scenes or a separately trained simulator specialist.
+
+```bash
+python scripts/audit_camera_structure.py \
+  --sim-frame <exact-source MetaDrive PNGs...> \
+  --reference-frame <local real-replay camera PNGs...> \
+  --output outputs/camera-structure-audit/audit.json
+```

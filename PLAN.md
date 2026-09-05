@@ -58,6 +58,8 @@ The next local-only diagnostic layer binds immutable MetaDrive RGB inputs to ful
 
 Source-aligned rendering candidates have additionally rejected an FHWA-dimensioned broken-line cadence and isolated asphalt darkening as complete remedies. Both hooks remain opt-in diagnostic interfaces; no result changes the v0.1 scenario or qualifies pretrained closed-loop driving.
 
+A source-hashed fixed-band comparison now quantifies the remaining scene-structure gap without treating unmatched real and simulator scenes as an accuracy benchmark. It promotes no further pretrained rendering tweak: future causal perception work requires permission-cleared matched scenes, while simulator-only performance work continues through the separately labeled specialist track.
+
 ## 한계
 
 모든 threshold는 자동차/OEM 기준이 아닌 `project_defined` 기준이어야 하며 baseline 측정 전 performance threshold를 확정하지 않는다. 상세 한계는 [limitations](docs/limitations.md)를 따른다.

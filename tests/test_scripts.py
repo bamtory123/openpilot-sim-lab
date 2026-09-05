@@ -302,6 +302,27 @@ def test_camera_color_evaluation_retains_identity_audit_without_launching_runs(t
   assert result["candidate_success"] is False and result["reason"] == "identity_color_affine"
 
 
+def test_camera_structure_audit_is_hash_bound_and_non_semantic(tmp_path):
+  from PIL import Image
+  import numpy as np
+
+  simulator = tmp_path / "simulator.png"
+  reference = tmp_path / "reference.png"
+  Image.fromarray(np.zeros((20, 30, 3), dtype=np.uint8)).save(simulator)
+  Image.fromarray(np.full((20, 30, 3), 100, dtype=np.uint8)).save(reference)
+  output = tmp_path / "audit.json"
+
+  subprocess.run([sys.executable, str(ROOT / "scripts/audit_camera_structure.py"),
+                  "--sim-frame", str(simulator), "--reference-frame", str(reference), "--output", str(output)],
+                 check=True)
+  audit = json.loads(output.read_text(encoding="utf-8"))
+
+  assert audit["scope"] == "unmatched_scene_structure_diagnostic_not_segmentation_accuracy_or_driving_performance"
+  assert len(audit["simulator"]["frames"][0]["sha256"]) == 64
+  assert audit["limitations"] == ["frame_sets_are_not_scene_matched", "fixed_vertical_bands_are_not_semantic_masks",
+                                  "ratios_identify_domain_shift_but_not_model_causality"]
+
+
 def test_portfolio_readiness_exposes_optional_carla_adapter_source_check():
   script = (ROOT / "scripts/verify_portfolio_readiness.py").read_text(encoding="utf-8")
   assert 'parser.add_argument("--carla-adapter-summary", type=Path)' in script

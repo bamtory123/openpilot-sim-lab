@@ -33,7 +33,7 @@ PATH="$PWD/.tools/bin:$PATH" /home/hyunsung/src/openpilot/.venv/bin/python \
   --output outputs/real-camera-model-replay-$(date -u +%Y%m%dT%H%M%SZ)
 ```
 
-Dirty source trees are rejected unless `--allow-dirty` is explicitly used for a diagnostic. Output contains `manifest.json`, `model_metrics.csv`, and `summary.json`. The first timing sample is excluded exactly like upstream `model_replay.py`.
+Dirty source trees are rejected unless `--allow-dirty` is explicitly used for a diagnostic. Output contains `manifest.json`, `model_metrics.csv`, and `summary.json`. Four explicitly selected raw RGB frames and their model overlays are retained under `diagnostics/` for local source-hashed domain analysis; neither is public evidence. The first timing sample is excluded exactly like upstream `model_replay.py`.
 
 ## Verdict model
 

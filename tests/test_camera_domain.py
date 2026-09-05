@@ -3,7 +3,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from simlab.camera_domain import aggregate_statistics, color_affine, image_statistics
+from simlab.camera_domain import (aggregate_scene_structure, aggregate_statistics, color_affine, image_statistics,
+                                  scene_structure_statistics)
 from simlab.config import load_scenario, scenario_with_camera_color_affine
 
 
@@ -28,6 +29,30 @@ def test_camera_domain_color_affine_is_bounded_moment_match(tmp_path):
 
   assert affine["gain_rgb"] == [0.5, 0.5, 0.5]
   assert affine["bias_rgb"] == [60.0, 64.0, 64.0]
+
+
+def test_scene_structure_uses_fixed_bands_and_hashes_source(tmp_path):
+  rgb = np.zeros((20, 20, 3), dtype=np.uint8)
+  rgb[10:, ::2] = 255
+  path = tmp_path / "structure.png"
+  Image.fromarray(rgb).save(path)
+
+  result = scene_structure_statistics(path)
+
+  assert len(result["sha256"]) == 64
+  assert result["bands"]["upper"]["gradient_rms"] == 0.0
+  assert result["bands"]["lower"]["vertical_edge_density"] == 1.0
+  assert result["bands"]["lower"]["luma_entropy_bits"] == 1.0
+
+
+def test_scene_structure_aggregate_preserves_frames(tmp_path):
+  first = _image(tmp_path / "first.png", (10, 20, 30))
+  second = _image(tmp_path / "second.png", (30, 40, 50))
+
+  result = aggregate_scene_structure([first, second])
+
+  assert result["frame_count"] == 2 and len(result["frames"]) == 2
+  assert abs(result["bands"]["lower"]["luma_mean"] - result["bands"]["upper"]["luma_mean"]) < 1e-4
 
 
 def test_camera_color_affine_scenario_remains_openpilot_only():
