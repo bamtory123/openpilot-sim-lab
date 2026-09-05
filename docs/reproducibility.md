@@ -97,6 +97,7 @@ This is a single 0 ms fixed-seed lane-following probe, not an actor-interaction 
 ```bash
 cd /home/hyunsung/src/metadrive
 git apply /home/hyunsung/src/openpilot-sim-lab/patches/metadrive-0.4.2.3-traffic-render-vehicle.patch
+git apply /home/hyunsung/src/openpilot-sim-lab/patches/metadrive-0.4.2.3-road-marking-profile.patch
 ```
 
 ```bash

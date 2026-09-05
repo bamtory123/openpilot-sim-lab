@@ -15,7 +15,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 v01="$here/patches/openpilot-v01-sim-instrumentation.patch"
 v02="$here/patches/openpilot-v02-carla-adapter.patch"
 expected_v01="959e1846cd9b1a0111de346befcf749218f70ad74e06af574f284d687e6661c4"
-expected_v02="66263730741d34d0c4b2774ff92fff9dbc534b4428067ad0dab1f830c956fab2"
+expected_v02="2af5111111d4f02cab6be938d70ad764c3100c3fc21ee783170a4a62af658286"
 [[ "$(sha256sum "$v01" | cut -d' ' -f1)" == "$expected_v01" ]] || { echo "v0.1 patch checksum mismatch" >&2; exit 1; }
 [[ "$(sha256sum "$v02" | cut -d' ' -f1)" == "$expected_v02" ]] || { echo "v0.2 patch checksum mismatch" >&2; exit 1; }
 git -C "$root" cat-file -e "$base^{commit}"

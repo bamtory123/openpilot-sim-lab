@@ -1,0 +1,66 @@
+diff --git a/metadrive/component/map/base_map.py b/metadrive/component/map/base_map.py
+index 7bd781d9..00279c61 100644
+--- a/metadrive/component/map/base_map.py
++++ b/metadrive/component/map/base_map.py
+@@ -14,6 +14,27 @@ from metadrive.utils.shapely_utils.geom import find_longest_edge
+ logger = logging.getLogger(__name__)
+ 
+ 
++def broken_line_segments(polyline, segment_length, gap_length):
++    """Return exact-distance dash segments from a sampled road-line polyline."""
++    points = np.asarray(polyline, dtype=np.float64)
++    if len(points) < 2:
++        return []
++    lengths = np.linalg.norm(np.diff(points, axis=0), axis=1)
++    cumulative = np.concatenate(([0.0], np.cumsum(lengths)))
++
++    def interpolate(distance):
++        distance = min(max(float(distance), 0.0), float(cumulative[-1]))
++        index = min(int(np.searchsorted(cumulative, distance, side="right") - 1), len(lengths) - 1)
++        if lengths[index] == 0:
++            return points[index].tolist()
++        ratio = (distance - cumulative[index]) / lengths[index]
++        return (points[index] + ratio * (points[index + 1] - points[index])).tolist()
++
++    period = float(segment_length) + float(gap_length)
++    return [[interpolate(start), interpolate(min(start + segment_length, cumulative[-1]))]
++            for start in np.arange(0.0, cumulative[-1], period) if start < cumulative[-1]]
++
++
+ class BaseMap(BaseRunnable, ABC):
+     """
+     Base class for Map generation!
+@@ -209,6 +230,7 @@ class BaseMap(BaseRunnable, ABC):
+         polygons = []
+         polylines = []
+ 
++        stripe_gap = getattr(PGDrivableAreaProperty, "STRIPE_GAP", None)
+         points_to_skip = math.floor(PGDrivableAreaProperty.STRIPE_LENGTH * 2 / line_sample_interval)
+         for obj in all_lanes.values():
+             if MetaDriveType.is_lane(obj["type"]) and "lane" in layer:
+@@ -216,14 +238,18 @@ class BaseMap(BaseRunnable, ABC):
+             elif "lane_line" in layer and (MetaDriveType.is_road_line(obj["type"])
+                                            or MetaDriveType.is_road_boundary_line(obj["type"])):
+                 if MetaDriveType.is_broken_line(obj["type"]):
+-                    for index in range(0, len(obj["polyline"]) - 1, points_to_skip * 2):
+-                        if index + points_to_skip < len(obj["polyline"]):
+-                            polylines.append(
+-                                (
+-                                    [obj["polyline"][index], obj["polyline"][index + points_to_skip]],
+-                                    MapTerrainSemanticColor.get_color(obj["type"])
++                    if stripe_gap is None:
++                        for index in range(0, len(obj["polyline"]) - 1, points_to_skip * 2):
++                            if index + points_to_skip < len(obj["polyline"]):
++                                polylines.append(
++                                    (
++                                        [obj["polyline"][index], obj["polyline"][index + points_to_skip]],
++                                        MapTerrainSemanticColor.get_color(obj["type"])
++                                    )
+                                 )
+-                            )
++                    else:
++                        polylines.extend((segment, MapTerrainSemanticColor.get_color(obj["type"])) for segment in
++                                         broken_line_segments(obj["polyline"], PGDrivableAreaProperty.STRIPE_LENGTH, stripe_gap))
+                 else:
+                     polylines.append((obj["polyline"], MapTerrainSemanticColor.get_color(obj["type"])))
+ 

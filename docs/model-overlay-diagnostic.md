@@ -19,6 +19,10 @@ Two isolated candidates were rejected:
 
 All runs above were dirty-tree diagnostics and are not formal evidence. Neither candidate changes the frozen v0.1 scenario. The result narrows the next perception experiment to rendered road/marking appearance with source-aligned overlays; it does not justify actuator tuning or a pretrained-driving claim.
 
+The next single-variable experiment replaced MetaDrive's approximately 2 m line / 2 m gap semantic pattern with an opt-in `mutcd_highway_v1` profile using 3.048 m line segments and 9.144 m gaps. These dimensions follow the [FHWA MUTCD 11th Edition](https://mutcd.fhwa.dot.gov/pdfs/11th_Edition/mutcd11theditionhl.pdf) broken-line guidance. Exact source-ID overlays confirmed that the rendered spacing changed.
+
+Mean left/right lane confidence changed from `0.00953/0.01467` to `0.01111/0.01597`, but mean path horizon fell from `3.39 m` to `3.30 m`, measured median horizon fell from `2.89 m` to `2.73 m`, and lateral RMSE increased from `0.850 m` to `0.869 m`. The run remained `invalid/not_evaluated` after early departure and insufficient coverage. The marking profile is therefore retained only as appearance-sensitivity evidence, not a driving candidate.
+
 ## Reproduction
 
 ```bash
