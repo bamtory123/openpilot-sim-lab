@@ -263,3 +263,15 @@ def test_specialist_replay_requires_artifact_and_target_speed(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text() + "\nspecialist_replay:\n  artifact_path: models/test.npz\n")
   with pytest.raises(ScenarioError): load_scenario(path)
+
+
+def test_speed25_specialist_probe_changes_only_target_speed():
+  speed25 = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_temporal_v06_gamma_tight_dagger_speed25_gamma08_heldout_v1.yaml")
+  speed3 = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_temporal_v06_gamma_tight_dagger_speed3_gamma08_heldout_v1.yaml")
+  speed25_data = __import__("copy").deepcopy(speed25.data)
+  speed3_data = __import__("copy").deepcopy(speed3.data)
+
+  assert speed25_data.pop("scenario_id") != speed3_data.pop("scenario_id")
+  assert speed25_data["specialist_replay"].pop("target_speed_mps") == 2.5
+  assert speed3_data["specialist_replay"].pop("target_speed_mps") == 3.0
+  assert speed25_data == speed3_data
