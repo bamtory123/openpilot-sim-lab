@@ -593,10 +593,10 @@ index 7b66ff59b..ba4408ce9 100644
        "physics_world_step_size": self.TICKS_PER_FRAME/100,
        "preload_models": False,
 diff --git a/openpilot/tools/sim/bridge/metadrive/metadrive_common.py b/openpilot/tools/sim/bridge/metadrive/metadrive_common.py
-index 0106579b2..e8bdce557 100644
+index 0106579b2..2b110e764 100644
 --- a/openpilot/tools/sim/bridge/metadrive/metadrive_common.py
 +++ b/openpilot/tools/sim/bridge/metadrive/metadrive_common.py
-@@ -4,6 +4,15 @@ from metadrive.component.sensors.rgb_camera import RGBCamera
+@@ -4,6 +4,24 @@ from metadrive.component.sensors.rgb_camera import RGBCamera
  from panda3d.core import Texture, GraphicsOutput
 
 
@@ -609,11 +609,20 @@ index 0106579b2..e8bdce557 100644
 +  return np.clip(image.astype(np.float32) * gain + bias, 0, 255).astype(np.uint8)
 +
 +
++def apply_texture_luma_gain(texture: Texture, gain: float) -> Texture:
++  """Scale an RGB texture uniformly while preserving the existing texture object."""
++  if gain == 1.0:
++    return texture
++  image = np.frombuffer(texture.getRamImage().getData(), dtype=np.uint8).copy()
++  texture.setRamImage(np.rint(image.astype(np.float32) * gain).clip(0, 255).astype(np.uint8))
++  return texture
++
++
  class CopyRamRGBCamera(RGBCamera):
    """Camera which copies its content into RAM during the render process, for faster image grabbing."""
    def __init__(self, *args, **kwargs):
 diff --git a/openpilot/tools/sim/bridge/metadrive/metadrive_process.py b/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
-index 232832472..c1dda7742 100644
+index 232832472..4878d5530 100644
 --- a/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
 +++ b/openpilot/tools/sim/bridge/metadrive/metadrive_process.py
 @@ -5,7 +5,7 @@ import json
@@ -635,7 +644,7 @@ index 232832472..c1dda7742 100644
 
  from openpilot.tools.sim.lib.common import vec3
  from openpilot.tools.sim.lib.camerad import W, H
-+from openpilot.tools.sim.bridge.metadrive.metadrive_common import apply_camera_color_affine
++from openpilot.tools.sim.bridge.metadrive.metadrive_common import apply_camera_color_affine, apply_texture_luma_gain
  from openpilot.tools.sim.bridge.metadrive.specialist_replay import SpecialistReplay
 
  C3_POSITION = Vec3(0.0, 0, 1.22)
@@ -671,15 +680,16 @@ index 232832472..c1dda7742 100644
 
    road_image = np.frombuffer(camera_array.get_obj(), dtype=np.uint8).reshape((H, W, 3))
    if dual_camera:
-@@ -80,6 +87,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -80,6 +87,8 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
    specialist_replay = SpecialistReplay(specialist_replay_config["artifact_path"]) if specialist_replay_config is not None else None
    camera_fov_deg = float(environment_config.get("camera_fov_deg", 40))
    camera_gamma = float(environment_config.get("camera_gamma", 1.0))
 +  camera_color_affine = environment_config.get("camera_color_affine")
++  road_texture_gain = float(environment_config.get("road_texture_gain", 1.0))
    camera_position = Vec3(*map(float, environment_config.get("camera_position_m", C3_POSITION)))
    camera_hpr = Vec3(*map(float, environment_config.get("camera_hpr_deg", C3_HPR)))
    debug_camera_path = os.environ.get("SIMLAB_CAMERA_DEBUG_PATH")
-@@ -96,6 +104,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -96,6 +105,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
    previous_velocity_heading = None
    previous_simulation_time_s = None
    normalized_steer = 0.0
@@ -687,7 +697,7 @@ index 232832472..c1dda7742 100644
 
    def get_current_lane_info(vehicle):
      _, lane_info, on_lane = vehicle.navigation._get_current_lane(vehicle)
-@@ -103,6 +112,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -103,6 +113,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
      return lane_idx, on_lane
 
    specialist_prediction = None
@@ -695,7 +705,7 @@ index 232832472..c1dda7742 100644
 
    def reference_lane_telemetry(vehicle, simulation_frame, simulation_time_s, acceleration_mps2):
      nonlocal previous_velocity_heading, previous_simulation_time_s
-@@ -124,6 +134,20 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -124,6 +135,20 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
      lanes = list(getattr(vehicle.navigation, "current_ref_lanes", []) or [])
      lane = lanes[reference_lane_index] if 0 <= reference_lane_index < len(lanes) else None
      lane_idx, on_lane = get_current_lane_info(vehicle)
@@ -716,7 +726,7 @@ index 232832472..c1dda7742 100644
      result = {
        "type": "vehicle_telemetry", "simulation_frame": simulation_frame, "simulation_time_s": simulation_time_s,
        "position_x_m": float(vehicle.position[0]), "position_y_m": float(vehicle.position[1]),
-@@ -131,6 +155,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -131,6 +156,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
        "simulator_control_mode": "specialist_replay" if specialist_replay is not None else (simulator_control["mode"] if simulator_control is not None else "openpilot"),
        "specialist_replay_normalized_steer": specialist_prediction,
        "simulator_normalized_steer": float(normalized_steer),
@@ -724,7 +734,7 @@ index 232832472..c1dda7742 100644
        "applied_steering_angle_deg": float(vehicle.steering * vehicle.MAX_STEERING),
        "actual_yaw_rate_rad_s": yaw_rate,
        "actual_curvature_1pm": yaw_rate / speed_mps if speed_mps > 0.1 else 0.0,
-@@ -144,6 +169,11 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -144,6 +170,11 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
        "metadrive_on_lane": bool(on_lane), "reference_road_id": None,
        "route_progress_m": None, "lateral_error_m": None, "heading_error_rad": None,
        "lane_width_m": None, "vehicle_width_m": vehicle_width,
@@ -736,7 +746,7 @@ index 232832472..c1dda7742 100644
        "lane_departure": False, "collision": bool(getattr(vehicle, "crash_vehicle", False) or getattr(vehicle, "crash_object", False)),
        "specialist_teacher_curvature_1pm": None, "specialist_teacher_normalized_steer": None,
      }
-@@ -238,10 +268,29 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -238,10 +269,29 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
      return specialist_prediction, float(np.clip(0.25 * speed_error, -1.0, 1.0))
 
    def reset():
@@ -767,7 +777,15 @@ index 232832472..c1dda7742 100644
      previous_velocity_heading = None
      previous_simulation_time_s = None
      specialist_last_image = None
-@@ -264,6 +313,28 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -260,10 +310,36 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+     return lane_idx_prev
+
+   lane_idx_prev = reset()
++  if road_texture_gain != 1.0:
++    terrain = env.engine.terrain
++    apply_texture_luma_gain(terrain.road_texture, road_texture_gain)
++    terrain.mesh_terrain.set_shader_input("road_tex", terrain.road_texture)
+   env.engine.sensors["rgb_road"].get_lens().setFov(camera_fov_deg)
    start_time = None
    previous_speed = 0.0
 
@@ -796,7 +814,7 @@ index 232832472..c1dda7742 100644
    def get_cam_as_rgb(cam):
      nonlocal debug_camera_captured, debug_capture_index
      cam = env.engine.sensors[cam]
-@@ -275,6 +346,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -275,6 +351,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
        img = img.get() # convert cupy array to numpy
      if camera_gamma != 1.0:
        img = np.rint(np.power(img.astype(np.float32) / 255.0, camera_gamma) * 255.0).astype(np.uint8)
@@ -804,13 +822,14 @@ index 232832472..c1dda7742 100644
      if cam is env.engine.sensors["rgb_road"]:
        capture_path = metadata_path = None
        if debug_capture_index < len(debug_capture_frames) and rk.frame >= debug_capture_frames[debug_capture_index]:
-@@ -293,12 +365,14 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -293,12 +370,15 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
              json.dump({"simulation_frame": rk.frame, "simulation_time_s": rk.frame / 100,
                         "camera_fov_deg": camera_fov_deg, "camera_focal_length_px": W / (2.0 * math.tan(math.radians(camera_fov_deg) / 2.0)),
                         "camera_position_m": list(map(float, camera_position)),
 -                       "camera_hpr_deg": list(map(float, camera_hpr)), "camera_gamma": camera_gamma}, handle, sort_keys=True)
 +                       "camera_hpr_deg": list(map(float, camera_hpr)), "camera_gamma": camera_gamma,
 +                       "road_marking_profile": road_marking_profile or "metadrive_default",
++                       "road_texture_gain": road_texture_gain,
 +                       "camera_color_affine": camera_color_affine,
 +                       "static_obstacle_bbox_xyxy_px": visual_proxy_bbox(cam.get_cam())}, handle, sort_keys=True)
      return img
@@ -821,7 +840,7 @@ index 232832472..c1dda7742 100644
    vc = [0,0]
    steer_angle = gas = 0.0
    latest_road_image = None
-@@ -332,7 +406,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
+@@ -332,7 +412,7 @@ def metadrive_process(dual_camera: bool, config: dict, camera_array, wide_camera
      elif specialist_replay is not None:
        steer_metadrive, gas = specialist_controller(latest_road_image)
      else:
@@ -1052,13 +1071,14 @@ index 4e7560907..1695ceb60 100644
 +    assert create_map(lane_width=3.7)["lane_width"] == 3.7
 diff --git a/openpilot/tools/sim/tests/test_metadrive_camera_color.py b/openpilot/tools/sim/tests/test_metadrive_camera_color.py
 new file mode 100644
-index 000000000..88377b277
+index 000000000..a1962f4bb
 --- /dev/null
 +++ b/openpilot/tools/sim/tests/test_metadrive_camera_color.py
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,23 @@
 +import numpy as np
++from panda3d.core import Texture
 +
-+from openpilot.tools.sim.bridge.metadrive.metadrive_common import apply_camera_color_affine
++from openpilot.tools.sim.bridge.metadrive.metadrive_common import apply_camera_color_affine, apply_texture_luma_gain
 +
 +
 +def test_camera_color_affine_preserves_identity_and_clips_output():
@@ -1067,6 +1087,17 @@ index 000000000..88377b277
 +  assert apply_camera_color_affine(image, None) is image
 +  transformed = apply_camera_color_affine(image, {"gain_rgb": [2.0, 1.0, 1.0], "bias_rgb": [0.0, -30.0, 20.0]})
 +  np.testing.assert_array_equal(transformed, np.asarray([[[20, 0, 255]]], dtype=np.uint8))
++
++
++def test_texture_luma_gain_preserves_identity_and_scales_native_rgb_bytes():
++  texture = Texture("fixture")
++  texture.setup2dTexture(2, 1, Texture.TUnsignedByte, Texture.F_rgb)
++  texture.setRamImage(np.asarray([10, 20, 30, 100, 150, 200], dtype=np.uint8))
++
++  assert apply_texture_luma_gain(texture, 1.0) is texture
++  before = np.frombuffer(texture.getRamImage().getData(), dtype=np.uint8).copy()
++  assert apply_texture_luma_gain(texture, 0.75) is texture
++  np.testing.assert_array_equal(np.frombuffer(texture.getRamImage().getData(), dtype=np.uint8), np.rint(before * 0.75).astype(np.uint8))
 diff --git a/openpilot/tools/sim/tests/test_model_debug_snapshot.py b/openpilot/tools/sim/tests/test_model_debug_snapshot.py
 new file mode 100644
 index 000000000..cd1b85b21

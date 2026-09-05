@@ -19,6 +19,7 @@ The project fork keeps these changes on `project/sim-instrumentation`; the exper
 | Actuation calibration | scenario `actuation.steer_ratio` (default 8.0) applied only to OpenPilot `steeringAngleDeg` | records configured ratio and command-to-response data without changing model, planner, CAN/Panda, or ground-truth control |
 | Path-following diagnostics | reference tangent, velocity direction, and lookahead dot/cross products | keeps pure-pursuit geometry and measured yaw-rate in MetaDrive world coordinates |
 | MetaDrive camera | scenario-selected diagnostic FOV and opt-in frame capture | supports camera-domain diagnosis without changing the formal baseline |
+| Asphalt contrast diagnostic | bounded `road_texture_gain` applied to the road texture before rendering | isolates road/line contrast without changing full-frame gamma or the default texture |
 | Source-aligned model overlay | opt-in immutable RGB capture plus full model path/lane snapshot keyed by camera source frame ID | visualizes exact model input/output pairs without feeding runtime control |
 | Dual-camera diagnostic | opt-in narrow+wide MetaDrive streams; narrow-only remains the default | checks the model input-stream contract without changing v0.1 evidence |
 | Camera-domain color match | bounded scenario RGB gain/bias after optional gamma and before NV12 conversion | permits a reference-hash-bound image diagnostic without changing model, planner, or control authority |

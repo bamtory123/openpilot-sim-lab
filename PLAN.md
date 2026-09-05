@@ -56,6 +56,8 @@ MetaDrive remains the closed-loop integration, timing/fault, and actuator-regres
 
 The next local-only diagnostic layer binds immutable MetaDrive RGB inputs to full model geometry by exact camera source frame ID. It has rejected narrower lanes and dual-camera input as pretrained driving candidates while preserving both as negative diagnostic evidence. Future rendering changes must use this exact join and remain outside v0.1 qualification; see [model overlay diagnostic](docs/model-overlay-diagnostic.md).
 
+Source-aligned rendering candidates have additionally rejected an FHWA-dimensioned broken-line cadence and isolated asphalt darkening as complete remedies. Both hooks remain opt-in diagnostic interfaces; no result changes the v0.1 scenario or qualifies pretrained closed-loop driving.
+
 ## 한계
 
 모든 threshold는 자동차/OEM 기준이 아닌 `project_defined` 기준이어야 하며 baseline 측정 전 performance threshold를 확정하지 않는다. 상세 한계는 [limitations](docs/limitations.md)를 따른다.

@@ -262,6 +262,8 @@ On 2026-09-05, an analysis-only model overlay path was added for both official r
 
 The first source-aligned road-appearance candidate replaced MetaDrive's roughly 2 m/2 m dash cadence with an opt-in FHWA-derived 3.048 m/9.144 m profile. It slightly raised mean lane probabilities (`0.00953/0.01467` → `0.01111/0.01597`) but shortened the path horizon, increased lateral RMSE, and remained invalid after early departure. It is retained as sensitivity evidence and rejected as a driving candidate. The dependency change is shipped as a checksum-verified patch and leaves the default renderer untouched.
 
+The next isolated candidate darkened only the asphalt texture with `road_texture_gain: 0.75`. Source-aligned image statistics confirmed a lower-centre luma change from 96.30 to 81.53 while the sky and lane textures remained outside the transform. Lane confidence and path horizon both fell, lateral RMSE remained 0.852 m, and the run repeated the 24.39 s insufficient-coverage invalid result. The candidate is rejected; the bounded hook remains diagnostic-only with a 1.0 default.
+
 1. Keep v0.1 release qualification at `not_qualified_yet`: the same-provenance candidate set is a Phase 1 hard-gate failure under the current active-time contract.
 2. The v0.1 pretrained-driving disposition is closed as `not_qualified_yet`; before a future comparison, explicitly approve a replacement baseline/candidate policy and do not weaken or relabel the current invalid evidence.
 3. Isolate the Windows/WSL CUDA bridge stability issue before scheduling a new long formal matrix; preserve interrupted runs as explicit invalid artifacts.

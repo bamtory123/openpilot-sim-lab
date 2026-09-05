@@ -80,6 +80,8 @@ def validate_scenario(data: dict[str, Any]) -> None:
     raise ScenarioError("dual_camera must be boolean")
   if "road_marking_profile" in env and env["road_marking_profile"] != "mutcd_highway_v1":
     raise ScenarioError("road_marking_profile must be mutcd_highway_v1")
+  if "road_texture_gain" in env and (not isinstance(env["road_texture_gain"], (int, float)) or float(env["road_texture_gain"]) not in (0.75, 1.0)):
+    raise ScenarioError("road_texture_gain must be the 1.0 baseline or approved 0.75 diagnostic")
   for key in ("camera_position_m", "camera_hpr_deg"):
     if key in env and (not isinstance(env[key], list) or len(env[key]) != 3 or not all(isinstance(value, (int, float)) for value in env[key])):
       raise ScenarioError(f"{key} must be a three-value numeric vector")

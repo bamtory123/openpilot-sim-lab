@@ -23,6 +23,8 @@ The next single-variable experiment replaced MetaDrive's approximately 2 m line 
 
 Mean left/right lane confidence changed from `0.00953/0.01467` to `0.01111/0.01597`, but mean path horizon fell from `3.39 m` to `3.30 m`, measured median horizon fell from `2.89 m` to `2.73 m`, and lateral RMSE increased from `0.850 m` to `0.869 m`. The run remained `invalid/not_evaluated` after early departure and insufficient coverage. The marking profile is therefore retained only as appearance-sensitivity evidence, not a driving candidate.
 
+An asphalt-only contrast diagnostic then set `road_texture_gain: 0.75` while leaving lane textures, camera output, map geometry, and image gamma unchanged. The source-aligned frame-30 lower-centre luma changed from `96.30` to `81.53`, confirming that the intended road region—not the full image—was darkened. Mean left/right lane confidence fell to `0.00922/0.01122`, mean path horizon fell to `3.26 m`, and lateral RMSE remained effectively unchanged at `0.852 m`. The run again ended `invalid/not_evaluated` after 24.39 s measured active time. Darker asphalt is rejected as a driving candidate.
+
 ## Reproduction
 
 ```bash

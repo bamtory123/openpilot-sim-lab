@@ -205,6 +205,18 @@ def test_road_marking_profile_is_explicit(tmp_path):
     load_scenario(rejected)
 
 
+def test_road_texture_gain_is_bounded(tmp_path):
+  base = (ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text()
+  approved = tmp_path / "approved.yaml"
+  approved.write_text(base.replace("reference_lane_index: 0", "reference_lane_index: 0\n  road_texture_gain: 0.75"))
+  assert load_scenario(approved).data["environment"]["road_texture_gain"] == 0.75
+
+  rejected = tmp_path / "rejected.yaml"
+  rejected.write_text(base.replace("reference_lane_index: 0", "reference_lane_index: 0\n  road_texture_gain: 0.5"))
+  with pytest.raises(ScenarioError):
+    load_scenario(rejected)
+
+
 def test_invalid_camera_pose_is_rejected(tmp_path):
   path = tmp_path / "invalid.yaml"
   path.write_text((ROOT / "configs/scenarios/md_default_loop_lane0_v1.yaml").read_text().replace("reference_lane_index: 0", "reference_lane_index: 0\n  camera_hpr_deg: [0, 1]"))
