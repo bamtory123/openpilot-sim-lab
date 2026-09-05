@@ -1,4 +1,5 @@
 import py_compile
+import csv
 import json
 import hashlib
 from pathlib import Path
@@ -38,6 +39,41 @@ def test_portfolio_snapshot_verifier_is_public_checkout_only():
 def test_python_scripts_compile_without_runtime_dependencies():
   for path in sorted((ROOT / "scripts").glob("*.py")):
     py_compile.compile(str(path), doraise=True)
+
+
+def test_departure_window_analysis_finds_repeatable_curve_and_hashes_sources(tmp_path):
+  fieldnames = ["measurement", "lane_departure", "simulation_frame", "simulation_time_s",
+                "route_progress_m", "lateral_error_m", "heading_error_rad", "reference_curvature_1pm"]
+  paths = []
+  for index, departure_frame in enumerate((5600, 5700, 5680)):
+    path = tmp_path / f"telemetry-{index}.csv"
+    with path.open("w", newline="", encoding="utf-8") as stream:
+      writer = csv.DictWriter(stream, fieldnames=fieldnames)
+      writer.writeheader()
+      for frame, lateral, departed in ((4900, 0.8, False), (5000, 1.0, False),
+                                       (departure_frame, 1.3, True)):
+        writer.writerow({"measurement": True, "lane_departure": departed, "simulation_frame": frame,
+                         "simulation_time_s": frame / 100, "route_progress_m": frame / 60,
+                         "lateral_error_m": lateral, "heading_error_rad": 0.1,
+                         "reference_curvature_1pm": -0.008})
+    paths.append(path)
+
+  output = tmp_path / "analysis.json"
+  result = subprocess.run([sys.executable, str(ROOT / "scripts/analyze_departure_window.py"),
+                           "--telemetry", *(str(path) for path in paths), "--output", str(output)],
+                          check=True, capture_output=True, text=True)
+  analysis = json.loads(result.stdout)
+
+  assert analysis == json.loads(output.read_text(encoding="utf-8"))
+  assert analysis["classification"] == "repeatable_common_curve_departure"
+  assert analysis["departure_frame_range"] == [5600, 5700]
+  assert analysis["recommended_capture_window"] == {
+    "purpose": "targeted_dagger_capture_before_common_departure",
+    "start_frame": 4400,
+    "end_frame": 5560,
+    "step_frames": 20,
+  }
+  assert all(len(run["sha256"]) == 64 for run in analysis["runs"])
 
 
 def test_real_camera_replay_setup_pins_compatible_ffmpeg():
