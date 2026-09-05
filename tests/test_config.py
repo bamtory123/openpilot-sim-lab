@@ -275,3 +275,15 @@ def test_speed25_specialist_probe_changes_only_target_speed():
   assert speed25_data["specialist_replay"].pop("target_speed_mps") == 2.5
   assert speed3_data["specialist_replay"].pop("target_speed_mps") == 3.0
   assert speed25_data == speed3_data
+
+
+def test_speed35_specialist_probe_changes_only_target_speed():
+  speed35 = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_temporal_v06_gamma_tight_dagger_speed35_gamma08_heldout_v1.yaml")
+  speed3 = load_scenario(ROOT / "configs/scenarios/md_default_loop_lane0_temporal_v06_gamma_tight_dagger_speed3_gamma08_heldout_v1.yaml")
+  speed35_data = __import__("copy").deepcopy(speed35.data)
+  speed3_data = __import__("copy").deepcopy(speed3.data)
+
+  assert speed35_data.pop("scenario_id") != speed3_data.pop("scenario_id")
+  assert speed35_data["specialist_replay"].pop("target_speed_mps") == 3.5
+  assert speed3_data["specialist_replay"].pop("target_speed_mps") == 3.0
+  assert speed35_data == speed3_data
