@@ -13,5 +13,8 @@
 | REQ-REG-002 | Hard regression gates are automatic; baseline-relative performance changes are review-required until project-defined thresholds are approved. | implemented |
 | REQ-REL-001 | Requirement–test–scenario–artifact traceability is retained. | implemented |
 | REQ-REL-002 | Qualification report and limitations are packaged for release. | implemented |
+| REQ-IMP-001 | Improvement candidates retain source identity and use fixed offline/closed-loop gates without changing frozen v0.1 evidence. | implemented |
+| REQ-IMP-002 | Regressive, invalid, or non-repeatable candidates are preserved and blocked from downstream regression or delay expansion. | implemented |
+| REQ-REP-001 | Repeated-contract control and trajectory divergence can be localized without claiming causality or deterministic execution. | implemented |
 
 All numerical acceptance limits are project-defined only; no OEM or production-vehicle threshold is implied.

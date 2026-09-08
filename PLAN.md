@@ -54,6 +54,8 @@ The v0.6 gamma-0.8 specialist now also has a three-repeat 2.5 m/s interpolation 
 
 A three-repeat 3.5 m/s upper-bound probe is retained as `invalid/not_evaluated`: all attempts departed after roughly 95–96% coverage. It bounds the current fixed-speed evidence without weakening the 1,200-frame contract; partial-run RMSE is diagnostic-only and no delay matrix is eligible.
 
+A targeted-data update then regressed, while a trust-region anchored candidate improved to two `valid/pass` repeats but failed the required 3/3 gate on its third run. Source-hashed divergence and bounded pixel-sensitivity analyses preserve the negative result without assigning an unsupported cause. This closes further v0.2 specialist tuning for the portfolio snapshot. The [direction review](docs/project-direction.md) makes execution repeatability and interface fidelity—not another model revision—the recommended v0.3 focus.
+
 ## v0.2 pretrained perception reference
 
 MetaDrive remains the closed-loop integration, timing/fault, and actuator-regression environment. Pretrained perception health is now isolated with OpenPilot's fixed official real-camera process replay: 60 frames, full model-output coverage, route/input provenance, lane/path/curvature aggregates, and separate functional/timing verdicts. This is an offline replay—not closed loop, matched-scene accuracy, or road validation. The public contrast is used to stop speculative MetaDrive photometric tuning and to keep simulator-specialist learning results in their existing separate track. See [real-camera model replay](docs/real-camera-model-replay.md).

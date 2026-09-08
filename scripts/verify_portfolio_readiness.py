@@ -51,8 +51,9 @@ def main() -> None:
     raise SystemExit("public performance case-study evidence is missing, stale, or exposes a local detail")
 
   run("verify_real_camera_replay_evidence.py", str(ROOT / "examples/v0.2-real-camera-model-replay"))
+  run("verify_speed_boundary_case.py", str(ROOT / "examples/v0.2-specialist-speed-boundary"))
   checks = {"public_v01": "pass", "public_carla": "pass", "public_improvement_case_study": "pass",
-            "public_real_camera_replay": "pass"}
+            "public_real_camera_replay": "pass", "public_speed_boundary_case": "pass"}
   if args.verify_local_v01:
     run("verify_v01_public_evidence.py")
     checks["v01_retained_source"] = "pass"

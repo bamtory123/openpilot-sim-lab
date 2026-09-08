@@ -1,3 +1,5 @@
 # Limitations
 
 This is SIL only: synthetic camera rendering, virtual CAN/Panda behavior, vehicle dynamics and timing do not validate an ECU, EPS, real CAN bus, HIL or a road vehicle. OpenPilot is the SUT; simulator-specialist experiments are separate local artifacts and do not improve the pretrained OpenPilot model. The real-camera model replay is prerecorded and therefore cannot measure closed-loop control, matched-scene perception accuracy, or road performance. CARLA has a bounded v0.2 adapter pilot and analysis-only capture path, but neither is a v0.1 acceptance condition or CARLA closed-loop qualification. TensorRT and Chestnut comparison remain future work.
+
+A fixed scenario and seed control configuration but do not establish bitwise rendering, control, or trajectory determinism. The retained 3.5 m/s anchored candidate produced two passes and one functional failure under the same recorded contract. Its aligned-frame analysis localizes nonlinear closed-loop divergence but does not assign a renderer, scheduler, physics, or model root cause.

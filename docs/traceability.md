@@ -13,3 +13,6 @@
 | REQ-REG-002 | TC-REG-001 | same scenario/delay | regression-review hard/provenance gate and review-required policy | implemented |
 | REQ-REL-001 | TC-RELEASE-001 | release candidate | CI requirement/test/traceability consistency check | implemented |
 | REQ-REL-002 | TC-RELEASE-001 | release candidate | CI qualification-package boundary check | implemented |
+| REQ-IMP-001 | TC-IMP-001 | v0.2 improvement candidates | artifact/manifest/summary hashes and fixed candidate gate | implemented |
+| REQ-IMP-002 | TC-IMP-001 | v0.2 improvement candidates | rejected-candidate evidence and blocked next-step decision | implemented |
+| REQ-REP-001 | TC-REP-001 | anchored 3.5 m/s repeat gate | aligned telemetry divergence and bounded pixel-sensitivity artifacts | implemented |

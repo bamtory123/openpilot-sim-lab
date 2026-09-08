@@ -10,5 +10,7 @@
 | TC-BASE-001 | Measure fixed reference-lane tracking outcome. | FUNC-001 | `md_default_loop_lane0_v1` |
 | TC-REG-001 | Compare same-scenario/delay KPI deltas; hard-fail invalid/new collision/disengagement or incompatible scenario provenance, otherwise emit review-required. | REG-001, REG-002 | unit tests and historical self-consistency smoke |
 | TC-RELEASE-001 | Check requirement/test/traceability consistency and qualification package. | REL-001, REL-002 | CI traceability test; completed package with final v0.1 `not_qualified_yet` disposition |
+| TC-IMP-001 | Verify source-bound positive/negative improvement evidence and downstream gate decisions. | IMP-001, IMP-002 | public case-study builders/verifiers and candidate-selection unit tests |
+| TC-REP-001 | Align repeated telemetry and bound static pixel perturbation sensitivity without causal overclaim. | REP-001 | source-hashed divergence/pixel audits and unit tests |
 
 Formal KPI starts only after simulator ready, SUT ready, engagement, fault enable and settle. Startup robustness is not a v0.1 functional KPI.

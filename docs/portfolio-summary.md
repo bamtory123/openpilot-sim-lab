@@ -2,7 +2,7 @@
 
 ## What was built
 
-This project treats OpenPilot as a System Under Test and MetaDrive as a deterministic SIL environment. The implemented contribution is the validation framework around the SUT:
+This project treats OpenPilot as a System Under Test and MetaDrive as a configuration-controlled SIL environment. The implemented contribution is the validation framework around the SUT:
 
 - scenario/configuration validation, provenance manifest, and OpenPilot compatibility preflight
 - fixed-reference-lane ground truth, separate telemetry/camera/event artifacts, and validity/outcome classification
@@ -11,6 +11,7 @@ This project treats OpenPilot as a System Under Test and MetaDrive as a determin
 - phased regression review: data/new-event hard gates, provenance compatibility, and KPI delta review
 - bounded and full-run WSL/GPU host-stability evidence with boot-ID and Windows-event correlation
 - an upstream real-camera model replay control that separates pretrained input health from MetaDrive closed-loop behavior
+- a source-bound improvement loop that retains simulator-only positive controls and rejects regressive or non-repeatable candidates
 
 ## Evidence retained
 
@@ -23,3 +24,5 @@ The pretrained OpenPilot model-driven candidate set cannot satisfy the current 5
 This project does not claim successful OpenPilot driving, real-road validation, HIL, vehicle-CAN actuation validation, CARLA closed-loop qualification, obstacle avoidance, or statistical/general driving generalization. Simulator-specialist experiments are separately scoped and never replace the pretrained OpenPilot baseline. The 60-frame real-camera replay is a functional model-input reference, not closed-loop or road-performance evidence.
 
 Start with the [public v0.1 evidence bundle](../examples/v0.1-portfolio-evidence/README.md): it is the small, public-safe entry point and preserves the distinction between the formal lane-departure failure and host compatibility probes. The separate [real-camera replay contrast](../examples/v0.2-real-camera-model-replay/README.md) explains why pretrained perception and MetaDrive integration use different evidence paths. The retained local artifacts and final disposition are documented in the [qualification report](qualification-report.md), [decision log](decisions.md), and [limitations](limitations.md).
+
+The current scope decision and recommended v0.3 boundary are in the [project direction review](project-direction.md).

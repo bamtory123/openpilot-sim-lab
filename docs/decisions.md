@@ -23,3 +23,9 @@ The current same-provenance candidate set is a Phase 1 hard-gate failure because
 ## D-006: v0.1 closeout policy
 
 The v0.1 pretrained OpenPilot driving qualification is closed as `not_qualified_yet`. The project retains its completed SIL framework evidence—instrumentation, non-blocking fault path, provenance, validity/outcome separation, baseline audit, regression gate, and scoped host confirmation—but makes no pretrained driving-regression or release-pass claim. Any driving baseline change is a separately approved future version.
+
+## D-007: portfolio experiment freeze and v0.3 direction
+
+The v0.2 improvement case study closes after the anchored 3.5 m/s candidate produced two `valid/pass` and one `valid/fail` repeat. That candidate is not adopted, and no downstream regression or delay matrix is allowed. Further specialist, renderer, alpha, scenario, or CARLA tuning is outside the current portfolio snapshot because it would expand scope after observing the gate result.
+
+A future v0.3 starts with execution repeatability and simulator/actuator interface fidelity. Fixed seed is treated as configuration control, not proof of deterministic rendering or trajectory. See the [project direction review](project-direction.md) for the evidence assessment and ordered next-version criteria.

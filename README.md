@@ -6,6 +6,8 @@ OpenPilot is the System Under Test (SUT), MetaDrive is the SIL environment, and 
 
 Start with the [reviewer guide](docs/reviewer-guide.md). It separates this project's implemented validation framework from upstream OpenPilot/MetaDrive, points to the compact public evidence, and explains the honest v0.1 conclusion: framework evidence is complete, while pretrained-driving qualification remains `not_qualified_yet`.
 
+The [2026-09-08 direction review](docs/project-direction.md) freezes further portfolio experiment expansion and recommends execution repeatability and interface fidelity as the next version, rather than another simulator-specialist model revision.
+
 The [v0.2 SIL improvement loop](docs/performance-improvement-case-study.md) keeps pretrained actuator calibration separate from simulator-specialist positive controls; its [3.5 m/s rejection case](examples/v0.2-specialist-speed-boundary/SUMMARY.md) also shows the gate stopping a regressive targeted-data candidate. None is a real-road performance claim.
 
 The [real-camera model replay reference](docs/real-camera-model-replay.md) now checks pretrained perception on OpenPilot's own fixed road-camera route. It is deliberately separate from MetaDrive closed loop and exposes functional replay versus host timing as two verdicts.

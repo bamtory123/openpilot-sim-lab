@@ -12,10 +12,10 @@ OpenPilot is the **System Under Test (SUT)**; MetaDrive is the **SIL simulator**
 |---:|---|---|
 | 1 min | This page and the [portfolio summary](portfolio-summary.md) | Scope, contribution, and non-claims |
 | 2 min | [Public v0.1 evidence summary](../examples/v0.1-portfolio-evidence/SUMMARY.md) | Formal matrix, baseline audit, candidate hard gate, host confirmation |
-| 1 min | [v0.2 improvement case study](performance-improvement-case-study.md) | Separate pretrained calibration, specialist positive controls, and a source-bound rejected regression |
-| 1 min | [Real-camera replay reference](../examples/v0.2-real-camera-model-replay/README.md) | Why pretrained perception and MetaDrive closed loop are evaluated on separate evidence paths |
-| 1 min | [Architecture](architecture.md) and [OpenPilot patch boundary](openpilot-patch.md) | What was integrated and what was minimally instrumented |
-| 1 min | [Qualification report](qualification-report.md) and [limitations](limitations.md) | Why the result is `not_qualified_yet`, without hiding failure evidence |
+| 1 min | [v0.2 improvement case study](performance-improvement-case-study.md) | Separate positive controls, rejected regression, and repeatability gate |
+| 1 min | [Architecture](architecture.md), [patch boundary](openpilot-patch.md), and [limitations](limitations.md) | What was integrated and why the result remains bounded |
+
+The [real-camera replay](../examples/v0.2-real-camera-model-replay/README.md), CARLA material, full [evaluation boundary](evaluation-boundary.md), and [direction review](project-direction.md) are optional deep dives rather than part of the five-minute path.
 
 ## What I implemented
 

@@ -4,7 +4,7 @@ This document is the submission entry point for the current repository commit. I
 
 ## What the snapshot demonstrates
 
-- A deterministic MetaDrive SIL validation framework around OpenPilot: provenance preflight, reference-lane telemetry, non-blocking camera transport delay, validity/outcome separation, reports, and recovery.
+- A configuration-controlled MetaDrive SIL validation framework around OpenPilot: provenance preflight, reference-lane telemetry, non-blocking camera transport delay, validity/outcome separation, reports, and recovery.
 - Honest retention of the fixed model-driven baseline as `valid/fail: lane_departure`, and of an independent current candidate set as a Phase 1 coverage hard-gate failure.
 - Bounded GPU/WSL compatibility evidence that preserves runtime provenance, normal returned failures, host interruption recovery, and Windows-event correlation boundaries.
 
@@ -13,6 +13,7 @@ This document is the submission entry point for the current repository commit. I
 - Successful pretrained OpenPilot driving, real-road performance, HIL, real CAN actuation, obstacle avoidance, or CARLA closed-loop qualification.
 - A root cause or long-duration clearance for the CUDA-backed bridge interruption boundary.
 - General driving performance from the separately scoped simulator-specialist experiments.
+- Bitwise or trajectory determinism from a fixed MetaDrive seed; the retained anchored-candidate repeats explicitly expose a closed-loop repeatability boundary.
 
 ## Reviewer path
 
