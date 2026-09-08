@@ -50,6 +50,17 @@
     "classification": "repeatable_common_curve_departure",
     "common_reference_curvature_1pm": -0.008032128514056325
   },
+  "repeatability_diagnosis": {
+    "candidate_to_baseline_pixel_p95_ratio": 0.8356500012261607,
+    "conclusion": "bounded_pixel_sensitivity_increase_not_supported_closed_loop_margin_unresolved",
+    "first_lateral_divergence_frame": 3571,
+    "first_steer_divergence_frame": 262,
+    "model_frame_id_alignment_ratio": 1.0,
+    "pixel_sensitivity_classification": "candidate_pixel_sensitivity_increase_not_supported",
+    "pixel_sensitivity_sha256": "68654a84c7d91406876dd23bbf863e116bfdc1b20e25958d5ea56c8a44b39f61",
+    "repeat_divergence_classification": "closed_loop_bifurcation_observed",
+    "repeat_divergence_sha256": "fd9217332f65d65e5f25bef1caf61a0cb13ddd58618ec014fff5d70aed6279f0"
+  },
   "schema_version": 1,
   "scope": "simulator_specialist_speed_boundary_negative_case_not_road_performance",
   "training": {

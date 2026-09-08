@@ -31,11 +31,17 @@ def main() -> int:
   if (anchored.get("gate_status"), anchored.get("performance_eligible"), anchored.get("pass_count"),
       anchored.get("fail_count")) != ("fail", False, 2, 1):
     raise SystemExit("anchored repeatability gate drifted")
+  diagnosis = evidence.get("repeatability_diagnosis", {})
+  if diagnosis.get("repeat_divergence_classification") != "closed_loop_bifurcation_observed":
+    raise SystemExit("repeat-divergence diagnosis drifted")
+  if diagnosis.get("pixel_sensitivity_classification") != "candidate_pixel_sensitivity_increase_not_supported":
+    raise SystemExit("pixel-sensitivity diagnosis drifted")
   hashes = [evidence["baseline"]["gate_sha256"], evidence["localization"]["analysis_sha256"],
             evidence["training"]["metrics_sha256"], evidence["training"]["artifact_sha256"],
             *evidence["training"]["manifest_sha256"], evidence["candidate"]["summary_sha256"],
             evidence["candidate"]["analysis_sha256"], evidence["candidate"]["attempt_sha256"]]
   hashes.extend((anchored["selection_sha256"], anchored["gate_sha256"]))
+  hashes.extend((diagnosis["repeat_divergence_sha256"], diagnosis["pixel_sensitivity_sha256"]))
   if any(re.fullmatch(r"[0-9a-f]{64}", value) is None for value in hashes):
     raise SystemExit("invalid source hash")
   if any(token in evidence_text for token in FORBIDDEN):

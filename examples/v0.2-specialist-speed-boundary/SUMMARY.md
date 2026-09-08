@@ -17,3 +17,7 @@ Both RMSE values are incomplete-run diagnostics and are performance-ineligible. 
 ## Anchored follow-up
 
 An offline trust-region gate selected the minimum blend alpha `0.5` that improved targeted validation by 41.77% while limiting original-validation RMSE increase to 1.08%. Three fresh-seed closed-loop repeats produced `2 pass / 1 fail`; lateral RMSE was 0.49987, 0.53219, 0.70821 m. The failed repeat departed at 49.85 m despite unchanged source and host contracts. The candidate is therefore rejected for insufficient repeatability margin, and no regression or delay matrix follows.
+
+## Repeatability diagnosis
+
+Aligned telemetry found the first specialist-steer spread at simulation frame 262 and the first 5 cm lateral spread at frame 3571, while model-frame IDs remained aligned for 100% of common samples. A separate bounded static test applied ±1 pixel translations and ±2 luma changes to 32 temporal validation pairs. The anchored-to-v0.6 P95 output-delta ratio was 0.836, so increased static pixel sensitivity was not observed. This localizes a closed-loop margin problem but does not establish its cause; pixel shifts are not physical pose perturbations.

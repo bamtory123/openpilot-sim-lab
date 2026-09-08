@@ -17,6 +17,7 @@ def digest(path: Path) -> str:
 def render_summary(evidence: dict) -> str:
   baseline, candidate = evidence["baseline"], evidence["candidate"]
   anchored = evidence["anchored_followup"]
+  diagnosis = evidence["repeatability_diagnosis"]
   return f"""# 3.5 m/s targeted-DAgger boundary case
 
 ## Decision
@@ -36,6 +37,10 @@ Both RMSE values are incomplete-run diagnostics and are performance-ineligible. 
 ## Anchored follow-up
 
 An offline trust-region gate selected the minimum blend alpha `{anchored['selected_alpha']}` that improved targeted validation by {anchored['targeted_relative_improvement']:.2%} while limiting original-validation RMSE increase to {anchored['original_relative_change']:.2%}. Three fresh-seed closed-loop repeats produced `{anchored['pass_count']} pass / {anchored['fail_count']} fail`; lateral RMSE was {', '.join(f'{value:.5f}' for value in anchored['lateral_rmse_m'])} m. The failed repeat departed at 49.85 m despite unchanged source and host contracts. The candidate is therefore rejected for insufficient repeatability margin, and no regression or delay matrix follows.
+
+## Repeatability diagnosis
+
+Aligned telemetry found the first specialist-steer spread at simulation frame {diagnosis['first_steer_divergence_frame']} and the first 5 cm lateral spread at frame {diagnosis['first_lateral_divergence_frame']}, while model-frame IDs remained aligned for {diagnosis['model_frame_id_alignment_ratio']:.0%} of common samples. A separate bounded static test applied ±1 pixel translations and ±2 luma changes to 32 temporal validation pairs. The anchored-to-v0.6 P95 output-delta ratio was {diagnosis['candidate_to_baseline_pixel_p95_ratio']:.3f}, so increased static pixel sensitivity was not observed. This localizes a closed-loop margin problem but does not establish its cause; pixel shifts are not physical pose perturbations.
 """
 
 
@@ -68,6 +73,8 @@ def build(args: argparse.Namespace) -> dict:
   training = json.loads(args.training_metrics.read_text(encoding="utf-8"))
   anchored_selection = json.loads(args.anchored_selection.read_text(encoding="utf-8"))
   anchored_gate = json.loads(args.anchored_gate.read_text(encoding="utf-8"))
+  repeat_divergence = json.loads(args.repeat_divergence.read_text(encoding="utf-8"))
+  pixel_sensitivity = json.loads(args.pixel_sensitivity.read_text(encoding="utf-8"))
   manifests = [path.read_text(encoding="utf-8").splitlines() for path in args.targeted_manifest]
   candidate_departure = candidate_analysis["runs"][0]["first_lane_departure"]
   metrics = candidate_summary["metrics"]
@@ -117,6 +124,17 @@ def build(args: argparse.Namespace) -> dict:
       "lateral_rmse_m": [run["lateral_rmse_m"] for run in anchored_gate["runs"]],
       "decision": "reject_for_insufficient_repeatability_margin",
     },
+    "repeatability_diagnosis": {
+      "repeat_divergence_sha256": digest(args.repeat_divergence),
+      "repeat_divergence_classification": repeat_divergence["classification"],
+      "first_steer_divergence_frame": repeat_divergence["first_steer_divergence"]["simulation_frame"],
+      "first_lateral_divergence_frame": repeat_divergence["first_lateral_divergence"]["simulation_frame"],
+      "model_frame_id_alignment_ratio": repeat_divergence["model_frame_id_alignment_ratio"],
+      "pixel_sensitivity_sha256": digest(args.pixel_sensitivity),
+      "pixel_sensitivity_classification": pixel_sensitivity["classification"],
+      "candidate_to_baseline_pixel_p95_ratio": pixel_sensitivity["candidate_to_baseline_p95_ratio"],
+      "conclusion": "bounded_pixel_sensitivity_increase_not_supported_closed_loop_margin_unresolved",
+    },
     "decision": "reject_candidate_stop_before_repeat_and_delay_matrix",
   }
   serialized = json.dumps(evidence, indent=2, sort_keys=True) + "\n"
@@ -141,6 +159,8 @@ def parser() -> argparse.ArgumentParser:
   result.add_argument("--candidate-attempt", type=Path, required=True)
   result.add_argument("--anchored-selection", type=Path, required=True)
   result.add_argument("--anchored-gate", type=Path, required=True)
+  result.add_argument("--repeat-divergence", type=Path, required=True)
+  result.add_argument("--pixel-sensitivity", type=Path, required=True)
   result.add_argument("--output-dir", type=Path, required=True)
   return result
 

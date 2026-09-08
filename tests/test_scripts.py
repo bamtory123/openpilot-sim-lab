@@ -109,6 +109,12 @@ def test_speed_boundary_case_is_source_bound_and_public_safe(tmp_path):
   anchored_gate = write("anchored-gate.json", {"status": "fail", "aggregate": {"performance_eligible": False},
     "runs": [{"validity": "valid", "outcome": outcome, "lateral_rmse_m": rmse}
              for outcome, rmse in (("pass", 0.5), ("pass", 0.53), ("fail", 0.7))]})
+  repeat_divergence = write("repeat-divergence.json", {"classification": "closed_loop_bifurcation_observed",
+    "first_steer_divergence": {"simulation_frame": 200}, "first_lateral_divergence": {"simulation_frame": 300},
+    "model_frame_id_alignment_ratio": 1.0})
+  pixel_sensitivity = write("pixel-sensitivity.json", {
+    "classification": "candidate_pixel_sensitivity_increase_not_supported",
+    "candidate_to_baseline_p95_ratio": 0.8})
   output = tmp_path / "public"
   subprocess.run([sys.executable, str(ROOT / "scripts/build_speed_boundary_case.py"),
     "--baseline-gate", str(gate), "--departure-analysis", str(localization),
@@ -116,6 +122,7 @@ def test_speed_boundary_case_is_source_bound_and_public_safe(tmp_path):
     "--artifact", str(artifact), "--candidate-summary", str(summary),
     "--candidate-analysis", str(candidate_analysis), "--candidate-attempt", str(attempt),
     "--anchored-selection", str(anchored_selection), "--anchored-gate", str(anchored_gate),
+    "--repeat-divergence", str(repeat_divergence), "--pixel-sensitivity", str(pixel_sensitivity),
     "--output-dir", str(output)], check=True)
   subprocess.run([sys.executable, str(ROOT / "scripts/verify_speed_boundary_case.py"), str(output)], check=True)
 
@@ -123,6 +130,7 @@ def test_speed_boundary_case_is_source_bound_and_public_safe(tmp_path):
   assert evidence["decision"] == "reject_candidate_stop_before_repeat_and_delay_matrix"
   assert evidence["training"]["train_samples"] == 2
   assert evidence["anchored_followup"]["pass_count"] == 2
+  assert evidence["repeatability_diagnosis"]["candidate_to_baseline_pixel_p95_ratio"] == 0.8
   assert len(evidence["training"]["artifact_sha256"]) == 64
   assert str(tmp_path) not in json.dumps(evidence)
 
@@ -143,6 +151,44 @@ def test_anchored_temporal_artifact_is_exact_prediction_blend():
 
   expected = (1 - alpha) * anchored.predict(base, features) + alpha * anchored.predict(update, features)
   np.testing.assert_allclose(anchored.predict(blended, features), expected, atol=1e-12)
+
+
+def test_repeat_divergence_analysis_separates_control_and_trajectory(tmp_path):
+  fieldnames = ["measurement", "simulation_frame", "specialist_replay_normalized_steer", "lateral_error_m",
+                "position_x_m", "position_y_m", "model_frame_id", "lane_departure", "route_progress_m"]
+  paths = []
+  for run_index in range(3):
+    path = tmp_path / f"telemetry-{run_index}.csv"
+    with path.open("w", newline="", encoding="utf-8") as stream:
+      writer = csv.DictWriter(stream, fieldnames=fieldnames); writer.writeheader()
+      for frame in (100, 200, 300):
+        writer.writerow({"measurement": True, "simulation_frame": frame,
+          "specialist_replay_normalized_steer": 0.01 if run_index == 2 and frame >= 200 else 0.0,
+          "lateral_error_m": 0.1 if run_index == 2 and frame >= 300 else 0.0,
+          "position_x_m": frame, "position_y_m": 0.1 if run_index == 2 and frame >= 300 else 0.0,
+          "model_frame_id": frame // 5, "lane_departure": run_index == 2 and frame == 300,
+          "route_progress_m": frame / 10})
+    paths.append(path)
+  output = tmp_path / "divergence.json"
+  subprocess.run([sys.executable, str(ROOT / "scripts/analyze_repeat_divergence.py"),
+                  "--telemetry", *(str(path) for path in paths), "--output", str(output)], check=True)
+  result = json.loads(output.read_text(encoding="utf-8"))
+
+  assert result["classification"] == "closed_loop_bifurcation_observed"
+  assert result["first_steer_divergence"]["simulation_frame"] == 200
+  assert result["first_lateral_divergence"]["simulation_frame"] == 300
+  assert result["model_frame_id_alignment_ratio"] == 1.0
+
+
+def test_pixel_sensitivity_transforms_do_not_wrap_edges():
+  import importlib.util
+  spec = importlib.util.spec_from_file_location("pixel_sensitivity", ROOT / "scripts/analyze_specialist_pixel_sensitivity.py")
+  module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+  image = np.arange(18, dtype=np.uint8).reshape(2, 3, 3)
+
+  shifted = module.shift(image, dx=1)
+  np.testing.assert_array_equal(shifted[:, 0], shifted[:, 1])
+  assert module.brighten(np.array([[[0, 254, 255]]], dtype=np.uint8), 2).tolist() == [[[2, 255, 255]]]
 
 
 def test_real_camera_replay_setup_pins_compatible_ffmpeg():
